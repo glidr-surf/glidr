@@ -12,12 +12,14 @@ function SurferRating({ rating }: { rating: number }) {
 
 export default function BoardRow({ board }: { board: Board }) {
   return (
-    <div className="grid grid-cols-[56px_52px_1fr] gap-lg py-lg border-b border-border-soft items-start">
-      <img
-        src={board.image}
-        alt={board.name}
-        className="w-[56px] h-[56px] object-cover object-top border border-border"
-      />
+    <div className="grid grid-cols-[72px_52px_1fr] gap-lg py-lg border-b border-border-soft items-start">
+      <div className="w-[72px] h-[90px] overflow-hidden rounded-sm bg-[#E8DCC4] border border-border-soft">
+        <img
+          src={board.image}
+          alt={board.name}
+          className="w-full h-full object-cover object-top mix-blend-multiply"
+        />
+      </div>
       <div>
         <div className={`font-display text-rating ${boardTypeColor[board.type]}`}>
           {board.rating.toFixed(1)}

@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
   <rect width="1200" height="630" fill="#F2E6CE"/>
-  <!-- Logo centered -->
-  <g transform="translate(370, 240) scale(1.8)">
+  <!-- Logo left-of-center -->
+  <g transform="translate(160, 240) scale(1.8)">
     <path d="M0 0h40v10H10v32h20V28H18v-10h22v34H0z" fill="#1A1714"/>
     <path d="M52 0h10v42h24v10H52z" fill="#1A1714"/>
     <path d="M96 0h10v52H96z" fill="#1A1714"/>
@@ -9,5 +9,5 @@
     <path d="M170 0h26c11 0 18 7 18 19 0 9-4 15-12 18l14 15h-14l-13-14h-9v14h-10zm10 10v18h14c6 0 10-4 10-9s-4-9-10-9z" fill="#1A1714"/>
   </g>
   <!-- Red accent bar -->
-  <rect x="560" y="360" width="80" height="4" fill="#E8432A"/>
+  <rect x="350" y="360" width="80" height="4" fill="#E8432A"/>
 </svg>
