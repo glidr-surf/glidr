@@ -17,7 +17,7 @@ export default function LandingPage() {
           <Hero />
 
           {/* Right column: Board list + stat stack (desktop) */}
-          <div className="hidden lg:grid lg:grid-cols-[1fr_auto] lg:gap-lg lg:items-start lg:min-h-0 animate-fade-up-4">
+          <div className="hidden lg:grid lg:grid-cols-[1fr_auto] lg:gap-lg lg:items-stretch lg:min-h-0 animate-fade-up-4">
             <BoardList />
             <StatStack />
           </div>

@@ -13,6 +13,11 @@ export default function StatBlock({ stat }: { stat: Stat }) {
       <div className="font-mono text-micro tracking-[0.08em] opacity-70 mt-[2px]">
         {stat.label}
       </div>
+      {stat.sublabel && (
+        <div className="font-mono text-micro tracking-[0.08em] opacity-50 mt-[1px]">
+          {stat.sublabel}
+        </div>
+      )}
     </div>
   );
 }
