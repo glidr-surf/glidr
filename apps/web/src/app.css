@@ -1,0 +1,98 @@
+@import "tailwindcss" theme(static);
+
+@theme {
+  --color-bg: #F2E6CE;
+  --color-text: #1A1714;
+  --color-text-mid: #6A5A40;
+  --color-text-light: #8A7A60;
+  --color-border: #1A1714;
+  --color-border-soft: #D8C8A8;
+  --color-red: #E8432A;
+  --color-yellow: #FFD000;
+  --color-blue: #2A5CA8;
+  --color-green: #2A7A4A;
+
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 0.75rem;
+  --spacing-lg: 1rem;
+  --spacing-xl: 1.5rem;
+  --spacing-2xl: 2.25rem;
+  --spacing-3xl: 3rem;
+  --spacing-4xl: 4rem;
+
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+
+  --text-display-xl: clamp(3rem, 6vw, 4.75rem);
+  --text-display-xl--line-height: 0.9;
+  --text-display-xl--letter-spacing: 1px;
+
+  --text-display-l: 3rem;
+  --text-display-l--line-height: 0.95;
+  --text-display-l--letter-spacing: 1px;
+
+  --text-display-m: 2rem;
+  --text-display-m--line-height: 1;
+  --text-display-m--letter-spacing: 1px;
+
+  --text-display-s: 1.125rem;
+  --text-display-s--line-height: 1.1;
+  --text-display-s--letter-spacing: 1px;
+
+  --text-rating: 1.75rem;
+  --text-rating--line-height: 1;
+
+  --text-body-l: 0.9375rem;
+  --text-body-l--line-height: 1.8;
+
+  --text-body-m: 0.8125rem;
+  --text-body-m--line-height: 1.6;
+
+  --text-body-s: 0.75rem;
+  --text-body-s--line-height: 1.5;
+
+  --text-body-xs: 0.6875rem;
+  --text-body-xs--line-height: 1.5;
+
+  --text-label: 0.625rem;
+  --text-label--line-height: 1.4;
+  --text-label--letter-spacing: 0.15em;
+
+  --text-tag: 0.5625rem;
+  --text-tag--line-height: 1.4;
+  --text-tag--letter-spacing: 0.08em;
+
+  --text-micro: 0.5rem;
+  --text-micro--line-height: 1.4;
+  --text-micro--letter-spacing: 0.08em;
+
+  --animate-fade-up: fadeUp 0.4s ease-out both;
+  --animate-fade-up-1: fadeUp 0.4s ease-out 0.05s both;
+  --animate-fade-up-2: fadeUp 0.4s ease-out 0.1s both;
+  --animate-fade-up-3: fadeUp 0.4s ease-out 0.15s both;
+  --animate-fade-up-4: fadeUp 0.4s ease-out 0.2s both;
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
+html, body {
+  @apply font-body bg-bg text-text antialiased;
+}
+
+/* Film grain overlay */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 256px;
+}
