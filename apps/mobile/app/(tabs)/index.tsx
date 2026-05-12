@@ -286,14 +286,14 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 2,
-    borderColor: colors.border,
+    backgroundColor: colors.surface,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     gap: spacing.sm,
   },
   searchBarFocused: {
-    borderColor: colors.red,
+    borderBottomWidth: 2,
+    borderBottomColor: colors.red,
   },
   searchInput: {
     flex: 1,
@@ -307,11 +307,11 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
   },
   section: {
-    marginBottom: spacing.lg,
+    marginBottom: spacing['2xl'],
   },
   sectionLabel: {
     paddingHorizontal: spacing.xl,
-    marginBottom: spacing.sm,
+    marginBottom: spacing.md,
   },
   trendingScroll: {
     paddingHorizontal: spacing.xl,
