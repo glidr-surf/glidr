@@ -6,6 +6,8 @@ import { BebasNeue_400Regular } from '@expo-google-fonts/bebas-neue';
 import { DMSans_400Regular, DMSans_500Medium, DMSans_600SemiBold, DMSans_700Bold } from '@expo-google-fonts/dm-sans';
 import { DMMono_400Regular, DMMono_500Medium } from '@expo-google-fonts/dm-mono';
 import { colors } from '../src/theme/colors';
+import { AuthProvider } from '../src/context/AuthContext';
+import { AuthModal } from '../src/components/AuthModal';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -27,15 +29,19 @@ export default function RootLayout() {
   if (!fontsLoaded) return null;
 
   return (
-    <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }}>
-      <Stack.Screen name="(tabs)" />
-      <Stack.Screen name="board/[id]" options={{ presentation: 'card' }} />
-      <Stack.Screen name="shaper/[id]" options={{ presentation: 'card' }} />
-      <Stack.Screen name="user/[id]" options={{ presentation: 'card' }} />
-      <Stack.Screen name="badges" options={{ presentation: 'card' }} />
-      <Stack.Screen name="settings" options={{ presentation: 'card' }} />
-      <Stack.Screen name="rate-flow" options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }} />
-      <Stack.Screen name="add-board" options={{ presentation: 'card' }} />
-    </Stack>
+    <AuthProvider>
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }}>
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="board/[id]" options={{ presentation: 'card' }} />
+        <Stack.Screen name="shaper/[id]" options={{ presentation: 'card' }} />
+        <Stack.Screen name="user/[id]" options={{ presentation: 'card' }} />
+        <Stack.Screen name="badges" options={{ presentation: 'card' }} />
+        <Stack.Screen name="settings" options={{ presentation: 'card' }} />
+        <Stack.Screen name="rate-flow" options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }} />
+        <Stack.Screen name="add-board" options={{ presentation: 'card' }} />
+        <Stack.Screen name="username-picker" options={{ presentation: 'fullScreenModal', gestureEnabled: false }} />
+      </Stack>
+      <AuthModal />
+    </AuthProvider>
   );
 }
