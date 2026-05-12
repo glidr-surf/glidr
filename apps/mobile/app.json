@@ -1,0 +1,33 @@
+{
+  "expo": {
+    "name": "Glidr",
+    "slug": "glidr",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "glidr",
+    "platforms": [
+      "ios",
+      "android"
+    ],
+    "icon": "./assets/icon.svg",
+    "splash": {
+      "backgroundColor": "#F2E6CE"
+    },
+    "ios": {
+      "bundleIdentifier": "surf.glidr.app",
+      "supportsTablet": false
+    },
+    "android": {
+      "package": "surf.glidr.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#F2E6CE"
+      }
+    },
+    "experiments": {
+      "typedRoutes": true
+    },
+    "plugins": [
+      "expo-router"
+    ]
+  }
+}
