@@ -1,4 +1,14 @@
-import { type Board, boardTypeColor } from '../data';
+import type { Board, BoardType } from '@glidr/data';
+
+const boardTypeColor: Record<BoardType, string> = {
+  FISH: 'text-red',
+  SHORT: 'text-red',
+  LOG: 'text-yellow',
+  MID: 'text-blue',
+  ALT: 'text-green',
+  EGG: 'text-green',
+  GUN: 'text-red',
+};
 
 const typeBgClass: Record<string, string> = {
   'text-red': 'bg-red/10',
@@ -18,7 +28,7 @@ function SurferRating({ rating }: { rating: number }) {
 }
 
 function TypeBadge({ type }: { type: string }) {
-  const color = boardTypeColor[type as keyof typeof boardTypeColor] || 'text-text-light';
+  const color = boardTypeColor[type as BoardType] || 'text-text-light';
   return (
     <span className={`font-mono text-[0.6875rem] tracking-[0.1em] px-[6px] py-[1px] ${color} ${typeBgClass[color] || ''}`}>
       {type}
@@ -26,12 +36,18 @@ function TypeBadge({ type }: { type: string }) {
   );
 }
 
-export default function BoardRow({ board }: { board: Board }) {
+interface BoardRowProps {
+  board: Board;
+  review?: string;
+  user?: string;
+}
+
+export default function BoardRow({ board, review, user }: BoardRowProps) {
   return (
     <div className="group grid grid-cols-[60px_1fr] lg:grid-cols-[72px_56px_1fr] gap-md lg:gap-lg py-lg border-b border-border-soft items-start transition-colors hover:bg-[#EDE1C5]/40">
       <div className="w-[60px] h-[80px] lg:w-[72px] lg:h-[90px] overflow-hidden bg-[#E8DCC4] border border-border-soft">
         <img
-          src={board.image}
+          src={board.imageUrl}
           alt={board.name}
           className="w-full h-full object-cover object-top mix-blend-multiply group-hover:scale-105 transition-transform duration-300"
         />
@@ -62,11 +78,13 @@ export default function BoardRow({ board }: { board: Board }) {
         </div>
 
         <div className="text-body-xs text-text-mid italic mt-xs line-clamp-2">
-          {board.review}
+          {review}
         </div>
-        <div className="mt-xs">
-          <span className="font-mono text-micro text-text-light tracking-[0.03em]">@{board.user}</span>
-        </div>
+        {user && (
+          <div className="mt-xs">
+            <span className="font-mono text-micro text-text-light tracking-[0.03em]">@{user}</span>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,4 +1,9 @@
-import { type Stat } from '../data';
+export interface Stat {
+  value: string;
+  label: string;
+  sublabel?: string;
+  color: 'red' | 'yellow' | 'blue';
+}
 
 const bgClass = {
   red: 'bg-red text-bg',

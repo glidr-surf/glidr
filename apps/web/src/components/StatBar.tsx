@@ -3,7 +3,7 @@ import { getLandingStats } from '@glidr/data';
 import { supabase } from '../lib/supabase';
 import StatBlock, { type Stat } from './StatBlock';
 
-export default function StatStack() {
+export default function StatBar() {
   const [stats, setStats] = useState<Stat[]>([]);
 
   useEffect(() => {
@@ -17,7 +17,7 @@ export default function StatStack() {
   }, []);
 
   return (
-    <div className="border-2 border-border flex flex-row lg:flex-col lg:w-[120px] shrink-0 [&>*+*]:border-t-0 [&>*+*]:border-l-2 lg:[&>*+*]:border-l-0 lg:[&>*+*]:border-t-2 [&>*+*]:border-border [&>*]:flex-1">
+    <div className="flex border-2 border-border [&>*+*]:border-l-2 [&>*+*]:border-border [&>*]:flex-1">
       {stats.map((stat) => (
         <StatBlock key={stat.label} stat={stat} />
       ))}
