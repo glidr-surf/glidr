@@ -144,14 +144,12 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   chip: {
-    borderWidth: 1,
-    borderColor: colors.border,
+    backgroundColor: colors.surface,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
   },
   chipSelected: {
     backgroundColor: colors.red,
-    borderColor: colors.red,
   },
   chipText: {
     color: colors.textMid,
