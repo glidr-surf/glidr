@@ -3,6 +3,7 @@ import { View, ScrollView, Pressable, Switch, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { CaretLeft } from 'phosphor-react-native';
 import { GText } from '../src/components/GText';
+import { CardGroup } from '../src/components/CardGroup';
 import { colors } from '../src/theme/colors';
 import { spacing } from '../src/theme/spacing';
 import { mockCurrentUser } from '../src/data/mock';
@@ -29,22 +30,22 @@ export default function SettingsScreen() {
 
         {/* Profile */}
         <View style={styles.section}>
-          <GText variant="label">PROFILE</GText>
+          <GText variant="label" style={styles.sectionLabel}>PROFILE</GText>
           {isAuthenticated ? (
-            <>
-              <View style={styles.field}>
+            <CardGroup>
+              <View style={styles.cardField}>
                 <GText variant="bodyS" color={colors.textMid}>USERNAME</GText>
                 <GText variant="bodyM">{mockCurrentUser.username}</GText>
               </View>
-              <View style={styles.field}>
+              <View style={styles.cardField}>
                 <GText variant="bodyS" color={colors.textMid}>HEIGHT</GText>
                 <GText variant="bodyM">{mockCurrentUser.height ?? '—'}</GText>
               </View>
-              <View style={styles.field}>
+              <View style={styles.cardField}>
                 <GText variant="bodyS" color={colors.textMid}>WEIGHT</GText>
                 <GText variant="bodyM">{mockCurrentUser.weight ?? '—'}</GText>
               </View>
-            </>
+            </CardGroup>
           ) : (
             <Pressable style={styles.button} onPress={showAuthModal}>
               <GText variant="label">SIGN IN</GText>
@@ -54,8 +55,8 @@ export default function SettingsScreen() {
 
         {/* Units */}
         <View style={styles.section}>
-          <GText variant="label">UNITS</GText>
-          <GText variant="bodyXs" color={colors.textMid}>Body measurements. Board dimensions always imperial.</GText>
+          <GText variant="label" style={styles.sectionLabel}>UNITS</GText>
+          <GText variant="bodyXs" color={colors.textMid} style={styles.sectionLabel}>Body measurements. Board dimensions always imperial.</GText>
           <View style={styles.toggleRow}>
             <Pressable
               onPress={() => setUnits('imperial')}
@@ -78,52 +79,56 @@ export default function SettingsScreen() {
 
         {/* Notifications */}
         <View style={styles.section}>
-          <GText variant="label">NOTIFICATIONS</GText>
-          <View style={styles.switchRow}>
-            <GText variant="bodyM" style={styles.switchLabel}>Upvotes on your opinions</GText>
-            <Switch
-              value={notifyUpvotes}
-              onValueChange={setNotifyUpvotes}
-              trackColor={{ false: colors.borderSoft, true: colors.red }}
-              thumbColor={colors.white}
-            />
-          </View>
-          <View style={styles.switchRow}>
-            <GText variant="bodyM" style={styles.switchLabel}>New followers</GText>
-            <Switch
-              value={notifyFollowers}
-              onValueChange={setNotifyFollowers}
-              trackColor={{ false: colors.borderSoft, true: colors.red }}
-              thumbColor={colors.white}
-            />
-          </View>
-          <View style={styles.switchRow}>
-            <GText variant="bodyM" style={styles.switchLabel}>New verdicts on your boards</GText>
-            <Switch
-              value={notifyVerdicts}
-              onValueChange={setNotifyVerdicts}
-              trackColor={{ false: colors.borderSoft, true: colors.red }}
-              thumbColor={colors.white}
-            />
-          </View>
+          <GText variant="label" style={styles.sectionLabel}>NOTIFICATIONS</GText>
+          <CardGroup>
+            <View style={styles.cardSwitchRow}>
+              <GText variant="bodyM" style={styles.switchLabel}>Upvotes on your opinions</GText>
+              <Switch
+                value={notifyUpvotes}
+                onValueChange={setNotifyUpvotes}
+                trackColor={{ false: colors.borderSoft, true: colors.red }}
+                thumbColor={colors.white}
+              />
+            </View>
+            <View style={styles.cardSwitchRow}>
+              <GText variant="bodyM" style={styles.switchLabel}>New followers</GText>
+              <Switch
+                value={notifyFollowers}
+                onValueChange={setNotifyFollowers}
+                trackColor={{ false: colors.borderSoft, true: colors.red }}
+                thumbColor={colors.white}
+              />
+            </View>
+            <View style={styles.cardSwitchRow}>
+              <GText variant="bodyM" style={styles.switchLabel}>New verdicts on your boards</GText>
+              <Switch
+                value={notifyVerdicts}
+                onValueChange={setNotifyVerdicts}
+                trackColor={{ false: colors.borderSoft, true: colors.red }}
+                thumbColor={colors.white}
+              />
+            </View>
+          </CardGroup>
         </View>
 
         {/* Account */}
         <View style={styles.section}>
-          <GText variant="label">ACCOUNT</GText>
+          <GText variant="label" style={styles.sectionLabel}>ACCOUNT</GText>
           {isAuthenticated ? (
             <>
-              <View style={styles.field}>
-                <GText variant="bodyS" color={colors.textMid}>SIGNED IN VIA</GText>
-                <GText variant="bodyM">Google</GText>
-              </View>
-              <Pressable style={styles.button} onPress={signOut}>
-                <GText variant="label">SIGN OUT</GText>
-              </Pressable>
-              <Pressable style={styles.dangerButton}>
-                <GText variant="label" color={colors.red}>DELETE ACCOUNT</GText>
-              </Pressable>
-              <GText variant="bodyXs" color={colors.textLight}>
+              <CardGroup>
+                <View style={styles.cardField}>
+                  <GText variant="bodyS" color={colors.textMid}>SIGNED IN VIA</GText>
+                  <GText variant="bodyM">Google</GText>
+                </View>
+                <Pressable style={styles.cardAction} onPress={signOut}>
+                  <GText variant="label">SIGN OUT</GText>
+                </Pressable>
+                <Pressable style={styles.cardAction}>
+                  <GText variant="label" color={colors.red}>DELETE ACCOUNT</GText>
+                </Pressable>
+              </CardGroup>
+              <GText variant="bodyXs" color={colors.textLight} style={styles.accountNote}>
                 This removes all your opinions. The boards won't miss you either.
               </GText>
             </>
@@ -162,20 +167,34 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.md,
   },
   section: {
-    padding: spacing.xl,
     paddingTop: 0,
     gap: spacing.md,
     marginBottom: spacing.md,
   },
-  field: {
+  sectionLabel: {
+    paddingHorizontal: spacing.xl,
+  },
+  cardField: {
     gap: 4,
-    paddingVertical: spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borderSoft,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+  },
+  cardAction: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    alignItems: 'center',
+  },
+  cardSwitchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
   },
   toggleRow: {
     flexDirection: 'row',
     gap: 0,
+    marginHorizontal: spacing.xl,
   },
   toggleOption: {
     flex: 1,
@@ -188,14 +207,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.red,
     borderColor: colors.red,
   },
-  switchRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borderSoft,
-  },
   switchLabel: {
     flex: 1,
   },
@@ -204,12 +215,11 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     paddingVertical: spacing.md,
     alignItems: 'center',
+    marginHorizontal: spacing.xl,
   },
-  dangerButton: {
-    borderWidth: 2,
-    borderColor: colors.red,
-    paddingVertical: spacing.md,
-    alignItems: 'center',
+  accountNote: {
+    paddingHorizontal: spacing.xl,
+    marginTop: spacing.sm,
   },
   footer: {
     padding: spacing.xl,

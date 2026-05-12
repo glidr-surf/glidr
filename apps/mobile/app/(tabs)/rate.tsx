@@ -52,6 +52,8 @@ export default function RateScreen() {
             onPress={() => requireAuth(() => router.push(`/rate-flow?boardId=${item.id}` as any))}
           />
         )}
+        style={styles.boardList}
+        ItemSeparatorComponent={() => <View style={styles.listSeparator} />}
         ListHeaderComponent={
           <View style={styles.header}>
             <GText variant="displayL">RATE A BOARD</GText>
@@ -100,8 +102,7 @@ const styles = StyleSheet.create({
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 2,
-    borderColor: colors.border,
+    backgroundColor: colors.surface,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     gap: spacing.sm,
@@ -117,10 +118,8 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borderSoft,
     gap: spacing.md,
   },
   rowTag: {
@@ -133,11 +132,19 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 2,
   },
+  boardList: {
+    marginHorizontal: spacing.xl,
+    backgroundColor: colors.surfaceCard,
+    borderRadius: 2,
+    overflow: 'hidden',
+  },
+  listSeparator: {
+    height: 1,
+    backgroundColor: colors.borderSoft,
+  },
   addBoard: {
     padding: spacing.xl,
     alignItems: 'center',
-    borderTopWidth: 1,
-    borderTopColor: colors.borderSoft,
     marginTop: spacing.md,
   },
   empty: {
