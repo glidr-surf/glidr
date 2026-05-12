@@ -16,3 +16,4 @@ export type {
   SubmitBoardInput,
   SubmitShaperInput,
 } from './types';
+export { createClient, type SupabaseClient } from './client';
