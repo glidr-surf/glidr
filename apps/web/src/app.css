@@ -8,7 +8,7 @@
   --color-border: #1A1714;
   --color-border-soft: #D8C8A8;
   --color-red: #E8432A;
-  --color-yellow: #FFD000;
+  --color-yellow: #C8A000;
   --color-blue: #2A5CA8;
   --color-green: #2A7A4A;
 
@@ -80,8 +80,17 @@
   }
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 html, body {
   @apply font-body bg-bg text-text antialiased;
+}
+
+::selection {
+  background: #E8432A;
+  color: #F2E6CE;
 }
 
 /* Film grain overlay */

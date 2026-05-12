@@ -45,7 +45,7 @@ export default function WaitlistForm() {
       <button
         type="submit"
         disabled={status === 'sending'}
-        className="font-display text-body-m tracking-[2px] px-xl py-md bg-text text-bg border-none cursor-pointer disabled:opacity-50"
+        className="font-display text-body-m tracking-[2px] px-xl py-md bg-text text-bg border-none cursor-pointer disabled:opacity-50 hover:bg-red transition-colors duration-200"
       >
         {status === 'sending' ? '...' : 'JOIN'}
       </button>
