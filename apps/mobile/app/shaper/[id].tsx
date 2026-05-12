@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { View, FlatList, Pressable, StyleSheet } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { CaretLeft, ShareNetwork } from 'phosphor-react-native';
@@ -8,7 +8,9 @@ import { BoardTile } from '../../src/components/BoardTile';
 import { Chips } from '../../src/components/Chips';
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
-import { mockShapers, mockBoards } from '../../src/data/mock';
+import { getShaper, getBoards } from '@glidr/data';
+import type { Shaper, Board } from '@glidr/data';
+import { supabase } from '../../src/lib/supabase';
 
 const SORT_OPTIONS = ['HIGHEST RATED', 'MOST OPINIONED', 'NEWEST'];
 
@@ -17,15 +19,24 @@ export default function ShaperScreen() {
   const router = useRouter();
   const [sort, setSort] = useState('HIGHEST RATED');
   const [bioExpanded, setBioExpanded] = useState(false);
+  const [shaper, setShaper] = useState<Shaper | null>(null);
+  const [allBoards, setAllBoards] = useState<Board[]>([]);
 
-  const shaper = mockShapers.find((s) => s.id === id) ?? mockShapers[0];
+  useEffect(() => {
+    if (!id) return;
+    getShaper(supabase, id).then((s) => { if (s) setShaper(s); });
+    getBoards(supabase).then(setAllBoards);
+  }, [id]);
 
   const boards = useMemo(() => {
-    const shaperBoards = mockBoards.filter((b) => b.shaperId === shaper.id);
+    if (!shaper) return [];
+    const shaperBoards = allBoards.filter((b) => b.shaperId === shaper.id);
     if (sort === 'HIGHEST RATED') return [...shaperBoards].sort((a, b) => b.rating - a.rating);
     if (sort === 'MOST OPINIONED') return [...shaperBoards].sort((a, b) => b.opinionCount - a.opinionCount);
     return shaperBoards;
-  }, [shaper.id, sort]);
+  }, [shaper, allBoards, sort]);
+
+  if (!shaper) return null;
 
   const gridHeader = (
     <View>
@@ -77,7 +88,7 @@ export default function ShaperScreen() {
       {shaper.topVibeTag && (
         <View style={styles.vibeTagRow}>
           <View style={styles.vibeTag}>
-            <GText variant="micro" color={colors.white}>{shaper.topVibeTag}</GText>
+            <GText variant="caption" color={colors.white}>{shaper.topVibeTag}</GText>
           </View>
         </View>
       )}

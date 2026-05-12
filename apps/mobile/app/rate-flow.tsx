@@ -1,8 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { mockBoards } from '../src/data/mock';
+import { getBoard, submitOpinion } from '@glidr/data';
+import type { Board } from '@glidr/data';
+import { supabase } from '../src/lib/supabase';
+import { useAuth } from '../src/context/AuthContext';
 import { colors } from '../src/theme/colors';
 import { RatingStep } from '../src/components/rate/RatingStep';
 import { VibeCheckStep } from '../src/components/rate/VibeCheckStep';
@@ -30,10 +33,15 @@ const STEP_ORDER: RateFlowStep[] = [
 export default function RateFlowScreen() {
   const router = useRouter();
   const { boardId } = useLocalSearchParams<{ boardId: string; opinionId?: string }>();
+  const { user } = useAuth();
+  const [board, setBoard] = useState<Board | null>(null);
 
-  const board = mockBoards.find((b) => b.id === boardId) ?? mockBoards[0];
+  useEffect(() => {
+    if (!boardId) return;
+    getBoard(supabase, boardId).then((b) => { if (b) setBoard(b); });
+  }, [boardId]);
 
-  const [state, setState] = useState<RateFlowState>(() => createInitialState(board.id));
+  const [state, setState] = useState<RateFlowState>(() => createInitialState(boardId ?? ''));
 
   const onUpdate = (updates: Partial<RateFlowState>) => {
     setState((prev) => ({ ...prev, ...updates }));
@@ -49,13 +57,36 @@ export default function RateFlowScreen() {
     }
   };
 
-  const onFinish = () => {
+  const onFinish = async () => {
+    if (user) {
+      await submitOpinion(supabase, user.id, {
+        boardId: state.boardId,
+        text: state.text,
+        scores: {
+          overall_rating: state.rating,
+          buy_again: state.buyAgain ? 1 : 0,
+          ...(state.speed != null ? { speed: state.speed } : {}),
+          ...(state.manoeuvrability != null ? { manoeuvrability: state.manoeuvrability } : {}),
+          ...(state.paddlePower != null ? { paddle_power: state.paddlePower } : {}),
+        },
+        tags: {
+          ...(state.vibeTag ? { vibe_tag: [state.vibeTag] } : {}),
+          ...(state.waveSizes.length > 0 ? { wave_size: state.waveSizes } : {}),
+          ...(state.waveQualities.length > 0 ? { wave_quality: state.waveQualities } : {}),
+          ...(state.quiverRole ? { quiver_role: [state.quiverRole] } : {}),
+          ...(state.finSetup.length > 0 ? { fin_setup: state.finSetup } : {}),
+          ...(state.boardLength ? { board_length: [state.boardLength] } : {}),
+        },
+      });
+    }
     router.back();
   };
 
   const onDeepDive = () => {
     setState((prev) => ({ ...prev, step: 'ride' }));
   };
+
+  if (!board) return null;
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>

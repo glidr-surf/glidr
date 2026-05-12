@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { View, TextInput, FlatList, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MagnifyingGlass } from 'phosphor-react-native';
@@ -14,7 +14,9 @@ import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
 import { fonts } from '../../src/theme/typography';
 import { BOARD_TYPES } from '../../src/theme/boardTypes';
-import { mockBoards, mockShapers, mockOpinions } from '../../src/data/mock';
+import { getBoards, getShapers, getOpinions } from '@glidr/data';
+import type { Board, Shaper, Opinion } from '@glidr/data';
+import { supabase } from '../../src/lib/supabase';
 
 const FILTER_OPTIONS = ['ALL', ...BOARD_TYPES];
 const SORT_OPTIONS = ['HIGHEST RATED', 'MOST OPINIONED', 'NEWEST'];
@@ -24,39 +26,48 @@ export default function HomeScreen() {
   const [query, setQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState('ALL');
   const [sort, setSort] = useState('HIGHEST RATED');
+  const [boards, setBoards] = useState<Board[]>([]);
+  const [shapers, setShapers] = useState<Shaper[]>([]);
+  const [opinions, setOpinions] = useState<Opinion[]>([]);
+
+  useEffect(() => {
+    getBoards(supabase).then(setBoards);
+    getShapers(supabase).then(setShapers);
+    getOpinions(supabase, {}).then(setOpinions);
+  }, []);
 
   const isSearching = query.length > 0;
 
-  const boardMap = Object.fromEntries(mockBoards.map((b) => [b.id, b]));
+  const boardMap = Object.fromEntries(boards.map((b) => [b.id, b]));
 
   const filteredBoards = useMemo(() => {
-    let boards = [...mockBoards];
+    let result = [...boards];
     if (typeFilter !== 'ALL') {
-      boards = boards.filter((b) => b.type === typeFilter);
+      result = result.filter((b) => b.type === typeFilter);
     }
-    if (sort === 'HIGHEST RATED') boards.sort((a, b) => b.rating - a.rating);
-    else if (sort === 'MOST OPINIONED') boards.sort((a, b) => b.opinionCount - a.opinionCount);
-    return boards;
-  }, [typeFilter, sort]);
+    if (sort === 'HIGHEST RATED') result.sort((a, b) => b.rating - a.rating);
+    else if (sort === 'MOST OPINIONED') result.sort((a, b) => b.opinionCount - a.opinionCount);
+    return result;
+  }, [boards, typeFilter, sort]);
 
   const searchResults = useMemo(() => {
     if (!isSearching) return { boards: [], shapers: [] };
     const q = query.toLowerCase();
     return {
-      boards: mockBoards.filter(
+      boards: boards.filter(
         (b) => b.name.toLowerCase().includes(q) || b.shaper.toLowerCase().includes(q),
       ),
-      shapers: mockShapers.filter(
+      shapers: shapers.filter(
         (s) => s.name.toLowerCase().includes(q) || (s.location?.toLowerCase().includes(q) ?? false),
       ),
     };
-  }, [query, isSearching]);
+  }, [boards, shapers, query, isSearching]);
 
-  const trendingBoards = [...mockBoards]
+  const trendingBoards = [...boards]
     .sort((a, b) => b.opinionCount - a.opinionCount)
     .slice(0, 4);
 
-  const latestOpinions = [...mockOpinions]
+  const latestOpinions = [...opinions]
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, 6);
 
@@ -97,9 +108,9 @@ export default function HomeScreen() {
                   </View>
                   <View style={styles.searchResultText}>
                     <GText variant="bodyM">{shaper.name}</GText>
-                    {shaper.location && <GText variant="bodyXs">{shaper.location}</GText>}
+                    {shaper.location && <GText variant="caption">{shaper.location}</GText>}
                   </View>
-                  <GText variant="bodyXs">{shaper.boardCount} boards</GText>
+                  <GText variant="caption">{shaper.boardCount} boards</GText>
                 </Pressable>
               ))}
             </View>
@@ -119,11 +130,11 @@ export default function HomeScreen() {
                   </View>
                   <View style={styles.searchResultText}>
                     <GText variant="bodyM">{board.name}</GText>
-                    <GText variant="bodyXs">{board.shaper}</GText>
+                    <GText variant="caption">{board.shaper}</GText>
                   </View>
                   <View style={styles.searchResultMeta}>
                     <SurfboardRating rating={board.rating} size={8} />
-                    <GText variant="micro">{board.opinionCount}</GText>
+                    <GText variant="caption">{board.opinionCount}</GText>
                   </View>
                 </Pressable>
               ))}
@@ -138,7 +149,7 @@ export default function HomeScreen() {
 
           <Pressable style={styles.addBoard}>
             <GText variant="label" color={colors.red}>CAN'T FIND IT? ADD IT →</GText>
-            <GText variant="bodyXs">Obscure shaper? Local legend? We want it.</GText>
+            <GText variant="caption">Obscure shaper? Local legend? We want it.</GText>
           </Pressable>
         </ScrollView>
       </SafeAreaView>
@@ -186,10 +197,10 @@ export default function HomeScreen() {
                     </GText>
                     <View style={styles.trendingInfo}>
                       <GText variant="displayS" color={colors.white} numberOfLines={1}>{board.name}</GText>
-                      <GText variant="micro" color={colors.white}>{board.shaper.toUpperCase()}</GText>
+                      <GText variant="caption" color={colors.white}>{board.shaper.toUpperCase()}</GText>
                       <View style={styles.trendingMeta}>
                         <SurfboardRating rating={board.rating} size={8} color={colors.white} />
-                        <GText variant="micro" color={colors.white}>{board.opinionCount}</GText>
+                        <GText variant="caption" color={colors.white}>{board.opinionCount}</GText>
                       </View>
                     </View>
                   </View>
@@ -201,7 +212,7 @@ export default function HomeScreen() {
           <View style={styles.section}>
             <GText variant="label" style={styles.sectionLabel}>SHAPERS</GText>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.shaperScroll}>
-              {mockShapers.map((shaper) => (
+              {shapers.map((shaper) => (
                 <ShaperPill key={shaper.id} shaper={shaper} />
               ))}
             </ScrollView>
@@ -236,15 +247,15 @@ export default function HomeScreen() {
             >
               <View style={styles.opinionCardTop}>
                 {board && <BoardTypeTag type={board.type} size="sm" />}
-                <GText variant="micro" color={colors.white}>{formatRelativeTime(opinion.createdAt)}</GText>
+                <GText variant="caption" color={colors.white}>{formatRelativeTime(opinion.createdAt)}</GText>
               </View>
               {board && (
                 <GText variant="displayS" color={colors.white} numberOfLines={1}>{board.name}</GText>
               )}
-              <SurfboardRating rating={opinion.rating} size={8} color={colors.white} />
-              <GText variant="micro" color={colors.white}>by {opinion.username.toUpperCase()}</GText>
+              <SurfboardRating rating={opinion.scores['overall_rating'] ?? 0} size={8} color={colors.white} />
+              <GText variant="caption" color={colors.white}>by {opinion.username.toUpperCase()}</GText>
               {opinion.text && (
-                <GText variant="bodyXs" color={colors.textMid} numberOfLines={1}>{opinion.text}</GText>
+                <GText variant="caption" color={colors.textMid} numberOfLines={1}>{opinion.text}</GText>
               )}
             </Pressable>
           );
@@ -297,8 +308,8 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontFamily: fonts.mono,
-    fontSize: 10,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: 12,
     letterSpacing: 1,
     color: colors.text,
     padding: 0,

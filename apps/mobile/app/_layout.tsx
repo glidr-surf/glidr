@@ -4,7 +4,6 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useFonts } from 'expo-font';
 import { BebasNeue_400Regular } from '@expo-google-fonts/bebas-neue';
 import { DMSans_400Regular, DMSans_500Medium, DMSans_600SemiBold, DMSans_700Bold } from '@expo-google-fonts/dm-sans';
-import { DMMono_400Regular, DMMono_500Medium } from '@expo-google-fonts/dm-mono';
 import { colors } from '../src/theme/colors';
 import { AuthProvider } from '../src/context/AuthContext';
 import { AuthModal } from '../src/components/AuthModal';
@@ -18,8 +17,6 @@ export default function RootLayout() {
     DMSans_500Medium,
     DMSans_600SemiBold,
     DMSans_700Bold,
-    DMMono_400Regular,
-    DMMono_500Medium,
   });
 
   useEffect(() => {

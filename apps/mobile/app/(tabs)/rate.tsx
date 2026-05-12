@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { View, TextInput, FlatList, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MagnifyingGlass } from 'phosphor-react-native';
@@ -8,8 +8,9 @@ import { BoardTypeTag } from '../../src/components/BoardTypeTag';
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
 import { fonts } from '../../src/theme/typography';
-import { mockBoards } from '../../src/data/mock';
-import type { Board } from '../../src/types';
+import { getBoards } from '@glidr/data';
+import type { Board } from '@glidr/data';
+import { supabase } from '../../src/lib/supabase';
 import { useAuth } from '../../src/context/AuthContext';
 
 function BoardRow({ board, onPress }: { board: Board; onPress: () => void }) {
@@ -20,7 +21,7 @@ function BoardRow({ board, onPress }: { board: Board; onPress: () => void }) {
       </View>
       <View style={styles.rowText}>
         <GText variant="bodyM">{board.name}</GText>
-        <GText variant="bodyXs" color={colors.textMid}>{board.shaper}</GText>
+        <GText variant="caption" color={colors.textMid}>{board.shaper}</GText>
       </View>
       <GText variant="label" color={colors.red}>RATE →</GText>
     </Pressable>
@@ -31,14 +32,19 @@ export default function RateScreen() {
   const router = useRouter();
   const { requireAuth } = useAuth();
   const [query, setQuery] = useState('');
+  const [boards, setBoards] = useState<Board[]>([]);
+
+  useEffect(() => {
+    getBoards(supabase).then(setBoards);
+  }, []);
 
   const filtered = useMemo(() => {
-    if (!query) return mockBoards;
+    if (!query) return boards;
     const q = query.toLowerCase();
-    return mockBoards.filter(
+    return boards.filter(
       (b) => b.name.toLowerCase().includes(q) || b.shaper.toLowerCase().includes(q),
     );
-  }, [query]);
+  }, [boards, query]);
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -109,8 +115,8 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontFamily: fonts.mono,
-    fontSize: 10,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: 12,
     letterSpacing: 1,
     color: colors.text,
     padding: 0,

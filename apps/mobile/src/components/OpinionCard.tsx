@@ -43,7 +43,7 @@ export function OpinionCard({
           <View style={styles.boardText}>
             <GText variant="displayS">
               {board.name}
-              {opinion.boardLength ? ` ${opinion.boardLength}` : ''}
+              {opinion.tags['board_length']?.[0] ? ` ${opinion.tags['board_length'][0]}` : ''}
             </GText>
             <Pressable onPress={() => router.push(`/shaper/${board.shaperId}`)}>
               <GText variant="label" color={colors.red}>
@@ -60,19 +60,22 @@ export function OpinionCard({
             {opinion.username}
           </GText>
         </Pressable>
-        {(opinion.userHeight || opinion.userWeight || opinion.boardLength) && (
-          <GText variant="bodyXs">
-            {[opinion.boardLength, opinion.userHeight, opinion.userWeight].filter(Boolean).join(' · ')}
-          </GText>
-        )}
+        {(() => {
+          const boardLength = opinion.tags['board_length']?.[0];
+          return (opinion.userHeight || opinion.userWeight || boardLength) ? (
+            <GText variant="bodyXs">
+              {[boardLength, opinion.userHeight, opinion.userWeight].filter(Boolean).join(' · ')}
+            </GText>
+          ) : null;
+        })()}
       </View>
 
       <View style={styles.ratingRow}>
-        <SurfboardRating rating={opinion.rating} size={14} />
-        {opinion.vibeTag && (
+        <SurfboardRating rating={opinion.scores['overall_rating'] ?? 0} size={14} />
+        {opinion.tags['vibe_tag']?.[0] && (
           <View style={styles.vibeTag}>
             <GText variant="micro" color={colors.white}>
-              {opinion.vibeTag}
+              {opinion.tags['vibe_tag'][0]}
             </GText>
           </View>
         )}
@@ -88,9 +91,9 @@ export function OpinionCard({
         </GText>
       )}
 
-      {opinion.waveSizes && opinion.waveSizes.length > 0 && (
+      {(opinion.tags['wave_size']?.length ?? 0) > 0 && (
         <View style={styles.chips}>
-          {opinion.waveSizes.map((size) => (
+          {opinion.tags['wave_size'].map((size) => (
             <View key={size} style={styles.conditionChip}>
               <GText variant="micro">{size}</GText>
             </View>
@@ -114,8 +117,8 @@ export function OpinionCard({
       )}
 
       <View style={styles.footer}>
-        <GText variant="bodyS" color={opinion.buyAgain ? colors.green : colors.red}>
-          {opinion.buyAgain ? '↺ YES' : '✗ NO'}
+        <GText variant="bodyS" color={opinion.scores['buy_again'] ? colors.green : colors.red}>
+          {opinion.scores['buy_again'] ? '↺ YES' : '✗ NO'}
         </GText>
 
         <View style={styles.votes}>

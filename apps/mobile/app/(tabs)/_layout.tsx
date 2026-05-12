@@ -20,8 +20,8 @@ export default function TabLayout() {
           shadowOpacity: 0,
         },
         tabBarLabelStyle: {
-          fontFamily: fonts.mono,
-          fontSize: 8,
+          fontFamily: fonts.bodySemiBold,
+          fontSize: 12,
           letterSpacing: 1,
           textTransform: 'uppercase',
         },

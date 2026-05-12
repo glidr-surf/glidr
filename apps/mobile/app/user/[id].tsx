@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { View, FlatList, Pressable, StyleSheet } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { CaretLeft } from 'phosphor-react-native';
@@ -8,26 +8,32 @@ import { BoardTile } from '../../src/components/BoardTile';
 import { OpinionCard } from '../../src/components/OpinionCard';
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
-import { mockOpinions, mockBoards } from '../../src/data/mock';
+import { getOpinions, getBoards } from '@glidr/data';
+import type { Board, Opinion } from '@glidr/data';
+import { supabase } from '../../src/lib/supabase';
 
 export default function UserProfileScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'quiver' | 'opinions'>('quiver');
   const [following, setFollowing] = useState(false);
+  const [userOpinions, setUserOpinions] = useState<Opinion[]>([]);
+  const [boards, setBoards] = useState<Board[]>([]);
 
-  const boardMap = Object.fromEntries(mockBoards.map((b) => [b.id, b]));
+  useEffect(() => {
+    if (!id) return;
+    getOpinions(supabase, { userId: id }).then((ops) =>
+      setUserOpinions([...ops].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())),
+    );
+    getBoards(supabase).then(setBoards);
+  }, [id]);
 
-  const userOpinions = useMemo(
-    () => mockOpinions.filter((o) => o.userId === id)
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
-    [id],
-  );
+  const boardMap = Object.fromEntries(boards.map((b) => [b.id, b]));
 
   const username = userOpinions[0]?.username ?? 'Unknown';
   const boardIds = [...new Set(userOpinions.map((o) => o.boardId))];
   const quiverBoards = boardIds.map((bid) => boardMap[bid]).filter(Boolean);
-  const magicCount = userOpinions.filter((o) => o.rating === 5).length;
+  const magicCount = userOpinions.filter((o) => (o.scores['overall_rating'] ?? 0) === 5).length;
 
   const shaperCounts: Record<string, number> = {};
   for (const o of userOpinions) {
@@ -55,7 +61,7 @@ export default function UserProfileScreen() {
           onPress={() => setFollowing(!following)}
           style={[styles.followButton, following && styles.followButtonActive]}
         >
-          <GText variant="tag" color={following ? colors.white : colors.red}>
+          <GText variant="caption" color={following ? colors.white : colors.red}>
             {following ? 'FOLLOWING' : 'FOLLOW'}
           </GText>
         </Pressable>

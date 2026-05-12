@@ -39,7 +39,7 @@ export default function UsernamePickerScreen() {
       >
         {/* Header */}
         <GText variant="displayL" style={styles.title}>PICK A NAME</GText>
-        <GText variant="bodyS" color={colors.textMid} style={styles.subtitle}>
+        <GText variant="bodyM" color={colors.textMid} style={styles.subtitle}>
           Every legend needs a callsign.
         </GText>
 
@@ -82,7 +82,7 @@ export default function UsernamePickerScreen() {
               onPress={() => setUsername(s)}
               style={styles.chip}
             >
-              <GText variant="bodyXs" color={colors.textMid}>{s}</GText>
+              <GText variant="bodyM" color={colors.textMid}>{s}</GText>
             </Pressable>
           ))}
         </View>
@@ -115,7 +115,7 @@ export default function UsernamePickerScreen() {
             onPress={() => setUnits('imperial')}
             style={[styles.toggleOption, units === 'imperial' && styles.toggleActive]}
           >
-            <GText variant="tag" color={units === 'imperial' ? colors.white : colors.textMid}>
+            <GText variant="caption" color={units === 'imperial' ? colors.white : colors.textMid}>
               IMPERIAL
             </GText>
           </Pressable>
@@ -123,7 +123,7 @@ export default function UsernamePickerScreen() {
             onPress={() => setUnits('metric')}
             style={[styles.toggleOption, units === 'metric' && styles.toggleActive]}
           >
-            <GText variant="tag" color={units === 'metric' ? colors.white : colors.textMid}>
+            <GText variant="caption" color={units === 'metric' ? colors.white : colors.textMid}>
               METRIC
             </GText>
           </Pressable>
@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    fontFamily: fonts.mono,
+    fontFamily: fonts.bodyMedium,
     fontSize: 16,
     color: colors.text,
     paddingVertical: spacing.md,
@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   optionalInput: {
-    fontFamily: fonts.mono,
+    fontFamily: fonts.bodyMedium,
     fontSize: 14,
     color: colors.text,
     borderWidth: 1,
