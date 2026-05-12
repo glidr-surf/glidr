@@ -93,8 +93,7 @@ const styles = StyleSheet.create({
   },
   textInput: {
     flex: 1,
-    borderWidth: 1,
-    borderColor: colors.border,
+    backgroundColor: colors.surface,
     padding: spacing.lg,
     fontFamily: fonts.body,
     fontSize: 14,
