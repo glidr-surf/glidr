@@ -16,6 +16,8 @@ interface OpinionCardProps {
   isOwn?: boolean;
   onUpvote?: () => void;
   onDownvote?: () => void;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 
 export function OpinionCard({
@@ -25,6 +27,8 @@ export function OpinionCard({
   isOwn = false,
   onUpvote,
   onDownvote,
+  onEdit,
+  onDelete,
 }: OpinionCardProps) {
   const router = useRouter();
 
@@ -37,7 +41,10 @@ export function OpinionCard({
         >
           <BoardTypeTag type={board.type} />
           <View style={styles.boardText}>
-            <GText variant="displayS">{board.name}</GText>
+            <GText variant="displayS">
+              {board.name}
+              {opinion.boardLength ? ` ${opinion.boardLength}` : ''}
+            </GText>
             <Pressable onPress={() => router.push(`/shaper/${board.shaperId}`)}>
               <GText variant="label" color={colors.red}>
                 {board.shaper.toUpperCase()}
@@ -53,9 +60,9 @@ export function OpinionCard({
             {opinion.username}
           </GText>
         </Pressable>
-        {(opinion.userHeight || opinion.userWeight) && (
+        {(opinion.userHeight || opinion.userWeight || opinion.boardLength) && (
           <GText variant="bodyXs">
-            {[opinion.userHeight, opinion.userWeight].filter(Boolean).join(' · ')}
+            {[opinion.boardLength, opinion.userHeight, opinion.userWeight].filter(Boolean).join(' · ')}
           </GText>
         )}
       </View>
@@ -88,6 +95,21 @@ export function OpinionCard({
               <GText variant="micro">{size}</GText>
             </View>
           ))}
+        </View>
+      )}
+
+      {isOwn && (onEdit || onDelete) && (
+        <View style={styles.ownActions}>
+          {onEdit && (
+            <Pressable onPress={onEdit} style={styles.ownActionButton}>
+              <GText variant="label" color={colors.red}>EDIT</GText>
+            </Pressable>
+          )}
+          {onDelete && (
+            <Pressable onPress={onDelete} style={styles.ownActionButton}>
+              <GText variant="label" color={colors.textMid}>DELETE</GText>
+            </Pressable>
+          )}
         </View>
       )}
 
@@ -174,5 +196,15 @@ const styles = StyleSheet.create({
   },
   voteButton: {
     padding: 4,
+  },
+  ownActions: {
+    flexDirection: 'row',
+    gap: spacing.lg,
+    paddingTop: spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: colors.borderSoft,
+  },
+  ownActionButton: {
+    paddingVertical: spacing.xs,
   },
 });
