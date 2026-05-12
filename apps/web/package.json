@@ -10,16 +10,18 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@glidr/data": "workspace:*",
     "@glidr/tokens": "workspace:*",
+    "@supabase/supabase-js": "^2.105.4",
     "react": "^19",
     "react-dom": "^19"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^4",
     "tailwindcss": "^4",
-    "@tailwindcss/vite": "^4",
     "typescript": "^5.8",
     "vite": "^6"
   }
