@@ -170,7 +170,8 @@ export default function BoardProfileScreen() {
         )}
         ListHeaderComponent={renderHeader}
         contentContainerStyle={styles.listContent}
-        ItemSeparatorComponent={() => <View style={{ height: spacing.md }} />}
+        style={styles.opinionList}
+        ItemSeparatorComponent={() => <View style={styles.opinionSeparator} />}
         ListEmptyComponent={
           <View style={styles.empty}>
             <GText variant="bodyM" color={colors.textMid}>
@@ -277,6 +278,16 @@ const styles = StyleSheet.create({
   specsSection: {
     padding: spacing.xl,
     gap: spacing.sm,
+  },
+  opinionList: {
+    marginHorizontal: spacing.xl,
+    backgroundColor: colors.surfaceCard,
+    borderRadius: 2,
+    overflow: 'hidden',
+  },
+  opinionSeparator: {
+    height: 1,
+    backgroundColor: colors.borderSoft,
   },
   empty: {
     padding: spacing.xl,
