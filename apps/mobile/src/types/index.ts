@@ -7,7 +7,7 @@ export type VibeTag =
   | "SOUL SURFER'S ENLIGHTENMENT"
   | 'THE MIDLIFE GLIDE';
 
-export type WaveSize = 'ANKLE BIBERS' | 'WAIST-CHEST' | 'HEAD HIGH' | 'OVERHEAD' | 'DOUBLE OVERHEAD' | 'THE EDDIE';
+export type WaveSize = 'ANKLE BITERS' | 'WAIST-CHEST' | 'HEAD HIGH' | 'OVERHEAD' | 'DOUBLE OVERHEAD' | 'THE EDDIE';
 export type WaveQuality = 'TUESDAY SLOP' | 'AVERAGE DAY' | 'FUN ONES' | 'PROPER WAVES' | 'GREEN ROOMS';
 export type QuiverRole = 'DAILY DRIVER' | 'GROVELLER' | "WHEN IT'S PUMPING" | 'TRAVEL STICK' | 'FROTH MACHINE' | 'GARAGE ART';
 export type FinSetup = 'SINGLE' | 'TWIN' | 'TRI' | 'QUAD' | '2+1' | 'FINLESS';
