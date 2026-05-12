@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, FlatList, Pressable, StyleSheet, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useAuth } from '../../src/context/AuthContext';
 import { CaretLeft, ShareNetwork } from 'phosphor-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GText } from '../../src/components/GText';
@@ -21,6 +22,7 @@ export default function BoardProfileScreen() {
   const [activeTab, setActiveTab] = useState<'opinions' | 'specs'>('opinions');
   const [sort, setSort] = useState('RECENT');
 
+  const { requireAuth } = useAuth();
   const board = mockBoards.find((b) => b.id === id) ?? mockBoards[0];
   const opinions = mockOpinions.filter((o) => o.boardId === board.id);
 
@@ -138,7 +140,7 @@ export default function BoardProfileScreen() {
           contentContainerStyle={styles.listContent}
         />
         <View style={styles.stickyCta}>
-          <Pressable style={styles.ctaButton} onPress={() => router.push('/(tabs)/rate')}>
+          <Pressable style={styles.ctaButton} onPress={() => requireAuth(() => router.push('/(tabs)/rate' as any))}>
             <GText variant="displayS" color={colors.white}>RATE THIS BOARD</GText>
           </Pressable>
         </View>
@@ -178,7 +180,7 @@ export default function BoardProfileScreen() {
         }
       />
       <View style={styles.stickyCta}>
-        <Pressable style={styles.ctaButton} onPress={() => router.push('/(tabs)/rate')}>
+        <Pressable style={styles.ctaButton} onPress={() => requireAuth(() => router.push('/(tabs)/rate' as any))}>
           <GText variant="displayS" color={colors.white}>RATE THIS BOARD</GText>
         </Pressable>
       </View>

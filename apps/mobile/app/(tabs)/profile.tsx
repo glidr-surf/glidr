@@ -7,12 +7,15 @@ import { GText } from '../../src/components/GText';
 import { StatBlock } from '../../src/components/StatBlock';
 import { BoardTile } from '../../src/components/BoardTile';
 import { OpinionCard } from '../../src/components/OpinionCard';
+import { Screen } from '../../src/components/Screen';
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
 import { mockCurrentUser, mockOpinions, mockBoards } from '../../src/data/mock';
+import { useAuth } from '../../src/context/AuthContext';
 
 export default function ProfileScreen() {
   const router = useRouter();
+  const { isAuthenticated, showAuthModal } = useAuth();
   const [activeTab, setActiveTab] = useState<'quiver' | 'opinions'>('quiver');
   const user = mockCurrentUser;
 
@@ -33,6 +36,25 @@ export default function ProfileScreen() {
     month: 'long',
     year: 'numeric',
   });
+
+  if (!isAuthenticated) {
+    return (
+      <Screen>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', gap: spacing.lg, padding: spacing.xl }}>
+          <GText variant="displayL">WHO ARE YOU?</GText>
+          <GText variant="bodyM" color={colors.textMid} style={{ textAlign: 'center' }}>
+            Sign in to track your quiver, collect badges, and tell us what boards actually ride like.
+          </GText>
+          <Pressable
+            style={{ backgroundColor: colors.red, paddingVertical: spacing.md, paddingHorizontal: spacing['2xl'], borderRadius: 2 }}
+            onPress={showAuthModal}
+          >
+            <GText variant="displayS" color={colors.white}>SIGN IN</GText>
+          </Pressable>
+        </View>
+      </Screen>
+    );
+  }
 
   const renderHeader = () => (
     <View>

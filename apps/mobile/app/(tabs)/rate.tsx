@@ -10,6 +10,7 @@ import { spacing } from '../../src/theme/spacing';
 import { fonts } from '../../src/theme/typography';
 import { mockBoards } from '../../src/data/mock';
 import type { Board } from '../../src/types';
+import { useAuth } from '../../src/context/AuthContext';
 
 function BoardRow({ board, onPress }: { board: Board; onPress: () => void }) {
   return (
@@ -28,6 +29,7 @@ function BoardRow({ board, onPress }: { board: Board; onPress: () => void }) {
 
 export default function RateScreen() {
   const router = useRouter();
+  const { requireAuth } = useAuth();
   const [query, setQuery] = useState('');
 
   const filtered = useMemo(() => {
@@ -47,7 +49,7 @@ export default function RateScreen() {
           <BoardRow
             board={item}
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            onPress={() => router.push(`/rate-flow?boardId=${item.id}` as any)}
+            onPress={() => requireAuth(() => router.push(`/rate-flow?boardId=${item.id}` as any))}
           />
         )}
         ListHeaderComponent={
@@ -67,7 +69,7 @@ export default function RateScreen() {
         }
         ListFooterComponent={
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          <Pressable style={styles.addBoard} onPress={() => router.push('/add-board' as any)}>
+          <Pressable style={styles.addBoard} onPress={() => requireAuth(() => router.push('/add-board' as any))}>
             <GText variant="label" color={colors.red}>CAN'T FIND IT? ADD IT →</GText>
           </Pressable>
         }
