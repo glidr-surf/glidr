@@ -125,7 +125,7 @@ export const mockOpinions: Opinion[] = [
     vibeTag: 'KOOK CANNON',
     buyAgain: false,
     text: "Paddling this is like trying to steer a door through treacle. Caught exactly one wave in two hours. Shaper told me it was made for 'experienced small-wave surfers'. I have now learned what that means. It means: not me.",
-    waveSizes: ['ANKLE BIBERS'],
+    waveSizes: ['ANKLE BITERS'],
     waveQualities: ['TUESDAY SLOP'],
     speed: 5,
     manoeuvrability: 4,
