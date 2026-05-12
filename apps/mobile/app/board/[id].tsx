@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, FlatList, Pressable, StyleSheet, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../../src/context/AuthContext';
@@ -12,7 +12,9 @@ import { Chips } from '../../src/components/Chips';
 import { OpinionCard } from '../../src/components/OpinionCard';
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
-import { mockBoards, mockOpinions, mockCurrentUser } from '../../src/data/mock';
+import { getBoard, getOpinions } from '@glidr/data';
+import type { Board, Opinion } from '@glidr/data';
+import { supabase } from '../../src/lib/supabase';
 
 const SORT_OPTIONS = ['RECENT', 'HELPFUL', 'CONTROVERSIAL'];
 
@@ -21,10 +23,16 @@ export default function BoardProfileScreen() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'opinions' | 'specs'>('opinions');
   const [sort, setSort] = useState('RECENT');
+  const [board, setBoard] = useState<Board | null>(null);
+  const [opinions, setOpinions] = useState<Opinion[]>([]);
 
-  const { requireAuth } = useAuth();
-  const board = mockBoards.find((b) => b.id === id) ?? mockBoards[0];
-  const opinions = mockOpinions.filter((o) => o.boardId === board.id);
+  const { requireAuth, user } = useAuth();
+
+  useEffect(() => {
+    if (!id) return;
+    getBoard(supabase, id).then((b) => { if (b) setBoard(b); });
+    getOpinions(supabase, { boardId: id }).then(setOpinions);
+  }, [id]);
 
   const sortedOpinions = [...opinions].sort((a, b) => {
     if (sort === 'HELPFUL') return (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes);
@@ -32,12 +40,14 @@ export default function BoardProfileScreen() {
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 
-  const withSpeed = opinions.filter((o) => o.speed != null);
-  const withManoeuvre = opinions.filter((o) => o.manoeuvrability != null);
-  const withPaddle = opinions.filter((o) => o.paddlePower != null);
-  const avgSpeed = withSpeed.length > 0 ? withSpeed.reduce((s, o) => s + (o.speed ?? 0), 0) / withSpeed.length : 0;
-  const avgManoeuvrability = withManoeuvre.length > 0 ? withManoeuvre.reduce((s, o) => s + (o.manoeuvrability ?? 0), 0) / withManoeuvre.length : 0;
-  const avgPaddlePower = withPaddle.length > 0 ? withPaddle.reduce((s, o) => s + (o.paddlePower ?? 0), 0) / withPaddle.length : 0;
+  const withSpeed = opinions.filter((o) => o.scores['speed'] != null);
+  const withManoeuvre = opinions.filter((o) => o.scores['manoeuvrability'] != null);
+  const withPaddle = opinions.filter((o) => o.scores['paddle_power'] != null);
+  const avgSpeed = withSpeed.length > 0 ? withSpeed.reduce((s, o) => s + (o.scores['speed'] ?? 0), 0) / withSpeed.length : 0;
+  const avgManoeuvrability = withManoeuvre.length > 0 ? withManoeuvre.reduce((s, o) => s + (o.scores['manoeuvrability'] ?? 0), 0) / withManoeuvre.length : 0;
+  const avgPaddlePower = withPaddle.length > 0 ? withPaddle.reduce((s, o) => s + (o.scores['paddle_power'] ?? 0), 0) / withPaddle.length : 0;
+
+  if (!board) return null;
 
   const renderHeader = () => (
     <View>
@@ -59,7 +69,7 @@ export default function BoardProfileScreen() {
         </Pressable>
         {board.topVibeTag && (
           <View style={styles.heroVibeTag}>
-            <GText variant="micro" color={colors.white}>{board.topVibeTag}</GText>
+            <GText variant="caption" color={colors.white}>{board.topVibeTag}</GText>
           </View>
         )}
       </View>
@@ -76,7 +86,7 @@ export default function BoardProfileScreen() {
         {board.verdict ? (
           <>
             <GText variant="bodyL" color={colors.white}>"{board.verdict}"</GText>
-            <GText variant="micro" color={colors.white} style={styles.verdictMeta}>
+            <GText variant="caption" color={colors.white} style={styles.verdictMeta}>
               GENERATED FROM {board.opinionCount} OPINIONS
             </GText>
           </>
@@ -156,9 +166,9 @@ export default function BoardProfileScreen() {
         renderItem={({ item }) => (
           <OpinionCard
             opinion={item}
-            isOwn={item.userId === mockCurrentUser.id}
-            onEdit={item.userId === mockCurrentUser.id ? () => router.push(('/rate-flow?boardId=' + item.boardId + '&opinionId=' + item.id) as any) : undefined}
-            onDelete={item.userId === mockCurrentUser.id ? () => Alert.alert(
+            isOwn={item.userId === user?.id}
+            onEdit={item.userId === user?.id ? () => router.push(('/rate-flow?boardId=' + item.boardId + '&opinionId=' + item.id) as any) : undefined}
+            onDelete={item.userId === user?.id ? () => Alert.alert(
               'Delete Opinion',
               "Remove this opinion? The board won't miss you either.",
               [
@@ -194,15 +204,15 @@ function PerformanceBar({ label, value, lowEnd, highEnd }: { label: string; valu
   return (
     <View style={perfStyles.container}>
       <View style={perfStyles.labelRow}>
-        <GText variant="micro">{label}</GText>
-        <GText variant="bodyS">{value.toFixed(1)}/10</GText>
+        <GText variant="caption">{label}</GText>
+        <GText variant="bodyM">{value.toFixed(1)}/10</GText>
       </View>
       <View style={perfStyles.track}>
         <View style={[perfStyles.fill, { width: `${percentage}%` }]} />
       </View>
       <View style={perfStyles.endLabels}>
-        <GText variant="micro">{lowEnd}</GText>
-        <GText variant="micro">{highEnd}</GText>
+        <GText variant="caption">{lowEnd}</GText>
+        <GText variant="caption">{highEnd}</GText>
       </View>
     </View>
   );

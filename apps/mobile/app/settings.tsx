@@ -6,12 +6,11 @@ import { GText } from '../src/components/GText';
 import { CardGroup } from '../src/components/CardGroup';
 import { colors } from '../src/theme/colors';
 import { spacing } from '../src/theme/spacing';
-import { mockCurrentUser } from '../src/data/mock';
 import { useAuth } from '../src/context/AuthContext';
 
 export default function SettingsScreen() {
   const router = useRouter();
-  const { isAuthenticated, signOut, showAuthModal } = useAuth();
+  const { isAuthenticated, signOut, showAuthModal, user } = useAuth();
   const [units, setUnits] = useState<'imperial' | 'metric'>('imperial');
   const [notifyUpvotes, setNotifyUpvotes] = useState(true);
   const [notifyFollowers, setNotifyFollowers] = useState(true);
@@ -34,16 +33,16 @@ export default function SettingsScreen() {
           {isAuthenticated ? (
             <CardGroup>
               <View style={styles.cardField}>
-                <GText variant="bodyS" color={colors.textMid}>USERNAME</GText>
-                <GText variant="bodyM">{mockCurrentUser.username}</GText>
+                <GText variant="caption" color={colors.textMid}>USERNAME</GText>
+                <GText variant="bodyM">{user?.username ?? '—'}</GText>
               </View>
               <View style={styles.cardField}>
-                <GText variant="bodyS" color={colors.textMid}>HEIGHT</GText>
-                <GText variant="bodyM">{mockCurrentUser.height ?? '—'}</GText>
+                <GText variant="caption" color={colors.textMid}>HEIGHT</GText>
+                <GText variant="bodyM">{user?.height ?? '—'}</GText>
               </View>
               <View style={styles.cardField}>
-                <GText variant="bodyS" color={colors.textMid}>WEIGHT</GText>
-                <GText variant="bodyM">{mockCurrentUser.weight ?? '—'}</GText>
+                <GText variant="caption" color={colors.textMid}>WEIGHT</GText>
+                <GText variant="bodyM">{user?.weight ?? '—'}</GText>
               </View>
             </CardGroup>
           ) : (
@@ -56,13 +55,13 @@ export default function SettingsScreen() {
         {/* Units */}
         <View style={styles.section}>
           <GText variant="label" style={styles.sectionLabel}>UNITS</GText>
-          <GText variant="bodyXs" color={colors.textMid} style={styles.sectionLabel}>Body measurements. Board dimensions always imperial.</GText>
+          <GText variant="bodyM" color={colors.textMid} style={styles.sectionLabel}>Body measurements. Board dimensions always imperial.</GText>
           <View style={styles.toggleRow}>
             <Pressable
               onPress={() => setUnits('imperial')}
               style={[styles.toggleOption, units === 'imperial' && styles.toggleActive]}
             >
-              <GText variant="tag" color={units === 'imperial' ? colors.white : colors.textLight}>
+              <GText variant="caption" color={units === 'imperial' ? colors.white : colors.textLight}>
                 IMPERIAL (FT/IN, LBS)
               </GText>
             </Pressable>
@@ -70,7 +69,7 @@ export default function SettingsScreen() {
               onPress={() => setUnits('metric')}
               style={[styles.toggleOption, units === 'metric' && styles.toggleActive]}
             >
-              <GText variant="tag" color={units === 'metric' ? colors.white : colors.textLight}>
+              <GText variant="caption" color={units === 'metric' ? colors.white : colors.textLight}>
                 METRIC (CM, KG)
               </GText>
             </Pressable>
@@ -118,7 +117,7 @@ export default function SettingsScreen() {
             <>
               <CardGroup>
                 <View style={styles.cardField}>
-                  <GText variant="bodyS" color={colors.textMid}>SIGNED IN VIA</GText>
+                  <GText variant="caption" color={colors.textMid}>SIGNED IN VIA</GText>
                   <GText variant="bodyM">Google</GText>
                 </View>
                 <Pressable style={styles.cardAction} onPress={signOut}>
@@ -128,18 +127,18 @@ export default function SettingsScreen() {
                   <GText variant="label" color={colors.red}>DELETE ACCOUNT</GText>
                 </Pressable>
               </CardGroup>
-              <GText variant="bodyXs" color={colors.textLight} style={styles.accountNote}>
+              <GText variant="bodyM" color={colors.textLight} style={styles.accountNote}>
                 This removes all your opinions. The boards won't miss you either.
               </GText>
             </>
           ) : (
-            <GText variant="bodyS" color={colors.textMid}>Not signed in.</GText>
+            <GText variant="bodyM" color={colors.textMid}>Not signed in.</GText>
           )}
         </View>
 
         {/* Version */}
         <View style={styles.footer}>
-          <GText variant="micro">GLIDR V0.1.0 — STILL IN BETA. LIKE YOUR SURFING.</GText>
+          <GText variant="caption">GLIDR V0.1.0 — STILL IN BETA. LIKE YOUR SURFING.</GText>
         </View>
       </ScrollView>
     </View>

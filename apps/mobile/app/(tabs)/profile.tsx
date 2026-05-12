@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { View, FlatList, Pressable, StyleSheet, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -10,34 +10,42 @@ import { OpinionCard } from '../../src/components/OpinionCard';
 import { Screen } from '../../src/components/Screen';
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
-import { mockCurrentUser, mockOpinions, mockBoards } from '../../src/data/mock';
+import { getOpinions, getBoards, computeBadges } from '@glidr/data';
+import type { Board, Opinion, Badge } from '@glidr/data';
+import { supabase } from '../../src/lib/supabase';
 import { useAuth } from '../../src/context/AuthContext';
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const { isAuthenticated, showAuthModal } = useAuth();
+  const { isAuthenticated, showAuthModal, user } = useAuth();
   const [activeTab, setActiveTab] = useState<'quiver' | 'opinions'>('quiver');
-  const user = mockCurrentUser;
+  const [userOpinions, setUserOpinions] = useState<Opinion[]>([]);
+  const [boards, setBoards] = useState<Board[]>([]);
+  const [badges, setBadges] = useState<Badge[]>([]);
 
-  const userOpinions = useMemo(
-    () => mockOpinions.filter((o) => o.userId === user.id)
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
-    [user.id],
-  );
+  useEffect(() => {
+    if (!user) return;
+    getOpinions(supabase, { userId: user.id }).then((ops) =>
+      setUserOpinions([...ops].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())),
+    );
+    getBoards(supabase).then(setBoards);
+    computeBadges(supabase, user.id).then(setBadges);
+  }, [user]);
 
-  const boardMap = Object.fromEntries(mockBoards.map((b) => [b.id, b]));
+  const boardMap = Object.fromEntries(boards.map((b) => [b.id, b]));
 
   const quiverBoards = useMemo(() => {
     const boardIds = [...new Set(userOpinions.map((o) => o.boardId))];
     return boardIds.map((id) => boardMap[id]).filter(Boolean);
   }, [userOpinions, boardMap]);
 
-  const joinDate = new Date(user.joinDate).toLocaleDateString('en-US', {
-    month: 'long',
-    year: 'numeric',
-  });
+  const badgeCount = badges.filter((b) => b.earned).length;
 
-  if (!isAuthenticated) {
+  const joinDate = user
+    ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+    : '';
+
+  if (!isAuthenticated || !user) {
     return (
       <Screen>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', gap: spacing.lg, padding: spacing.xl }}>
@@ -90,17 +98,17 @@ export default function ProfileScreen() {
 
       {/* Stats Row */}
       <View style={styles.statsRow}>
-        <StatBlock value={String(user.boardCount)} label="BOARDS" />
+        <StatBlock value={String(user.opinionCount)} label="BOARDS" />
         <StatBlock value={String(user.magicBoardCount)} label="MAGIC BOARDS" />
         <Pressable style={{ flex: 1 }} onPress={() => router.push('/badges')}>
-          <StatBlock value={String(user.badgeCount)} label="BADGES" />
+          <StatBlock value={String(badgeCount)} label="BADGES" />
         </Pressable>
       </View>
 
       {/* Fun Line */}
       <View style={styles.funLine}>
         <GText variant="bodyM" color={colors.textMid}>
-          You've opinioned {user.boardCount} boards. Found {user.magicBoardCount} magic ones. Not bad.
+          You've opinioned {user.opinionCount} boards. Found {user.magicBoardCount} magic ones. Not bad.
         </GText>
       </View>
 

@@ -43,7 +43,7 @@ export default function AddBoardScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <GText variant="bodyS" color={colors.textMid} style={styles.subtitle}>
+        <GText variant="bodyM" color={colors.textMid} style={styles.subtitle}>
           Obscure shaper? Local legend? We want it all.
         </GText>
 
@@ -86,7 +86,7 @@ export default function AddBoardScreen() {
                   style={[styles.chip, selected ? styles.chipSelected : styles.chipUnselected]}
                 >
                   <GText
-                    variant="tag"
+                    variant="caption"
                     color={selected ? colors.white : colors.textMid}
                   >
                     {type}
@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   input: {
-    fontFamily: fonts.mono,
+    fontFamily: fonts.bodyMedium,
     fontSize: 14,
     color: colors.text,
     borderWidth: 2,

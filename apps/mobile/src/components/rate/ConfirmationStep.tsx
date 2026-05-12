@@ -3,7 +3,7 @@ import { GText } from '../GText';
 import { StatBlock } from '../StatBlock';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
-import { mockCurrentUser } from '../../data/mock';
+import { useAuth } from '../../context/AuthContext';
 import type { RateFlowState } from './types';
 
 interface ConfirmationStepProps {
@@ -13,6 +13,8 @@ interface ConfirmationStepProps {
 }
 
 export function ConfirmationStep({ onDeepDive, onFinish }: ConfirmationStepProps) {
+  const { user } = useAuth();
+
   return (
     <View style={styles.container}>
       {/* Center content */}
@@ -26,8 +28,8 @@ export function ConfirmationStep({ onDeepDive, onFinish }: ConfirmationStepProps
 
       {/* Stats */}
       <View style={styles.stats}>
-        <StatBlock value={String(mockCurrentUser.boardCount)} label="BOARDS RIDDEN" />
-        <StatBlock value={String(mockCurrentUser.magicBoardCount)} label="MAGIC BOARDS" />
+        <StatBlock value={String(user?.opinionCount ?? 0)} label="BOARDS RIDDEN" />
+        <StatBlock value={String(user?.magicBoardCount ?? 0)} label="MAGIC BOARDS" />
       </View>
 
       {/* CTAs */}

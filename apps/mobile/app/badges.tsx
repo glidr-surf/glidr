@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { View, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { CaretLeft, Medal, Lightning, ThumbsDown, PencilSimple, Stack, Trophy, ArrowFatUp, Fire } from 'phosphor-react-native';
@@ -5,8 +6,10 @@ import type { Icon } from 'phosphor-react-native';
 import { GText } from '../src/components/GText';
 import { colors } from '../src/theme/colors';
 import { spacing } from '../src/theme/spacing';
-import { mockBadges } from '../src/data/mock';
-import type { BadgeId } from '../src/types';
+import { computeBadges } from '@glidr/data';
+import type { Badge, BadgeId } from '@glidr/data';
+import { supabase } from '../src/lib/supabase';
+import { useAuth } from '../src/context/AuthContext';
 
 const BADGE_ICONS: Record<BadgeId, Icon> = {
   'kooks-getting-started': Medal,
@@ -21,8 +24,16 @@ const BADGE_ICONS: Record<BadgeId, Icon> = {
 
 export default function BadgesScreen() {
   const router = useRouter();
-  const earned = mockBadges.filter((b) => b.earned);
-  const inProgress = mockBadges.filter((b) => !b.earned);
+  const { user } = useAuth();
+  const [allBadges, setAllBadges] = useState<Badge[]>([]);
+
+  useEffect(() => {
+    if (!user) return;
+    computeBadges(supabase, user.id).then(setAllBadges);
+  }, [user]);
+
+  const earned = allBadges.filter((b) => b.earned);
+  const inProgress = allBadges.filter((b) => !b.earned);
 
   return (
     <View style={styles.screen}>
@@ -30,13 +41,13 @@ export default function BadgesScreen() {
         <Pressable onPress={() => router.back()} style={styles.navButton}>
           <CaretLeft size={20} color={colors.text} weight="bold" />
         </Pressable>
-        <GText variant="label">{earned.length} OF {mockBadges.length}</GText>
+        <GText variant="label">{earned.length} OF {allBadges.length}</GText>
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <GText variant="displayL">BADGES</GText>
-          <GText variant="bodyS" color={colors.textMid}>Proof you actually surf. Probably.</GText>
+          <GText variant="bodyM" color={colors.textMid}>Proof you actually surf. Probably.</GText>
         </View>
 
         {earned.length > 0 && (
@@ -51,8 +62,8 @@ export default function BadgesScreen() {
                   </View>
                   <View style={styles.badgeInfo}>
                     <GText variant="displayS">{badge.name}</GText>
-                    <GText variant="bodyS" color={colors.textMid}>{badge.description}</GText>
-                    <GText variant="micro" color={colors.green}>EARNED</GText>
+                    <GText variant="bodyM" color={colors.textMid}>{badge.description}</GText>
+                    <GText variant="caption" color={colors.green}>EARNED</GText>
                   </View>
                 </View>
               );
@@ -75,12 +86,12 @@ export default function BadgesScreen() {
                   </View>
                   <View style={styles.badgeInfo}>
                     <GText variant="displayS" color={colors.textMid}>{badge.name}</GText>
-                    <GText variant="bodyS" color={colors.textLight}>{badge.howToEarn}</GText>
+                    <GText variant="bodyM" color={colors.textLight}>{badge.howToEarn}</GText>
                     <View style={styles.progressRow}>
                       <View style={styles.progressTrack}>
                         <View style={[styles.progressFill, { width: `${percentage}%` }]} />
                       </View>
-                      <GText variant="micro">{progress}/{target}</GText>
+                      <GText variant="caption">{progress}/{target}</GText>
                     </View>
                   </View>
                 </View>
