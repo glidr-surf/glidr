@@ -3,12 +3,12 @@ import { Screen } from '../../src/components/Screen';
 import { GText } from '../../src/components/GText';
 import { spacing } from '../../src/theme/spacing';
 
-export default function HomeScreen() {
+export default function RateScreen() {
   return (
     <Screen>
       <View style={styles.header}>
-        <GText variant="displayL">LATEST</GText>
-        <GText variant="label">FEED COMING IN PLAN 2</GText>
+        <GText variant="displayL">RATE A BOARD</GText>
+        <GText variant="label">RATING FLOW COMING IN PLAN 4</GText>
       </View>
     </Screen>
   );
