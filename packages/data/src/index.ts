@@ -1,1 +1,18 @@
-// Barrel export — populated as modules are added
+export type {
+  BoardType,
+  VibeTag,
+  WaveSize,
+  WaveQuality,
+  QuiverRole,
+  FinSetup,
+  SubmissionStatus,
+  Board,
+  Opinion,
+  User,
+  Shaper,
+  BadgeId,
+  Badge,
+  SubmitOpinionInput,
+  SubmitBoardInput,
+  SubmitShaperInput,
+} from './types';
