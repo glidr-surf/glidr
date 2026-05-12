@@ -62,6 +62,42 @@ export const boards: Board[] = [
     user: 'FinBoxPhilosopher',
     image: '/boards/ci-og-flyer.jpg',
   },
+  {
+    rating: 4.6,
+    type: 'FISH',
+    name: 'FISH 5\'8"',
+    shaper: 'Christenson',
+    review: '"Bought it for 2ft slop. Now I take it out in anything under head high. My shortboard weeps quietly in the garage."',
+    user: 'ReefBootRegrets',
+    image: '/boards/christenson-fish.jpg',
+  },
+  {
+    rating: 3.8,
+    type: 'LOG',
+    name: 'CALIFORNIA PIN 9\'4"',
+    shaper: 'Bing Surfboards',
+    review: '"Beautiful board. Terrible for my ego. Every grom at the point surfs it better than me."',
+    user: 'ParkingLotShaper',
+    image: '/boards/bing-california-pin.jpg',
+  },
+  {
+    rating: 4.4,
+    type: 'ALT',
+    name: 'MISC. 5\'5"',
+    shaper: 'Hayden Shapes',
+    review: '"My mates call it the cheese wedge. I call it three waves to their one. Cope."',
+    user: 'WaxCombConnoisseur',
+    image: '/boards/hayden-misc.jpg',
+  },
+  {
+    rating: 2.9,
+    type: 'SHORT',
+    name: 'HAPPY 6\'0"',
+    shaper: 'Channel Islands',
+    review: '"Name is false advertising. Spent forty minutes paddling for waves I would\'ve caught on a foamie."',
+    user: 'DawnPatrolDodger',
+    image: '/boards/ci-happy.jpg',
+  },
 ];
 
 export const stats: Stat[] = [

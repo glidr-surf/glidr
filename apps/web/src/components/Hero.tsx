@@ -10,6 +10,7 @@ export default function Hero() {
         <span className="hidden lg:inline">IT'S THE<br />BOARD,<br />SILLY.</span>
         <span className="lg:hidden">IT'S THE BOARD, SILLY.</span>
       </h1>
+      <div className="w-[60px] h-[4px] bg-red mb-lg animate-fade-up-1" />
       <p className="text-body-l text-text-mid max-w-[440px] mb-xl animate-fade-up-2">
         Find your next magic board. Honest reviews from kooks and corelords. No board paddles like a log and turns like a shortie.
       </p>
