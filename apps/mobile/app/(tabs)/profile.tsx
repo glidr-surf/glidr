@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { View, FlatList, Pressable, StyleSheet } from 'react-native';
+import { View, FlatList, Pressable, StyleSheet, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GearSix } from 'phosphor-react-native';
@@ -116,6 +116,15 @@ export default function ProfileScreen() {
               board={boardMap[item.boardId]}
               showBoardInfo
               isOwn
+              onEdit={() => router.push(('/rate-flow?boardId=' + item.boardId + '&opinionId=' + item.id) as any)}
+              onDelete={() => Alert.alert(
+                'Delete Opinion',
+                "Remove this opinion? The board won't miss you either.",
+                [
+                  { text: 'KEEP IT', style: 'cancel' },
+                  { text: 'DELETE', style: 'destructive', onPress: () => {} },
+                ],
+              )}
             />
           )}
           ListHeaderComponent={renderHeader}
