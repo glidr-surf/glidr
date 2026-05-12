@@ -26,8 +26,10 @@
     "experiments": {
       "typedRoutes": true
     },
+    "newArchEnabled": true,
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "expo-font"
     ]
   }
 }
