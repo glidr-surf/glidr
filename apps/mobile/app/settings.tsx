@@ -6,9 +6,11 @@ import { GText } from '../src/components/GText';
 import { colors } from '../src/theme/colors';
 import { spacing } from '../src/theme/spacing';
 import { mockCurrentUser } from '../src/data/mock';
+import { useAuth } from '../src/context/AuthContext';
 
 export default function SettingsScreen() {
   const router = useRouter();
+  const { isAuthenticated, signOut, showAuthModal } = useAuth();
   const [units, setUnits] = useState<'imperial' | 'metric'>('imperial');
   const [notifyUpvotes, setNotifyUpvotes] = useState(true);
   const [notifyFollowers, setNotifyFollowers] = useState(true);
@@ -28,18 +30,26 @@ export default function SettingsScreen() {
         {/* Profile */}
         <View style={styles.section}>
           <GText variant="label">PROFILE</GText>
-          <View style={styles.field}>
-            <GText variant="bodyS" color={colors.textMid}>USERNAME</GText>
-            <GText variant="bodyM">{mockCurrentUser.username}</GText>
-          </View>
-          <View style={styles.field}>
-            <GText variant="bodyS" color={colors.textMid}>HEIGHT</GText>
-            <GText variant="bodyM">{mockCurrentUser.height ?? '—'}</GText>
-          </View>
-          <View style={styles.field}>
-            <GText variant="bodyS" color={colors.textMid}>WEIGHT</GText>
-            <GText variant="bodyM">{mockCurrentUser.weight ?? '—'}</GText>
-          </View>
+          {isAuthenticated ? (
+            <>
+              <View style={styles.field}>
+                <GText variant="bodyS" color={colors.textMid}>USERNAME</GText>
+                <GText variant="bodyM">{mockCurrentUser.username}</GText>
+              </View>
+              <View style={styles.field}>
+                <GText variant="bodyS" color={colors.textMid}>HEIGHT</GText>
+                <GText variant="bodyM">{mockCurrentUser.height ?? '—'}</GText>
+              </View>
+              <View style={styles.field}>
+                <GText variant="bodyS" color={colors.textMid}>WEIGHT</GText>
+                <GText variant="bodyM">{mockCurrentUser.weight ?? '—'}</GText>
+              </View>
+            </>
+          ) : (
+            <Pressable style={styles.button} onPress={showAuthModal}>
+              <GText variant="label">SIGN IN</GText>
+            </Pressable>
+          )}
         </View>
 
         {/* Units */}
@@ -101,19 +111,25 @@ export default function SettingsScreen() {
         {/* Account */}
         <View style={styles.section}>
           <GText variant="label">ACCOUNT</GText>
-          <View style={styles.field}>
-            <GText variant="bodyS" color={colors.textMid}>SIGNED IN VIA</GText>
-            <GText variant="bodyM">Google</GText>
-          </View>
-          <Pressable style={styles.button}>
-            <GText variant="label">SIGN OUT</GText>
-          </Pressable>
-          <Pressable style={styles.dangerButton}>
-            <GText variant="label" color={colors.red}>DELETE ACCOUNT</GText>
-          </Pressable>
-          <GText variant="bodyXs" color={colors.textLight}>
-            This removes all your opinions. The boards won't miss you either.
-          </GText>
+          {isAuthenticated ? (
+            <>
+              <View style={styles.field}>
+                <GText variant="bodyS" color={colors.textMid}>SIGNED IN VIA</GText>
+                <GText variant="bodyM">Google</GText>
+              </View>
+              <Pressable style={styles.button} onPress={signOut}>
+                <GText variant="label">SIGN OUT</GText>
+              </Pressable>
+              <Pressable style={styles.dangerButton}>
+                <GText variant="label" color={colors.red}>DELETE ACCOUNT</GText>
+              </Pressable>
+              <GText variant="bodyXs" color={colors.textLight}>
+                This removes all your opinions. The boards won't miss you either.
+              </GText>
+            </>
+          ) : (
+            <GText variant="bodyS" color={colors.textMid}>Not signed in.</GText>
+          )}
         </View>
 
         {/* Version */}
