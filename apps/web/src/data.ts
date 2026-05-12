@@ -33,7 +33,7 @@ export const boards: Board[] = [
     shaper: 'Christenson',
     review: '"Genuinely upset at how good this is. Was meant to be the wife\'s board."',
     user: 'SoggyWetsuit42',
-    image: 'https://cdn.shopify.com/s/files/1/2062/5873/files/18_C_FlatTracker_210_631.jpg?4292194101869748872',
+    image: '/boards/christenson-flat-tracker.jpg',
   },
   {
     rating: 4.9,
@@ -42,7 +42,7 @@ export const boards: Board[] = [
     shaper: 'Bing Surfboards',
     review: '"Caught more waves before 8am than my mate catches all year on his step-up."',
     user: 'KookOfThePier',
-    image: 'https://i0.wp.com/www.surfboardfactoryhawaii.com/wp-content/uploads/2025/05/Bing-Elevator.webp?fit=780%2C1024&ssl=1',
+    image: '/boards/bing-elevator.webp',
   },
   {
     rating: 4.8,
@@ -51,7 +51,7 @@ export const boards: Board[] = [
     shaper: 'Hayden Shapes',
     review: '"Told myself I\'d never be a Hypto bloke. I am now a Hypto bloke."',
     user: 'TwoWetsuitWinter',
-    image: 'https://www.haydenshapes.com/cdn/shop/files/1_ef3e9bca-31f4-4e98-ae5c-b5c119d4ee84_640x.jpg?v=1755747275',
+    image: '/boards/hayden-hypto-krypto.jpg',
   },
   {
     rating: 3.5,
@@ -60,7 +60,7 @@ export const boards: Board[] = [
     shaper: 'Channel Islands',
     review: '"Absolutely rapid on a chest-high wall. Anything bigger and I\'m just holding on for dear life."',
     user: 'FinBoxPhilosopher',
-    image: 'https://cisurfboards.com/cdn/shop/products/OG-Flyer-Deck-for-Web.png?v=1619470436',
+    image: '/boards/ci-og-flyer.jpg',
   },
 ];
 

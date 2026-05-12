@@ -6,3 +6,25 @@ docs/superpowers/
 *.tsbuildinfo
 .vite/
 .expo/
+
+# Environment & secrets
+.env
+.env.*
+.env.local
+*.pem
+*.key
+*.p12
+
+# Local config
+.claude/
+*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
