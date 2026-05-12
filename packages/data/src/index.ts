@@ -23,3 +23,5 @@ export { getShapers, getShaper, submitShaper } from './queries/shapers';
 export { getProfile, updateProfile } from './queries/profiles';
 export { follow, unfollow, getFollowers, getFollowing } from './queries/follows';
 export { getLandingStats, type LandingStats } from './queries/stats';
+export { computeBadges } from './badges';
+export { exportUserData, type UserDataExport } from './export';
