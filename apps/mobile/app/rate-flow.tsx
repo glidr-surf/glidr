@@ -8,6 +8,10 @@ import { RatingStep } from '../src/components/rate/RatingStep';
 import { VibeCheckStep } from '../src/components/rate/VibeCheckStep';
 import { BuyAgainStep } from '../src/components/rate/BuyAgainStep';
 import { ConfirmationStep } from '../src/components/rate/ConfirmationStep';
+import { RideStep } from '../src/components/rate/RideStep';
+import { ConditionsStep } from '../src/components/rate/ConditionsStep';
+import { NittyGrittyStep } from '../src/components/rate/NittyGrittyStep';
+import { FreeTextStep } from '../src/components/rate/FreeTextStep';
 import { createInitialState } from '../src/components/rate/types';
 import type { RateFlowState, RateFlowStep } from '../src/components/rate/types';
 
@@ -38,7 +42,9 @@ export default function RateFlowScreen() {
   const onNext = () => {
     const currentIndex = STEP_ORDER.indexOf(state.step);
     const nextStep = STEP_ORDER[currentIndex + 1];
-    if (nextStep) {
+    if (nextStep === 'done') {
+      router.back();
+    } else if (nextStep) {
       setState((prev) => ({ ...prev, step: nextStep }));
     }
   };
@@ -82,6 +88,38 @@ export default function RateFlowScreen() {
             state={state}
             onDeepDive={onDeepDive}
             onFinish={onFinish}
+          />
+        )}
+        {state.step === 'ride' && (
+          <RideStep
+            state={state}
+            onUpdate={onUpdate}
+            onNext={onNext}
+            onSkip={onNext}
+          />
+        )}
+        {state.step === 'conditions' && (
+          <ConditionsStep
+            state={state}
+            onUpdate={onUpdate}
+            onNext={onNext}
+            onSkip={onNext}
+          />
+        )}
+        {state.step === 'nitty-gritty' && (
+          <NittyGrittyStep
+            state={state}
+            onUpdate={onUpdate}
+            onNext={onNext}
+            onSkip={onNext}
+          />
+        )}
+        {state.step === 'free-text' && (
+          <FreeTextStep
+            state={state}
+            onUpdate={onUpdate}
+            onNext={onNext}
+            onSkip={onNext}
           />
         )}
       </View>
