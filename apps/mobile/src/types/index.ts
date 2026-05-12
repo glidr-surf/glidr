@@ -23,6 +23,7 @@ export interface Board {
   opinionCount: number;
   buyAgainPercent: number;
   topVibeTag?: VibeTag;
+  verdict?: string;
 }
 
 export interface Opinion {
