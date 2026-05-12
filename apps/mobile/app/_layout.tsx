@@ -34,6 +34,8 @@ export default function RootLayout() {
       <Stack.Screen name="user/[id]" options={{ presentation: 'card' }} />
       <Stack.Screen name="badges" options={{ presentation: 'card' }} />
       <Stack.Screen name="settings" options={{ presentation: 'card' }} />
+      <Stack.Screen name="rate-flow" options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }} />
+      <Stack.Screen name="add-board" options={{ presentation: 'card' }} />
     </Stack>
   );
 }
