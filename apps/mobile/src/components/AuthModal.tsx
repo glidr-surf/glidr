@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Modal, View, TextInput, Pressable, StyleSheet, ActivityIndicator } from 'react-native';
+import { Modal, View, TextInput, Pressable, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../context/AuthContext';
 import { GText } from './GText';
@@ -47,8 +47,9 @@ export function AuthModal() {
 
   return (
     <Modal visible={isAuthModalVisible} transparent animationType="slide" onRequestClose={close}>
-      <Pressable style={styles.overlay} onPress={close}>
-        <Pressable style={styles.sheet} onPress={() => {}}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.flex}>
+        <Pressable style={styles.overlay} onPress={close}>
+          <Pressable style={styles.sheet} onPress={() => {}}>
           <View style={styles.handle} />
 
           <GText variant="displayM" style={styles.title}>JOIN THE LINEUP</GText>
@@ -102,13 +103,15 @@ export function AuthModal() {
           <GText variant="caption" color={colors.textLight} style={styles.footer}>
             By continuing, you agree to our Terms and Privacy Policy.
           </GText>
+          </Pressable>
         </Pressable>
-      </Pressable>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
+  flex: { flex: 1 },
   overlay: { flex: 1, backgroundColor: 'rgba(26,23,20,0.85)', justifyContent: 'flex-end' },
   sheet: { backgroundColor: colors.bg, borderTopLeftRadius: 16, borderTopRightRadius: 16, padding: spacing.xl, gap: spacing.md },
   handle: { width: 40, height: 4, backgroundColor: colors.borderSoft, borderRadius: 2, alignSelf: 'center', marginBottom: spacing.sm },
