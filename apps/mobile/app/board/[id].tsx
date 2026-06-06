@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react';
-import { View, FlatList, Pressable, StyleSheet, Alert } from 'react-native';
+import { View, Image, FlatList, Pressable, StyleSheet, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../../src/context/AuthContext';
 import { CaretLeft, ShareNetwork } from 'phosphor-react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GText } from '../../src/components/GText';
-import { SurfboardRating } from '../../src/components/SurfboardRating';
 import { BoardTypeTag } from '../../src/components/BoardTypeTag';
 import { StatBlock } from '../../src/components/StatBlock';
 import { Chips } from '../../src/components/Chips';
 import { OpinionCard } from '../../src/components/OpinionCard';
+import { BoldBlock } from '../../src/components/BoldBlock';
+import { Button } from '../../src/components/Button';
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
 import { getBoard, getOpinions } from '@glidr/data';
@@ -27,6 +28,7 @@ export default function BoardProfileScreen() {
   const [opinions, setOpinions] = useState<Opinion[]>([]);
 
   const { requireAuth, user } = useAuth();
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     if (!id) return;
@@ -53,6 +55,10 @@ export default function BoardProfileScreen() {
     <View>
       {/* Hero */}
       <View style={styles.hero}>
+        {board.imageUrl && (
+          <Image source={{ uri: board.imageUrl }} style={styles.heroImg} />
+        )}
+        <View style={styles.heroScrim} />
         <View style={styles.nav}>
           <Pressable onPress={() => router.back()} style={styles.navButton}>
             <CaretLeft size={20} color={colors.white} weight="bold" />
@@ -82,20 +88,20 @@ export default function BoardProfileScreen() {
       </View>
 
       {/* Verdict */}
-      <View style={styles.verdict}>
-        {board.verdict ? (
-          <>
-            <GText variant="bodyL" color={colors.white}>"{board.verdict}"</GText>
-            <GText variant="caption" color={colors.white} style={styles.verdictMeta}>
+      {board.verdict ? (
+        <View style={styles.verdictWrap}>
+          <BoldBlock tone="yellow" style={styles.verdict}>
+            <GText variant="displayS" color={colors.text}>"{board.verdict}"</GText>
+            <GText variant="caption" color={colors.text} style={styles.verdictMeta}>
               GENERATED FROM {board.opinionCount} OPINIONS
             </GText>
-          </>
-        ) : (
-          <GText variant="bodyM" color={colors.white}>
-            Not enough opinions yet. Be the change.
-          </GText>
-        )}
-      </View>
+          </BoldBlock>
+        </View>
+      ) : (
+        <View style={styles.verdictEmpty}>
+          <GText variant="bodyM" color={colors.text}>Not enough opinions yet. Be the change.</GText>
+        </View>
+      )}
 
       {/* Tabs */}
       <View style={styles.tabs}>
@@ -149,10 +155,8 @@ export default function BoardProfileScreen() {
           ListHeaderComponent={renderHeader}
           contentContainerStyle={styles.listContent}
         />
-        <View style={styles.stickyCta}>
-          <Pressable style={styles.ctaButton} onPress={() => requireAuth(() => router.push('/(tabs)/rate' as any))}>
-            <GText variant="displayS" color={colors.white}>RATE THIS BOARD</GText>
-          </Pressable>
+        <View style={[styles.stickyCta, { paddingBottom: insets.bottom + 12 }]}>
+          <Button label="RATE THIS BOARD" onPress={() => requireAuth(() => router.push('/(tabs)/rate' as any))} />
         </View>
       </View>
     );
@@ -190,10 +194,8 @@ export default function BoardProfileScreen() {
           </View>
         }
       />
-      <View style={styles.stickyCta}>
-        <Pressable style={styles.ctaButton} onPress={() => requireAuth(() => router.push('/(tabs)/rate' as any))}>
-          <GText variant="displayS" color={colors.white}>RATE THIS BOARD</GText>
-        </Pressable>
+      <View style={[styles.stickyCta, { paddingBottom: insets.bottom + 12 }]}>
+        <Button label="RATE THIS BOARD" onPress={() => requireAuth(() => router.push('/(tabs)/rate' as any))} />
       </View>
     </View>
   );
@@ -235,10 +237,22 @@ const styles = StyleSheet.create({
     paddingBottom: 80,
   },
   hero: {
+    position: 'relative',
     backgroundColor: colors.cardDark,
     padding: spacing.xl,
     paddingTop: 60,
     gap: spacing.sm,
+  },
+  heroImg: {
+    position: 'absolute',
+    top: 0, left: 0, right: 0, bottom: 0,
+    width: '100%', height: '100%',
+    resizeMode: 'cover',
+  },
+  heroScrim: {
+    position: 'absolute',
+    top: 0, left: 0, right: 0, bottom: 0,
+    backgroundColor: 'rgba(20,18,16,0.55)',
   },
   nav: {
     flexDirection: 'row',
@@ -258,11 +272,23 @@ const styles = StyleSheet.create({
   },
   statsRow: {
     flexDirection: 'row',
+    borderBottomWidth: 2,
+    borderBottomColor: colors.text,
+  },
+  verdictWrap: {
+    margin: spacing.lg,
   },
   verdict: {
-    backgroundColor: colors.cardDark,
-    padding: spacing.xl,
+    padding: spacing.lg,
     gap: spacing.sm,
+  },
+  verdictEmpty: {
+    margin: spacing.lg,
+    padding: spacing.lg,
+    backgroundColor: colors.surfaceCard,
+    borderWidth: 1.5,
+    borderColor: colors.borderSoft,
+    borderRadius: 4,
   },
   verdictMeta: {
     marginTop: spacing.xs,
@@ -308,14 +334,8 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    padding: spacing.lg,
-    paddingBottom: spacing.xl,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
     backgroundColor: colors.bg,
-  },
-  ctaButton: {
-    backgroundColor: colors.red,
-    paddingVertical: spacing.md,
-    alignItems: 'center',
-    borderRadius: 2,
   },
 });
