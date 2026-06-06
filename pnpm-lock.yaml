@@ -35,6 +35,9 @@ importers:
       '@privy-io/expo':
         specifier: ^0.65.4
         version: 0.65.4(@privy-io/expo-native-extensions@0.0.11(expo@54.0.34)(react-native@0.81.5(@babel/core@7.29.0)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(@types/react@19.1.17)(expo-application@55.0.14(expo@54.0.34))(expo-crypto@55.0.14(expo@54.0.34))(expo-linking@55.0.15)(react-native-passkeys@0.4.1(expo@54.0.34)(react-native@0.81.5(@babel/core@7.29.0)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native-safe-area-context@5.6.2(react-native@0.81.5(@babel/core@7.29.0)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native-svg@15.12.1(react-native@0.81.5(@babel/core@7.29.0)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native-webview@13.16.1(react-native@0.81.5(@babel/core@7.29.0)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0))(react-native@0.81.5(@babel/core@7.29.0)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)(use-sync-external-store@1.6.0(react@19.1.0))(viem@2.47.12(typescript@5.9.3)(zod@3.25.76))
+      '@react-native-async-storage/async-storage':
+        specifier: ^3.1.1
+        version: 3.1.1(react-native@0.81.5(@babel/core@7.29.0)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
       '@react-native-picker/picker':
         specifier: ^2.11.4
         version: 2.11.4(react-native@0.81.5(@babel/core@7.29.0)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
@@ -1411,6 +1414,12 @@ packages:
     peerDependenciesMeta:
       '@types/react':
         optional: true
+
+  '@react-native-async-storage/async-storage@3.1.1':
+    resolution: {integrity: sha512-z+PnLz1n6ECKhgoHZHkfc+dijXZEyZnNFSajbtE0NEbsJhmX8x9GlOeiMQIKX2E4DUqPSgfIh4FYBv1M49KgPQ==}
+    peerDependencies:
+      react: '*'
+      react-native: '*'
 
   '@react-native-picker/picker@2.11.4':
     resolution: {integrity: sha512-Kf8h1AMnBo54b1fdiVylP2P/iFcZqzpMYcglC28EEFB1DEnOjsNr6Ucqc+3R9e91vHxEDnhZFbYDmAe79P2gjA==}
@@ -2982,6 +2991,9 @@ packages:
   iconv-lite@0.6.3:
     resolution: {integrity: sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw==}
     engines: {node: '>=0.10.0'}
+
+  idb@8.0.3:
+    resolution: {integrity: sha512-LtwtVyVYO5BqRvcsKuB2iUMnHwPVByPCXFXOpuU96IZPPoPN6xjOGxZQ74pgSVVLQWtUOYgyeL4GE98BY5D3wg==}
 
   ieee754@1.2.1:
     resolution: {integrity: sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==}
@@ -6330,6 +6342,12 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.1.17
 
+  '@react-native-async-storage/async-storage@3.1.1(react-native@0.81.5(@babel/core@7.29.0)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)':
+    dependencies:
+      idb: 8.0.3
+      react: 19.1.0
+      react-native: 0.81.5(@babel/core@7.29.0)(@types/react@19.1.17)(react@19.1.0)
+
   '@react-native-picker/picker@2.11.4(react-native@0.81.5(@babel/core@7.29.0)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)':
     dependencies:
       react: 19.1.0
@@ -7977,6 +7995,8 @@ snapshots:
   iconv-lite@0.6.3:
     dependencies:
       safer-buffer: 2.1.2
+
+  idb@8.0.3: {}
 
   ieee754@1.2.1: {}
 
