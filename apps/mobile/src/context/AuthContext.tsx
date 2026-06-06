@@ -10,8 +10,10 @@ interface AuthContextValue {
   isAuthModalVisible: boolean;
   showAuthModal: () => void;
   hideAuthModal: () => void;
-  signIn: () => void;
-  signOut: () => void;
+  sendCode: (email: string) => Promise<void>;
+  verifyCode: (email: string, code: string) => Promise<boolean>; // returns needsUsername
+  refreshUser: () => Promise<void>;
+  signOut: () => Promise<void>;
   requireAuth: (action: () => void) => void;
 }
 
@@ -23,29 +25,55 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthModalVisible, setIsAuthModalVisible] = useState(false);
   const pendingAction = useRef<(() => void) | null>(null);
 
-  // TODO: Wire Privy hooks here when configured
-  // const { isReady, isAuthenticated: privyAuth, user: privyUser, login, logout } = usePrivy();
+  const loadProfile = async (userId: string): Promise<User | null> => {
+    const profile = await getProfile(supabase, userId);
+    setUser(profile);
+    return profile;
+  };
 
   useEffect(() => {
-    // TODO: Replace with Privy auth state check
-    // For now, mark as loaded with no user (signed out state)
-    setIsLoading(false);
+    let active = true;
+    supabase.auth.getSession().then(async ({ data }) => {
+      if (active && data.session) await loadProfile(data.session.user.id);
+      if (active) setIsLoading(false);
+    });
+
+    const { data: sub } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (session) await loadProfile(session.user.id);
+      else setUser(null);
+    });
+
+    return () => {
+      active = false;
+      sub.subscription.unsubscribe();
+    };
   }, []);
 
   const showAuthModal = () => setIsAuthModalVisible(true);
   const hideAuthModal = () => setIsAuthModalVisible(false);
 
-  const signIn = () => {
-    // TODO: Call Privy login()
-    setIsAuthModalVisible(false);
-    if (pendingAction.current) {
-      pendingAction.current();
-      pendingAction.current = null;
-    }
+  const sendCode = async (email: string) => {
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { shouldCreateUser: true },
+    });
+    if (error) throw error;
   };
 
-  const signOut = () => {
-    // TODO: Call Privy logout()
+  const verifyCode = async (email: string, code: string): Promise<boolean> => {
+    const { data, error } = await supabase.auth.verifyOtp({ email, token: code, type: 'email' });
+    if (error) throw error;
+    const profile = data.session ? await loadProfile(data.session.user.id) : null;
+    return profile === null; // needsUsername
+  };
+
+  const refreshUser = async () => {
+    const { data } = await supabase.auth.getSession();
+    if (data.session) await loadProfile(data.session.user.id);
+  };
+
+  const signOut = async () => {
+    await supabase.auth.signOut();
     setUser(null);
   };
 
@@ -67,7 +95,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isAuthModalVisible,
         showAuthModal,
         hideAuthModal,
-        signIn,
+        sendCode,
+        verifyCode,
+        refreshUser,
         signOut,
         requireAuth,
       }}
