@@ -16,6 +16,7 @@ import { BoldBlock } from '../../src/components/BoldBlock';
 import { Button } from '../../src/components/Button';
 import { Skeleton } from '../../src/components/Skeleton';
 import { pluralize } from '../../src/utils/pluralize';
+import { navBack } from '../../src/utils/navBack';
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
 import { getBoard, getOpinions } from '@glidr/data';
@@ -114,7 +115,7 @@ export default function BoardProfileScreen() {
         )}
         <View style={styles.nav}>
           <Pressable
-            onPress={() => { tapHaptic(); router.back(); }}
+            onPress={() => { tapHaptic(); navBack(router); }}
             style={({ pressed }) => [styles.navButton, pressed && styles.pressed]}
             hitSlop={8}
             accessibilityRole="button"
@@ -201,41 +202,34 @@ export default function BoardProfileScreen() {
     </View>
   );
 
-  if (activeTab === 'specs') {
-    return (
-      <Screen edges={[]}>
-        <FlatList data={[]} renderItem={() => null} ListHeaderComponent={renderHeader} contentContainerStyle={styles.listContent} />
-        {cta}
-      </Screen>
-    );
-  }
+  const isOpinions = activeTab === 'opinions';
 
   return (
     <Screen edges={[]}>
       <FlatList
-        data={loadingOps ? [] : sortedOpinions}
+        data={isOpinions && !loadingOps ? sortedOpinions : []}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <OpinionCard
-            opinion={item}
-            isOwn={item.userId === user?.id}
-            onEdit={item.userId === user?.id ? () => router.push(('/rate-flow?boardId=' + item.boardId + '&opinionId=' + item.id) as any) : undefined}
-            onDelete={item.userId === user?.id ? () => Alert.alert(
-              'Delete Opinion',
-              "Remove this opinion? The board won't miss you either.",
-              [
-                { text: 'KEEP IT', style: 'cancel' },
-                { text: 'DELETE', style: 'destructive', onPress: () => {} },
-              ],
-            ) : undefined}
-          />
+          <View style={styles.opinionItem}>
+            <OpinionCard
+              opinion={item}
+              isOwn={item.userId === user?.id}
+              onEdit={item.userId === user?.id ? () => router.push(('/rate-flow?boardId=' + item.boardId + '&opinionId=' + item.id) as any) : undefined}
+              onDelete={item.userId === user?.id ? () => Alert.alert(
+                'Delete Opinion',
+                "Remove this opinion? The board won't miss you either.",
+                [
+                  { text: 'KEEP IT', style: 'cancel' },
+                  { text: 'DELETE', style: 'destructive', onPress: () => {} },
+                ],
+              ) : undefined}
+            />
+          </View>
         )}
         ListHeaderComponent={renderHeader}
         contentContainerStyle={styles.listContent}
-        style={styles.opinionList}
-        ItemSeparatorComponent={() => <View style={styles.opinionSeparator} />}
         ListEmptyComponent={
-          loadingOps ? (
+          !isOpinions ? null : loadingOps ? (
             <View style={styles.opsLoading}>
               <Skeleton height={90} />
               <Skeleton height={90} />
@@ -312,10 +306,9 @@ const styles = StyleSheet.create({
   tabs: { flexDirection: 'row', borderBottomWidth: 2, borderBottomColor: colors.border },
   tab: { flex: 1, alignItems: 'center', paddingVertical: spacing.md },
   tabActive: { borderBottomWidth: 2, borderBottomColor: colors.red },
-  sortSection: { paddingVertical: spacing.md },
+  sortSection: { paddingVertical: spacing.md, paddingHorizontal: spacing.lg },
   specsSection: { padding: spacing.xl, gap: spacing.sm },
-  opinionList: { marginHorizontal: spacing.xl, backgroundColor: colors.surfaceCard, borderRadius: 2, overflow: 'hidden' },
-  opinionSeparator: { height: 1, backgroundColor: colors.borderSoft },
+  opinionItem: { paddingHorizontal: spacing.lg, marginBottom: spacing.md },
   empty: { padding: spacing.xl, alignItems: 'center', gap: spacing.md },
   stickyCta: { position: 'absolute', bottom: 0, left: 0, right: 0, paddingHorizontal: spacing.lg, paddingTop: spacing.md, backgroundColor: colors.bg },
 });
