@@ -11,12 +11,19 @@
   },
   "scripts": {
     "build": "tsc",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "db:setup": "./scripts/setup.sh",
+    "db:push": "supabase db push --workdir .",
+    "db:seed": "supabase db seed --workdir .",
+    "db:reset": "supabase db reset --workdir ."
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.0"
   },
   "devDependencies": {
-    "typescript": "^5.8"
+    "typescript": "^5.8",
+    "vitest": "^4.1.8"
   }
 }
