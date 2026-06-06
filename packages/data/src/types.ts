@@ -75,6 +75,13 @@ export interface DbProfile {
   updated_at: string;
 }
 
+export interface DbUserIdentity {
+  provider: string;
+  subject: string;
+  profile_id: string;
+  created_at: string;
+}
+
 export interface DbOpinion {
   id: string;
   board_id: string;
@@ -245,4 +252,11 @@ export interface SubmitShaperInput {
   name: string;
   location?: string;
   bio?: string;
+}
+
+export interface CreateProfileInput {
+  id: string;
+  username: string;
+  height?: string;
+  weight?: string;
 }

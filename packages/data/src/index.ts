@@ -15,6 +15,7 @@ export type {
   SubmitOpinionInput,
   SubmitBoardInput,
   SubmitShaperInput,
+  CreateProfileInput,
 } from './types';
 export { createClient, type SupabaseClient } from './client';
 export { getBoards, getBoard, submitBoard } from './queries/boards';
