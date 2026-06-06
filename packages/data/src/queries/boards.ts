@@ -1,6 +1,27 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Board, BoardType, VibeTag, SubmitBoardInput } from '../types';
 
+interface BoardStatsRow {
+  board_id: string;
+  avg_rating: number | null;
+  opinion_count: number | null;
+  buy_again_percent: number | null;
+  top_vibe_tag: string | null;
+}
+
+async function fetchBoardStats(
+  client: SupabaseClient,
+  boardIds: string[],
+): Promise<Map<string, BoardStatsRow>> {
+  if (boardIds.length === 0) return new Map();
+  const { data, error } = await client
+    .from('board_stats')
+    .select('board_id, avg_rating, opinion_count, buy_again_percent, top_vibe_tag')
+    .in('board_id', boardIds);
+  if (error) throw error;
+  return new Map((data ?? []).map((s) => [s.board_id as string, s as BoardStatsRow]));
+}
+
 export async function getBoards(
   client: SupabaseClient,
   options?: { type?: BoardType; limit?: number }
@@ -9,8 +30,7 @@ export async function getBoards(
     .from('boards')
     .select(`
       id, name, shaper_id, type, image_url, length, width, thickness, volume, verdict,
-      shapers!inner ( name ),
-      board_stats ( avg_rating, opinion_count, buy_again_percent, top_vibe_tag )
+      shapers!inner ( name )
     `)
     .eq('status', 'approved');
 
@@ -24,7 +44,9 @@ export async function getBoards(
   const { data, error } = await query;
   if (error) throw error;
 
-  return (data ?? []).map(mapBoard);
+  const rows = data ?? [];
+  const stats = await fetchBoardStats(client, rows.map((r) => r.id));
+  return rows.map((r) => mapBoard(r, stats.get(r.id)));
 }
 
 export async function getBoard(
@@ -35,8 +57,7 @@ export async function getBoard(
     .from('boards')
     .select(`
       id, name, shaper_id, type, image_url, length, width, thickness, volume, verdict,
-      shapers!inner ( name ),
-      board_stats ( avg_rating, opinion_count, buy_again_percent, top_vibe_tag )
+      shapers!inner ( name )
     `)
     .eq('id', boardId)
     .single();
@@ -46,7 +67,8 @@ export async function getBoard(
     throw error;
   }
 
-  return mapBoard(data);
+  const stats = await fetchBoardStats(client, [data.id]);
+  return mapBoard(data, stats.get(data.id));
 }
 
 export async function submitBoard(
@@ -72,8 +94,7 @@ export async function submitBoard(
   return data.id;
 }
 
-function mapBoard(row: any): Board {
-  const stats = Array.isArray(row.board_stats) ? row.board_stats[0] : row.board_stats;
+function mapBoard(row: any, stats?: BoardStatsRow): Board {
   const shaper = Array.isArray(row.shapers) ? row.shapers[0] : row.shapers;
 
   return {

@@ -1,17 +1,37 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Shaper, VibeTag, SubmitShaperInput } from '../types';
 
+interface ShaperStatsRow {
+  shaper_id: string;
+  board_count: number | null;
+  avg_rating: number | null;
+  opinion_count: number | null;
+  top_vibe_tag: string | null;
+}
+
+async function fetchShaperStats(
+  client: SupabaseClient,
+  shaperIds: string[],
+): Promise<Map<string, ShaperStatsRow>> {
+  if (shaperIds.length === 0) return new Map();
+  const { data, error } = await client
+    .from('shaper_stats')
+    .select('shaper_id, board_count, avg_rating, opinion_count, top_vibe_tag')
+    .in('shaper_id', shaperIds);
+  if (error) throw error;
+  return new Map((data ?? []).map((s) => [s.shaper_id as string, s as ShaperStatsRow]));
+}
+
 export async function getShapers(client: SupabaseClient): Promise<Shaper[]> {
   const { data, error } = await client
     .from('shapers')
-    .select(`
-      id, name, location, bio,
-      shaper_stats ( board_count, avg_rating, opinion_count, top_vibe_tag )
-    `)
+    .select('id, name, location, bio')
     .eq('status', 'approved');
 
   if (error) throw error;
-  return (data ?? []).map(mapShaper);
+  const rows = data ?? [];
+  const stats = await fetchShaperStats(client, rows.map((r) => r.id));
+  return rows.map((r) => mapShaper(r, stats.get(r.id)));
 }
 
 export async function getShaper(
@@ -20,10 +40,7 @@ export async function getShaper(
 ): Promise<Shaper | null> {
   const { data, error } = await client
     .from('shapers')
-    .select(`
-      id, name, location, bio,
-      shaper_stats ( board_count, avg_rating, opinion_count, top_vibe_tag )
-    `)
+    .select('id, name, location, bio')
     .eq('id', shaperId)
     .single();
 
@@ -31,7 +48,8 @@ export async function getShaper(
     if (error.code === 'PGRST116') return null;
     throw error;
   }
-  return mapShaper(data);
+  const stats = await fetchShaperStats(client, [data.id]);
+  return mapShaper(data, stats.get(data.id));
 }
 
 export async function submitShaper(
@@ -53,8 +71,7 @@ export async function submitShaper(
   return data.id;
 }
 
-function mapShaper(row: any): Shaper {
-  const stats = Array.isArray(row.shaper_stats) ? row.shaper_stats[0] : row.shaper_stats;
+function mapShaper(row: any, stats?: ShaperStatsRow): Shaper {
   return {
     id: row.id,
     name: row.name,
