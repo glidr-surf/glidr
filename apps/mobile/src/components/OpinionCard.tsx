@@ -2,7 +2,7 @@ import { View, StyleSheet, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ArrowFatUp, ArrowFatDown } from 'phosphor-react-native';
 import { GText } from './GText';
-import { SurfboardRating } from './SurfboardRating';
+import { Stars } from './Stars';
 import { BoardTypeTag } from './BoardTypeTag';
 import { colors } from '../theme/colors';
 import { spacing } from '../theme/spacing';
@@ -33,7 +33,7 @@ export function OpinionCard({
   const router = useRouter();
 
   return (
-    <View style={[styles.container, isOwn && styles.ownContainer]}>
+    <View testID="opinion-card" style={[styles.container, isOwn && styles.ownContainer]}>
       {showBoardInfo && board && (
         <Pressable
           onPress={() => router.push(`/board/${board.id}`)}
@@ -71,7 +71,7 @@ export function OpinionCard({
       </View>
 
       <View style={styles.ratingRow}>
-        <SurfboardRating rating={opinion.scores['overall_rating'] ?? 0} size={14} />
+        <Stars rating={opinion.scores['overall_rating'] ?? 0} size={16} />
         {opinion.tags['vibe_tag']?.[0] && (
           <View style={styles.vibeTag}>
             <GText variant="caption" color={colors.white}>
@@ -139,8 +139,10 @@ export function OpinionCard({
 
 const styles = StyleSheet.create({
   container: {
-    borderWidth: 2,
-    borderColor: colors.border,
+    backgroundColor: colors.surfaceCard,
+    borderWidth: 1.5,
+    borderColor: colors.borderSoft,
+    borderRadius: 4,
     padding: spacing.lg,
     gap: spacing.sm,
   },
