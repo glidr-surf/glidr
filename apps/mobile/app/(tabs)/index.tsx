@@ -1,51 +1,70 @@
-import { useState, useEffect, useMemo } from 'react';
-import { View, Image, FlatList, Pressable, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { View, FlatList, Pressable, StyleSheet, RefreshControl } from 'react-native';
+import { Image } from 'expo-image';
+import * as Haptics from 'expo-haptics';
 import { MagnifyingGlass } from 'phosphor-react-native';
 import { useRouter } from 'expo-router';
+import { Screen } from '../../src/components/Screen';
 import { GText } from '../../src/components/GText';
 import { BoardTile } from '../../src/components/BoardTile';
 import { BoardTypeTag } from '../../src/components/BoardTypeTag';
+import { BoldBlock } from '../../src/components/BoldBlock';
+import { Skeleton } from '../../src/components/Skeleton';
 import { Stars } from '../../src/components/Stars';
+import { pluralize } from '../../src/utils/pluralize';
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
 import { getBoards } from '@glidr/data';
 import type { Board } from '@glidr/data';
 import { supabase } from '../../src/lib/supabase';
 
+const SKELETON_TILES = [{ id: 's1' }, { id: 's2' }, { id: 's3' }, { id: 's4' }];
+
 export default function HomeScreen() {
   const router = useRouter();
   const [boards, setBoards] = useState<Board[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState(false);
 
-  useEffect(() => {
-    getBoards(supabase).then(setBoards);
+  const load = useCallback((mode: 'initial' | 'refresh' = 'initial') => {
+    if (mode === 'refresh') setRefreshing(true); else setLoading(true);
+    setError(false);
+    getBoards(supabase)
+      .then((b) => setBoards(b))
+      .catch(() => setError(true))
+      .finally(() => { setLoading(false); setRefreshing(false); });
   }, []);
+
+  useEffect(() => { load('initial'); }, [load]);
 
   const ranked = useMemo(() => [...boards].sort((a, b) => b.rating - a.rating), [boards]);
   const featured = ranked[0];
   const lineup = ranked.slice(1);
+  const showSkeleton = loading && boards.length === 0;
 
   const header = (
     <View>
       <View style={styles.headerBar}>
         <GText variant="displayL" color={colors.surface} style={styles.logo}>GLIDR</GText>
-        <View style={styles.headerRight}>
-          <Pressable onPress={() => router.push('/search')} hitSlop={10}>
-            <MagnifyingGlass size={24} color={colors.surface} weight="bold" />
-          </Pressable>
-          <View style={styles.dot} />
-        </View>
+        <Pressable onPress={() => router.push('/search')} hitSlop={12} accessibilityRole="button" accessibilityLabel="Search boards and shapers">
+          <MagnifyingGlass size={24} color={colors.surface} weight="bold" />
+        </Pressable>
       </View>
 
       <View style={styles.body}>
-        {featured && (
-          <Pressable style={styles.posterWrap} onPress={() => router.push(`/board/${featured.id}`)}>
-            <View style={styles.posterShadow} />
-            <View style={styles.poster}>
+        {showSkeleton ? (
+          <Skeleton height={249} style={styles.heroSkeleton} />
+        ) : featured ? (
+          <Pressable
+            style={({ pressed }) => [styles.posterWrap, pressed && styles.pressed]}
+            onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.push(`/board/${featured.id}`); }}
+          >
+            <BoldBlock tone="ink">
               {featured.imageUrl ? (
-                <Image source={{ uri: featured.imageUrl }} style={styles.posterImg} />
+                <Image source={{ uri: featured.imageUrl }} style={styles.posterImg} contentFit="cover" contentPosition="top" transition={200} />
               ) : (
-                <View style={styles.posterFallback}>
+                <View style={[styles.posterImg, styles.posterFallback]}>
                   <GText variant="displayXl" color={colors.surface}>{featured.name.charAt(0)}</GText>
                 </View>
               )}
@@ -56,51 +75,69 @@ export default function HomeScreen() {
                 <View style={styles.posterMeta}>
                   <Stars rating={featured.rating} size={16} color={colors.yellow} />
                   <GText variant="caption" color={colors.yellow}>
-                    {featured.shaper.toUpperCase()} · {featured.opinionCount} OPINIONS
+                    {featured.shaper.toUpperCase()} · {pluralize(featured.opinionCount, 'OPINION').toUpperCase()}
                   </GText>
                 </View>
               </View>
-            </View>
+            </BoldBlock>
           </Pressable>
-        )}
-        <GText variant="label" style={styles.lineupLabel}>THE LINEUP</GText>
+        ) : null}
+
+        {(showSkeleton || featured) && <GText variant="label" style={styles.lineupLabel}>THE LINEUP</GText>}
       </View>
     </View>
   );
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
+    <Screen edges={['top']}>
       <FlatList
-        data={lineup}
-        keyExtractor={(b) => b.id}
+        data={showSkeleton ? SKELETON_TILES : lineup}
+        keyExtractor={(item) => item.id}
         numColumns={2}
-        renderItem={({ item }) => <BoardTile board={item} />}
+        renderItem={({ item }) =>
+          showSkeleton ? <Skeleton height={170} style={styles.tileSkeleton} /> : <BoardTile board={item as Board} />
+        }
         columnWrapperStyle={styles.gridRow}
         contentContainerStyle={styles.grid}
         ListHeaderComponent={header}
+        ListEmptyComponent={
+          error ? (
+            <View style={styles.state}>
+              <GText variant="bodyL" color={colors.textMid}>Couldn't load the lineup.</GText>
+              <Pressable onPress={() => load('initial')} hitSlop={8} style={styles.retry}>
+                <GText variant="label" color={colors.red}>TRY AGAIN</GText>
+              </Pressable>
+            </View>
+          ) : !showSkeleton ? (
+            <View style={styles.state}>
+              <GText variant="bodyL" color={colors.textMid}>No boards yet — paddle out and add one.</GText>
+            </View>
+          ) : null
+        }
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => load('refresh')} tintColor={colors.red} />}
         showsVerticalScrollIndicator={false}
       />
-    </SafeAreaView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.bg },
   headerBar: { backgroundColor: colors.red, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.lg, paddingVertical: spacing.lg },
   logo: { letterSpacing: 2 },
-  headerRight: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  dot: { width: 20, height: 20, borderRadius: 10, backgroundColor: colors.yellow, borderWidth: 2, borderColor: colors.text },
   body: { padding: spacing.lg },
-  posterWrap: { position: 'relative', marginBottom: spacing.xl },
-  posterShadow: { position: 'absolute', top: 6, left: 6, right: -6, bottom: -6, backgroundColor: colors.text },
-  poster: { borderWidth: 2.5, borderColor: colors.text, backgroundColor: colors.cardDark },
-  posterImg: { width: '100%', height: 215, resizeMode: 'cover' },
-  posterFallback: { width: '100%', height: 215, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.blue },
+  pressed: { transform: [{ scale: 0.98 }], opacity: 0.9 },
+  posterWrap: { marginBottom: spacing.xl },
+  posterImg: { width: '100%', height: 215 },
+  posterFallback: { alignItems: 'center', justifyContent: 'center', backgroundColor: colors.blue },
   posterTag: { position: 'absolute', top: 10, left: 10 },
   rank: { position: 'absolute', top: 4, right: 12 },
   posterCap: { backgroundColor: colors.cardDark, padding: spacing.md },
   posterMeta: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginTop: 6 },
+  heroSkeleton: { marginBottom: spacing.xl },
   lineupLabel: { marginBottom: spacing.md },
-  grid: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xl },
-  gridRow: { gap: spacing.lg, marginBottom: spacing.lg },
+  tileSkeleton: { flex: 1 },
+  grid: { paddingBottom: spacing.xl },
+  gridRow: { gap: spacing.lg, marginBottom: spacing.lg, paddingHorizontal: spacing.lg },
+  state: { padding: spacing.xl, alignItems: 'center', gap: spacing.md },
+  retry: { paddingVertical: spacing.sm },
 });
