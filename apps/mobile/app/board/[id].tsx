@@ -1,9 +1,12 @@
-import { useState, useEffect } from 'react';
-import { View, Image, FlatList, Pressable, StyleSheet, Alert } from 'react-native';
+import { useState, useEffect, useCallback } from 'react';
+import { View, FlatList, Pressable, StyleSheet, Alert } from 'react-native';
+import { Image } from 'expo-image';
+import * as Haptics from 'expo-haptics';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../../src/context/AuthContext';
 import { CaretLeft, ShareNetwork } from 'phosphor-react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Screen } from '../../src/components/Screen';
 import { GText } from '../../src/components/GText';
 import { BoardTypeTag } from '../../src/components/BoardTypeTag';
 import { StatBlock } from '../../src/components/StatBlock';
@@ -11,6 +14,8 @@ import { Chips } from '../../src/components/Chips';
 import { OpinionCard } from '../../src/components/OpinionCard';
 import { BoldBlock } from '../../src/components/BoldBlock';
 import { Button } from '../../src/components/Button';
+import { Skeleton } from '../../src/components/Skeleton';
+import { pluralize } from '../../src/utils/pluralize';
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
 import { getBoard, getOpinions } from '@glidr/data';
@@ -19,22 +24,41 @@ import { supabase } from '../../src/lib/supabase';
 
 const SORT_OPTIONS = ['RECENT', 'HELPFUL', 'CONTROVERSIAL'];
 
+const tapHaptic = () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
 export default function BoardProfileScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'opinions' | 'specs'>('opinions');
   const [sort, setSort] = useState('RECENT');
   const [board, setBoard] = useState<Board | null>(null);
+  const [boardError, setBoardError] = useState(false);
   const [opinions, setOpinions] = useState<Opinion[]>([]);
+  const [loadingOps, setLoadingOps] = useState(true);
+  const [opsError, setOpsError] = useState(false);
 
   const { requireAuth, user } = useAuth();
   const insets = useSafeAreaInsets();
 
-  useEffect(() => {
+  const loadBoard = useCallback(() => {
     if (!id) return;
-    getBoard(supabase, id).then((b) => { if (b) setBoard(b); });
-    getOpinions(supabase, { boardId: id }).then(setOpinions);
+    setBoardError(false);
+    getBoard(supabase, id)
+      .then((b) => (b ? setBoard(b) : setBoardError(true)))
+      .catch(() => setBoardError(true));
   }, [id]);
+
+  const loadOps = useCallback(() => {
+    if (!id) return;
+    setLoadingOps(true);
+    setOpsError(false);
+    getOpinions(supabase, { boardId: id })
+      .then(setOpinions)
+      .catch(() => setOpsError(true))
+      .finally(() => setLoadingOps(false));
+  }, [id]);
+
+  useEffect(() => { loadBoard(); loadOps(); }, [loadBoard, loadOps]);
 
   const sortedOpinions = [...opinions].sort((a, b) => {
     if (sort === 'HELPFUL') return (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes);
@@ -49,30 +73,69 @@ export default function BoardProfileScreen() {
   const avgManoeuvrability = withManoeuvre.length > 0 ? withManoeuvre.reduce((s, o) => s + (o.scores['manoeuvrability'] ?? 0), 0) / withManoeuvre.length : 0;
   const avgPaddlePower = withPaddle.length > 0 ? withPaddle.reduce((s, o) => s + (o.scores['paddle_power'] ?? 0), 0) / withPaddle.length : 0;
 
-  if (!board) return null;
+  if (boardError) {
+    return (
+      <Screen edges={['top']}>
+        <View style={styles.state}>
+          <GText variant="bodyL" color={colors.textMid}>Couldn't load this board.</GText>
+          <Pressable onPress={loadBoard} hitSlop={8} style={styles.retry}>
+            <GText variant="label" color={colors.red}>TRY AGAIN</GText>
+          </Pressable>
+        </View>
+      </Screen>
+    );
+  }
+
+  if (!board) {
+    return (
+      <Screen edges={[]}>
+        <View style={[styles.hero, { paddingTop: insets.top + spacing.lg }]}>
+          <Skeleton height={28} width="60%" />
+          <Skeleton height={48} width="80%" style={{ marginTop: spacing.md }} />
+        </View>
+        <View style={styles.loadingBody}>
+          <Skeleton height={64} />
+          <Skeleton height={110} />
+          <Skeleton height={90} />
+        </View>
+      </Screen>
+    );
+  }
 
   const renderHeader = () => (
     <View>
       {/* Hero */}
-      <View style={styles.hero}>
+      <View style={[styles.hero, { paddingTop: insets.top + spacing.lg }]}>
         {board.imageUrl && (
           <>
-            <Image source={{ uri: board.imageUrl }} style={styles.heroImg} />
+            <Image source={{ uri: board.imageUrl }} style={styles.heroImg} contentFit="cover" contentPosition="top" transition={200} />
             <View style={styles.heroScrim} />
           </>
         )}
         <View style={styles.nav}>
-          <Pressable onPress={() => router.back()} style={styles.navButton}>
+          <Pressable
+            onPress={() => { tapHaptic(); router.back(); }}
+            style={({ pressed }) => [styles.navButton, pressed && styles.pressed]}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
+          >
             <CaretLeft size={20} color={colors.white} weight="bold" />
           </Pressable>
-          <Pressable style={styles.navButton}>
+          <Pressable
+            onPress={tapHaptic}
+            style={({ pressed }) => [styles.navButton, pressed && styles.pressed]}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel="Share this board"
+          >
             <ShareNetwork size={20} color={colors.white} weight="regular" />
           </Pressable>
         </View>
 
         <BoardTypeTag type={board.type} size="md" />
         <GText variant="displayXl" color={colors.white}>{board.name}</GText>
-        <Pressable onPress={() => router.push(`/shaper/${board.shaperId}`)}>
+        <Pressable onPress={() => router.push(`/shaper/${board.shaperId}`)} accessibilityRole="link">
           <GText variant="label" color={colors.red}>{board.shaper.toUpperCase()}</GText>
         </Pressable>
         {board.topVibeTag && (
@@ -95,7 +158,7 @@ export default function BoardProfileScreen() {
           <BoldBlock tone="yellow" style={styles.verdict}>
             <GText variant="displayS" color={colors.text}>"{board.verdict}"</GText>
             <GText variant="caption" color={colors.text} style={styles.verdictMeta}>
-              GENERATED FROM {board.opinionCount} OPINIONS
+              GENERATED FROM {pluralize(board.opinionCount, 'OPINION').toUpperCase()}
             </GText>
           </BoldBlock>
         </View>
@@ -107,27 +170,11 @@ export default function BoardProfileScreen() {
 
       {/* Tabs */}
       <View style={styles.tabs}>
-        <Pressable
-          onPress={() => setActiveTab('opinions')}
-          style={[styles.tab, activeTab === 'opinions' && styles.tabActive]}
-        >
-          <GText
-            variant="label"
-            color={activeTab === 'opinions' ? colors.text : colors.textLight}
-          >
-            OPINIONS
-          </GText>
+        <Pressable onPress={() => setActiveTab('opinions')} style={[styles.tab, activeTab === 'opinions' && styles.tabActive]}>
+          <GText variant="label" color={activeTab === 'opinions' ? colors.text : colors.textLight}>OPINIONS</GText>
         </Pressable>
-        <Pressable
-          onPress={() => setActiveTab('specs')}
-          style={[styles.tab, activeTab === 'specs' && styles.tabActive]}
-        >
-          <GText
-            variant="label"
-            color={activeTab === 'specs' ? colors.text : colors.textLight}
-          >
-            SPECS
-          </GText>
+        <Pressable onPress={() => setActiveTab('specs')} style={[styles.tab, activeTab === 'specs' && styles.tabActive]}>
+          <GText variant="label" color={activeTab === 'specs' ? colors.text : colors.textLight}>SPECS</GText>
         </Pressable>
       </View>
 
@@ -148,26 +195,25 @@ export default function BoardProfileScreen() {
     </View>
   );
 
+  const cta = (
+    <View style={[styles.stickyCta, { paddingBottom: insets.bottom + 12 }]}>
+      <Button label="RATE THIS BOARD" onPress={() => { tapHaptic(); requireAuth(() => router.push('/(tabs)/rate' as any)); }} />
+    </View>
+  );
+
   if (activeTab === 'specs') {
     return (
-      <View style={styles.screen}>
-        <FlatList
-          data={[]}
-          renderItem={() => null}
-          ListHeaderComponent={renderHeader}
-          contentContainerStyle={styles.listContent}
-        />
-        <View style={[styles.stickyCta, { paddingBottom: insets.bottom + 12 }]}>
-          <Button label="RATE THIS BOARD" onPress={() => requireAuth(() => router.push('/(tabs)/rate' as any))} />
-        </View>
-      </View>
+      <Screen edges={[]}>
+        <FlatList data={[]} renderItem={() => null} ListHeaderComponent={renderHeader} contentContainerStyle={styles.listContent} />
+        {cta}
+      </Screen>
     );
   }
 
   return (
-    <View style={styles.screen}>
+    <Screen edges={[]}>
       <FlatList
-        data={sortedOpinions}
+        data={loadingOps ? [] : sortedOpinions}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <OpinionCard
@@ -189,17 +235,27 @@ export default function BoardProfileScreen() {
         style={styles.opinionList}
         ItemSeparatorComponent={() => <View style={styles.opinionSeparator} />}
         ListEmptyComponent={
-          <View style={styles.empty}>
-            <GText variant="bodyM" color={colors.textMid}>
-              No opinions yet. Someone paddle out and report back.
-            </GText>
-          </View>
+          loadingOps ? (
+            <View style={styles.opsLoading}>
+              <Skeleton height={90} />
+              <Skeleton height={90} />
+            </View>
+          ) : opsError ? (
+            <View style={styles.empty}>
+              <GText variant="bodyM" color={colors.textMid}>Couldn't load opinions.</GText>
+              <Pressable onPress={loadOps} hitSlop={8} style={styles.retry}>
+                <GText variant="label" color={colors.red}>TRY AGAIN</GText>
+              </Pressable>
+            </View>
+          ) : (
+            <View style={styles.empty}>
+              <GText variant="bodyM" color={colors.textMid}>No opinions yet. Someone paddle out and report back.</GText>
+            </View>
+          )
         }
       />
-      <View style={[styles.stickyCta, { paddingBottom: insets.bottom + 12 }]}>
-        <Button label="RATE THIS BOARD" onPress={() => requireAuth(() => router.push('/(tabs)/rate' as any))} />
-      </View>
-    </View>
+      {cta}
+    </Screen>
   );
 }
 
@@ -231,113 +287,35 @@ const perfStyles = StyleSheet.create({
 });
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: colors.bg,
-  },
-  listContent: {
-    paddingBottom: 80,
-  },
+  listContent: { paddingBottom: 80 },
+  pressed: { opacity: 0.6 },
+  state: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.md, padding: spacing.xl },
+  retry: { paddingVertical: spacing.sm },
+  loadingBody: { padding: spacing.lg, gap: spacing.md },
+  opsLoading: { padding: spacing.lg, gap: spacing.md },
   hero: {
     position: 'relative',
     backgroundColor: colors.cardDark,
     padding: spacing.xl,
-    paddingTop: 60,
     gap: spacing.sm,
   },
-  heroImg: {
-    position: 'absolute',
-    top: 0, left: 0, right: 0, bottom: 0,
-    width: '100%', height: '100%',
-    resizeMode: 'cover',
-  },
-  heroScrim: {
-    position: 'absolute',
-    top: 0, left: 0, right: 0, bottom: 0,
-    backgroundColor: 'rgba(20,18,16,0.55)',
-  },
-  nav: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: spacing.md,
-  },
-  navButton: {
-    padding: spacing.xs,
-  },
-  heroVibeTag: {
-    backgroundColor: colors.red,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 2,
-    alignSelf: 'flex-start',
-    marginTop: spacing.xs,
-  },
-  statsRow: {
-    flexDirection: 'row',
-    borderBottomWidth: 2,
-    borderBottomColor: colors.text,
-  },
-  verdictWrap: {
-    margin: spacing.lg,
-  },
-  verdict: {
-    padding: spacing.lg,
-    gap: spacing.sm,
-  },
-  verdictEmpty: {
-    margin: spacing.lg,
-    padding: spacing.lg,
-    backgroundColor: colors.surfaceCard,
-    borderWidth: 1.5,
-    borderColor: colors.borderSoft,
-    borderRadius: 4,
-  },
-  verdictMeta: {
-    marginTop: spacing.xs,
-    opacity: 0.6,
-  },
-  tabs: {
-    flexDirection: 'row',
-    borderBottomWidth: 2,
-    borderBottomColor: colors.border,
-  },
-  tab: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: spacing.md,
-  },
-  tabActive: {
-    borderBottomWidth: 2,
-    borderBottomColor: colors.red,
-  },
-  sortSection: {
-    paddingVertical: spacing.md,
-  },
-  specsSection: {
-    padding: spacing.xl,
-    gap: spacing.sm,
-  },
-  opinionList: {
-    marginHorizontal: spacing.xl,
-    backgroundColor: colors.surfaceCard,
-    borderRadius: 2,
-    overflow: 'hidden',
-  },
-  opinionSeparator: {
-    height: 1,
-    backgroundColor: colors.borderSoft,
-  },
-  empty: {
-    padding: spacing.xl,
-    alignItems: 'center',
-  },
-  stickyCta: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
-    backgroundColor: colors.bg,
-  },
+  heroImg: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%' },
+  heroScrim: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(20,18,16,0.55)' },
+  nav: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: spacing.md },
+  navButton: { padding: spacing.xs },
+  heroVibeTag: { backgroundColor: colors.red, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 2, alignSelf: 'flex-start', marginTop: spacing.xs },
+  statsRow: { flexDirection: 'row', borderBottomWidth: 2, borderBottomColor: colors.text },
+  verdictWrap: { margin: spacing.lg },
+  verdict: { padding: spacing.lg, gap: spacing.sm },
+  verdictEmpty: { margin: spacing.lg, padding: spacing.lg, backgroundColor: colors.surfaceCard, borderWidth: 1.5, borderColor: colors.borderSoft, borderRadius: 4 },
+  verdictMeta: { marginTop: spacing.xs, opacity: 0.6 },
+  tabs: { flexDirection: 'row', borderBottomWidth: 2, borderBottomColor: colors.border },
+  tab: { flex: 1, alignItems: 'center', paddingVertical: spacing.md },
+  tabActive: { borderBottomWidth: 2, borderBottomColor: colors.red },
+  sortSection: { paddingVertical: spacing.md },
+  specsSection: { padding: spacing.xl, gap: spacing.sm },
+  opinionList: { marginHorizontal: spacing.xl, backgroundColor: colors.surfaceCard, borderRadius: 2, overflow: 'hidden' },
+  opinionSeparator: { height: 1, backgroundColor: colors.borderSoft },
+  empty: { padding: spacing.xl, alignItems: 'center', gap: spacing.md },
+  stickyCta: { position: 'absolute', bottom: 0, left: 0, right: 0, paddingHorizontal: spacing.lg, paddingTop: spacing.md, backgroundColor: colors.bg },
 });
