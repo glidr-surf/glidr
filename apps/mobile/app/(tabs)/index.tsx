@@ -45,7 +45,7 @@ export default function HomeScreen() {
               {featured.imageUrl ? (
                 <Image source={{ uri: featured.imageUrl }} style={styles.posterImg} />
               ) : (
-                <View style={[styles.posterImg, styles.posterFallback]}>
+                <View style={styles.posterFallback}>
                   <GText variant="displayXl" color={colors.surface}>{featured.name.charAt(0)}</GText>
                 </View>
               )}
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
   posterShadow: { position: 'absolute', top: 6, left: 6, right: -6, bottom: -6, backgroundColor: colors.text },
   poster: { borderWidth: 2.5, borderColor: colors.text, backgroundColor: colors.cardDark },
   posterImg: { width: '100%', height: 215, resizeMode: 'cover' },
-  posterFallback: { alignItems: 'center', justifyContent: 'center', backgroundColor: colors.blue },
+  posterFallback: { width: '100%', height: 215, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.blue },
   posterTag: { position: 'absolute', top: 10, left: 10 },
   rank: { position: 'absolute', top: 4, right: 12 },
   posterCap: { backgroundColor: colors.cardDark, padding: spacing.md },

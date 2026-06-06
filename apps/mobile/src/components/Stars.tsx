@@ -20,7 +20,7 @@ interface StarsProps {
 
 export function Stars({ rating, size = 14, color = colors.text }: StarsProps) {
   return (
-    <View style={styles.row}>
+    <View style={styles.row} accessible accessibilityLabel={`${rating} out of 5`}>
       {starStates(rating).map((state, idx) => {
         if (state === 'half') {
           return <StarHalf key={idx} size={size} color={color} weight="fill" />;

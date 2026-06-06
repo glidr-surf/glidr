@@ -56,9 +56,11 @@ export default function BoardProfileScreen() {
       {/* Hero */}
       <View style={styles.hero}>
         {board.imageUrl && (
-          <Image source={{ uri: board.imageUrl }} style={styles.heroImg} />
+          <>
+            <Image source={{ uri: board.imageUrl }} style={styles.heroImg} />
+            <View style={styles.heroScrim} />
+          </>
         )}
-        <View style={styles.heroScrim} />
         <View style={styles.nav}>
           <Pressable onPress={() => router.back()} style={styles.navButton}>
             <CaretLeft size={20} color={colors.white} weight="bold" />

@@ -29,6 +29,7 @@ export default function RootLayout() {
     <AuthProvider>
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }}>
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="search" options={{ animation: 'fade' }} />
         <Stack.Screen name="board/[id]" options={{ presentation: 'card' }} />
         <Stack.Screen name="shaper/[id]" options={{ presentation: 'card' }} />
         <Stack.Screen name="user/[id]" options={{ presentation: 'card' }} />
