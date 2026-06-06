@@ -1,34 +1,67 @@
-import { useState } from 'react';
-import { View, TextInput, ScrollView, Pressable, StyleSheet } from 'react-native';
+import { useState, useEffect } from 'react';
+import { View, TextInput, ScrollView, Pressable, StyleSheet, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GText } from '../src/components/GText';
 import { colors } from '../src/theme/colors';
 import { spacing } from '../src/theme/spacing';
 import { fonts } from '../src/theme/typography';
+import { useAuth } from '../src/context/AuthContext';
+import { supabase } from '../src/lib/supabase';
+import { isUsernameAvailable, createProfile } from '@glidr/data';
 
-const TAKEN_NAMES = ['SaltyDawg', 'KookPatrol'];
 const SUGGESTIONS = ['SaltyFish_42', 'KookPatrol_7', 'WaxedPoetic', 'BarrelDodger_99', 'FrothGrom'];
 const GREEN = '#2A7A4A';
 
-type UniquenessState = 'empty' | 'taken' | 'available';
-
-function getUniqueness(username: string): UniquenessState {
-  if (!username) return 'empty';
-  if (TAKEN_NAMES.includes(username)) return 'taken';
-  return 'available';
-}
+type UniquenessState = 'empty' | 'checking' | 'taken' | 'available';
 
 export default function UsernamePickerScreen() {
   const router = useRouter();
+  const { refreshUser } = useAuth();
   const [username, setUsername] = useState('');
   const [focused, setFocused] = useState(false);
   const [height, setHeight] = useState('');
   const [weight, setWeight] = useState('');
   const [units, setUnits] = useState<'imperial' | 'metric'>('imperial');
+  const [uniqueness, setUniqueness] = useState<UniquenessState>('empty');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const uniqueness = getUniqueness(username);
-  const canSubmit = uniqueness === 'available';
+  useEffect(() => {
+    if (!username) { setUniqueness('empty'); return; }
+    setUniqueness('checking');
+    const handle = setTimeout(async () => {
+      try {
+        const free = await isUsernameAvailable(supabase, username);
+        setUniqueness(free ? 'available' : 'taken');
+      } catch {
+        setUniqueness('empty');
+      }
+    }, 350);
+    return () => clearTimeout(handle);
+  }, [username]);
+
+  const canSubmit = uniqueness === 'available' && !submitting;
+
+  const onSubmit = async () => {
+    setSubmitting(true); setError(null);
+    try {
+      const { data } = await supabase.auth.getSession();
+      const userId = data.session?.user.id;
+      if (!userId) throw new Error('No session');
+      await createProfile(supabase, {
+        id: userId,
+        username,
+        height: height || undefined,
+        weight: weight || undefined,
+      });
+      await refreshUser();
+      router.back();
+    } catch {
+      setError('Could not save that. The name may have just been taken — try another.');
+      setSubmitting(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
@@ -37,13 +70,11 @@ export default function UsernamePickerScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Header */}
         <GText variant="displayL" style={styles.title}>PICK A NAME</GText>
         <GText variant="bodyM" color={colors.textMid} style={styles.subtitle}>
           Every legend needs a callsign.
         </GText>
 
-        {/* Username input */}
         <View style={styles.inputWrapper}>
           <View style={[styles.inputRow, focused && styles.inputRowFocused]}>
             <TextInput
@@ -57,13 +88,12 @@ export default function UsernamePickerScreen() {
               autoCapitalize="none"
               autoCorrect={false}
             />
-            {uniqueness !== 'empty' && (
+            {uniqueness === 'checking' && (
+              <View style={styles.indicator}><ActivityIndicator size="small" color={colors.textLight} /></View>
+            )}
+            {(uniqueness === 'taken' || uniqueness === 'available') && (
               <View style={styles.indicator}>
-                <GText
-                  variant="label"
-                  color={uniqueness === 'taken' ? colors.red : GREEN}
-                  style={styles.indicatorMark}
-                >
+                <GText variant="label" color={uniqueness === 'taken' ? colors.red : GREEN} style={styles.indicatorMark}>
                   {uniqueness === 'taken' ? '✗' : '✓'}
                 </GText>
                 <GText variant="label" color={uniqueness === 'taken' ? colors.red : GREEN}>
@@ -74,20 +104,14 @@ export default function UsernamePickerScreen() {
           </View>
         </View>
 
-        {/* Suggestion chips */}
         <View style={styles.chips}>
           {SUGGESTIONS.map((s) => (
-            <Pressable
-              key={s}
-              onPress={() => setUsername(s)}
-              style={styles.chip}
-            >
+            <Pressable key={s} onPress={() => setUsername(s)} style={styles.chip}>
               <GText variant="bodyM" color={colors.textMid}>{s}</GText>
             </Pressable>
           ))}
         </View>
 
-        {/* Optional section */}
         <GText variant="label" style={styles.sectionLabel}>OPTIONAL — FOR BOARD SIZING</GText>
 
         <View style={styles.optionalFields}>
@@ -109,34 +133,20 @@ export default function UsernamePickerScreen() {
           />
         </View>
 
-        {/* Imperial / Metric toggle */}
         <View style={styles.toggleRow}>
-          <Pressable
-            onPress={() => setUnits('imperial')}
-            style={[styles.toggleOption, units === 'imperial' && styles.toggleActive]}
-          >
-            <GText variant="caption" color={units === 'imperial' ? colors.white : colors.textMid}>
-              IMPERIAL
-            </GText>
+          <Pressable onPress={() => setUnits('imperial')} style={[styles.toggleOption, units === 'imperial' && styles.toggleActive]}>
+            <GText variant="caption" color={units === 'imperial' ? colors.white : colors.textMid}>IMPERIAL</GText>
           </Pressable>
-          <Pressable
-            onPress={() => setUnits('metric')}
-            style={[styles.toggleOption, units === 'metric' && styles.toggleActive]}
-          >
-            <GText variant="caption" color={units === 'metric' ? colors.white : colors.textMid}>
-              METRIC
-            </GText>
+          <Pressable onPress={() => setUnits('metric')} style={[styles.toggleOption, units === 'metric' && styles.toggleActive]}>
+            <GText variant="caption" color={units === 'metric' ? colors.white : colors.textMid}>METRIC</GText>
           </Pressable>
         </View>
       </ScrollView>
 
-      {/* Footer CTA */}
       <View style={styles.footer}>
-        <Pressable
-          onPress={() => canSubmit && router.back()}
-          style={[styles.cta, !canSubmit && styles.ctaDisabled]}
-        >
-          <GText variant="displayS" color={colors.white}>LET'S GO</GText>
+        {error && <GText variant="caption" color={colors.red} style={{ marginBottom: spacing.sm, textAlign: 'center' }}>{error}</GText>}
+        <Pressable onPress={() => canSubmit && onSubmit()} style={[styles.cta, !canSubmit && styles.ctaDisabled]}>
+          {submitting ? <ActivityIndicator color={colors.white} /> : <GText variant="displayS" color={colors.white}>LET'S GO</GText>}
         </Pressable>
       </View>
     </SafeAreaView>
