@@ -3,7 +3,7 @@ export default function NavBar() {
     <nav className="flex items-center justify-between py-lg">
       <div className="flex items-center gap-xl">
         <a href="#" className="no-underline">
-          <img src="/glidr-logo-paths.svg" alt="Glidr" className="h-[28px]" />
+          <img src="/glidr-lockup.svg" alt="Glidr" className="h-[32px]" />
         </a>
       </div>
     </nav>
