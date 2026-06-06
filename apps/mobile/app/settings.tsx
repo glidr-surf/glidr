@@ -3,7 +3,9 @@ import { View, ScrollView, Pressable, Switch, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { CaretLeft } from 'phosphor-react-native';
 import { GText } from '../src/components/GText';
+import { Screen } from '../src/components/Screen';
 import { CardGroup } from '../src/components/CardGroup';
+import { navBack } from '../src/utils/navBack';
 import { colors } from '../src/theme/colors';
 import { spacing } from '../src/theme/spacing';
 import { useAuth } from '../src/context/AuthContext';
@@ -17,9 +19,9 @@ export default function SettingsScreen() {
   const [notifyVerdicts, setNotifyVerdicts] = useState(true);
 
   return (
-    <View style={styles.screen}>
+    <Screen edges={['top']}>
       <View style={styles.nav}>
-        <Pressable onPress={() => router.back()} style={styles.navButton}>
+        <Pressable onPress={() => navBack(router)} style={styles.navButton} hitSlop={8} accessibilityRole="button" accessibilityLabel="Go back">
           <CaretLeft size={20} color={colors.text} weight="bold" />
         </Pressable>
       </View>
@@ -141,7 +143,7 @@ export default function SettingsScreen() {
           <GText variant="caption">GLIDR V0.1.0 — STILL IN BETA. LIKE YOUR SURFING.</GText>
         </View>
       </ScrollView>
-    </View>
+    </Screen>
   );
 }
 
@@ -152,7 +154,6 @@ const styles = StyleSheet.create({
   },
   nav: {
     padding: spacing.xl,
-    paddingTop: 60,
     paddingBottom: 0,
   },
   navButton: {
