@@ -1,8 +1,10 @@
 import { View, Pressable, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { X } from 'phosphor-react-native';
+import * as Haptics from 'expo-haptics';
 import { GText } from '../GText';
-import { SurfboardIcon } from '../SurfboardIcon';
+import { StarRating } from '../StarRating';
+import { navBack } from '../../utils/navBack';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
 import type { StepProps } from './types';
@@ -28,7 +30,7 @@ export function RatingStep({ state, onUpdate, onNext, board }: RatingStepProps) 
     <View style={styles.container}>
       {/* Nav */}
       <View style={styles.nav}>
-        <Pressable onPress={() => router.back()} hitSlop={8}>
+        <Pressable onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); navBack(router); }} hitSlop={8} accessibilityRole="button" accessibilityLabel="Close">
           <X size={20} color={colors.text} weight="bold" />
         </Pressable>
         <GText variant="caption">1 OF 3</GText>
@@ -46,22 +48,9 @@ export function RatingStep({ state, onUpdate, onNext, board }: RatingStepProps) 
           <GText variant="caption">THE MAGIC BOARD</GText>
         </View>
 
-        {/* Surfboard icons */}
-        <View style={styles.iconsRow}>
-          {[1, 2, 3, 4, 5].map((i) => (
-            <Pressable
-              key={i}
-              onPress={() => onUpdate({ rating: i })}
-              hitSlop={8}
-              style={styles.iconButton}
-            >
-              <SurfboardIcon
-                size={40}
-                color={i <= state.rating ? colors.red : colors.border}
-                filled={i <= state.rating}
-              />
-            </Pressable>
-          ))}
+        {/* Star rating */}
+        <View style={styles.starsRow}>
+          <StarRating value={state.rating} onChange={(i) => onUpdate({ rating: i })} color={colors.red} />
         </View>
 
         {/* Quip */}
@@ -119,14 +108,8 @@ const styles = StyleSheet.create({
     width: '100%',
     marginTop: spacing.lg,
   },
-  iconsRow: {
-    flexDirection: 'row',
-    gap: spacing.lg,
+  starsRow: {
     alignItems: 'center',
-  },
-  iconButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   quipRow: {
     height: 24,

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { useState, useEffect, useRef } from 'react';
+import { View, StyleSheet, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getBoard, submitOpinion } from '@glidr/data';
@@ -57,9 +57,13 @@ export default function RateFlowScreen() {
     }
   };
 
+  const submittingRef = useRef(false);
   const onFinish = async () => {
-    if (user) {
-      await submitOpinion(supabase, user.id, {
+    if (submittingRef.current) return;
+    submittingRef.current = true;
+    try {
+      if (user) {
+        await submitOpinion(supabase, user.id, {
         boardId: state.boardId,
         text: state.text,
         scores: {
@@ -77,9 +81,13 @@ export default function RateFlowScreen() {
           ...(state.finSetup.length > 0 ? { fin_setup: state.finSetup } : {}),
           ...(state.boardLength ? { board_length: [state.boardLength] } : {}),
         },
-      });
+        });
+      }
+      router.back();
+    } catch {
+      submittingRef.current = false;
+      Alert.alert("Couldn't post that opinion", 'Try again in a sec.');
     }
-    router.back();
   };
 
   const onDeepDive = () => {
