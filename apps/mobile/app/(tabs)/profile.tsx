@@ -1,13 +1,14 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { View, FlatList, Pressable, StyleSheet, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { GearSix } from 'phosphor-react-native';
 import { GText } from '../../src/components/GText';
 import { StatBlock } from '../../src/components/StatBlock';
 import { BoardTile } from '../../src/components/BoardTile';
 import { OpinionCard } from '../../src/components/OpinionCard';
 import { Screen } from '../../src/components/Screen';
+import { Skeleton } from '../../src/components/Skeleton';
+import { pluralize } from '../../src/utils/pluralize';
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
 import { getOpinions, getBoards, computeBadges } from '@glidr/data';
@@ -22,15 +23,28 @@ export default function ProfileScreen() {
   const [userOpinions, setUserOpinions] = useState<Opinion[]>([]);
   const [boards, setBoards] = useState<Board[]>([]);
   const [badges, setBadges] = useState<Badge[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  useEffect(() => {
+  const load = useCallback(() => {
     if (!user) return;
-    getOpinions(supabase, { userId: user.id }).then((ops) =>
-      setUserOpinions([...ops].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())),
-    );
-    getBoards(supabase).then(setBoards);
-    computeBadges(supabase, user.id).then(setBadges);
+    setLoading(true);
+    setError(false);
+    Promise.all([
+      getOpinions(supabase, { userId: user.id }),
+      getBoards(supabase),
+      computeBadges(supabase, user.id),
+    ])
+      .then(([ops, bs, bg]) => {
+        setUserOpinions([...ops].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
+        setBoards(bs);
+        setBadges(bg);
+      })
+      .catch(() => setError(true))
+      .finally(() => setLoading(false));
   }, [user]);
+
+  useEffect(() => { load(); }, [load]);
 
   const boardMap = Object.fromEntries(boards.map((b) => [b.id, b]));
 
@@ -40,7 +54,6 @@ export default function ProfileScreen() {
   }, [userOpinions, boardMap]);
 
   const badgeCount = badges.filter((b) => b.earned).length;
-
   const joinDate = user
     ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
     : '';
@@ -48,15 +61,12 @@ export default function ProfileScreen() {
   if (!isAuthenticated || !user) {
     return (
       <Screen>
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', gap: spacing.lg, padding: spacing.xl }}>
+        <View style={styles.signedOut}>
           <GText variant="displayL">WHO ARE YOU?</GText>
           <GText variant="bodyM" color={colors.textMid} style={{ textAlign: 'center' }}>
             Sign in to track your quiver, collect badges, and tell us what boards actually ride like.
           </GText>
-          <Pressable
-            style={{ backgroundColor: colors.red, paddingVertical: spacing.md, paddingHorizontal: spacing['2xl'], borderRadius: 2 }}
-            onPress={showAuthModal}
-          >
+          <Pressable style={styles.signInBtn} onPress={showAuthModal}>
             <GText variant="displayS" color={colors.white}>SIGN IN</GText>
           </Pressable>
         </View>
@@ -66,24 +76,18 @@ export default function ProfileScreen() {
 
   const renderHeader = () => (
     <View>
-      {/* Settings */}
       <View style={styles.settingsRow}>
-        <Pressable onPress={() => router.push('/settings')}>
+        <Pressable onPress={() => router.push('/settings')} hitSlop={8} accessibilityRole="button" accessibilityLabel="Settings">
           <GearSix size={24} color={colors.text} weight="regular" />
         </Pressable>
       </View>
 
-      {/* User Card */}
       <View style={styles.userCard}>
         <View style={styles.avatar}>
-          <GText variant="displayXl" color={colors.white}>
-            {user.username.charAt(0).toUpperCase()}
-          </GText>
+          <GText variant="displayXl" color={colors.white}>{user.username.charAt(0).toUpperCase()}</GText>
         </View>
         <GText variant="displayL" color={colors.white}>{user.username.toUpperCase()}</GText>
-        <GText variant="label" color={colors.white} style={{ opacity: 0.7 }}>
-          JOINED {joinDate.toUpperCase()}
-        </GText>
+        <GText variant="label" color={colors.white} style={{ opacity: 0.7 }}>JOINED {joinDate.toUpperCase()}</GText>
         {(user.height || user.weight) && (
           <GText variant="caption" color={colors.white} style={{ opacity: 0.7 }}>
             {[user.height, user.weight].filter(Boolean).join(' · ')}
@@ -96,7 +100,6 @@ export default function ProfileScreen() {
         </View>
       </View>
 
-      {/* Stats Row */}
       <View style={styles.statsRow}>
         <StatBlock value={String(user.opinionCount)} label="BOARDS" />
         <StatBlock value={String(user.magicBoardCount)} label="MAGIC BOARDS" />
@@ -105,40 +108,43 @@ export default function ProfileScreen() {
         </Pressable>
       </View>
 
-      {/* Fun Line */}
       <View style={styles.funLine}>
         <GText variant="bodyM" color={colors.textMid}>
-          You've opinioned {user.opinionCount} boards. Found {user.magicBoardCount} magic ones. Not bad.
+          You've opinioned {pluralize(user.opinionCount, 'board')}. Found {pluralize(user.magicBoardCount, 'magic one', 'magic ones')}. Not bad.
         </GText>
       </View>
 
-      {/* Tabs */}
       <View style={styles.tabs}>
-        <Pressable
-          onPress={() => setActiveTab('quiver')}
-          style={[styles.tab, activeTab === 'quiver' && styles.tabActive]}
-        >
-          <GText variant="label" color={activeTab === 'quiver' ? colors.text : colors.textLight}>
-            QUIVER
-          </GText>
+        <Pressable onPress={() => setActiveTab('quiver')} style={[styles.tab, activeTab === 'quiver' && styles.tabActive]}>
+          <GText variant="label" color={activeTab === 'quiver' ? colors.text : colors.textLight}>QUIVER</GText>
         </Pressable>
-        <Pressable
-          onPress={() => setActiveTab('opinions')}
-          style={[styles.tab, activeTab === 'opinions' && styles.tabActive]}
-        >
-          <GText variant="label" color={activeTab === 'opinions' ? colors.text : colors.textLight}>
-            OPINIONS
-          </GText>
+        <Pressable onPress={() => setActiveTab('opinions')} style={[styles.tab, activeTab === 'opinions' && styles.tabActive]}>
+          <GText variant="label" color={activeTab === 'opinions' ? colors.text : colors.textLight}>OPINIONS</GText>
         </Pressable>
       </View>
     </View>
   );
 
+  const emptyState = (copy: string) =>
+    loading ? (
+      <View style={styles.loadingState}>
+        <Skeleton height={70} />
+        <Skeleton height={70} />
+      </View>
+    ) : error ? (
+      <View style={styles.empty}>
+        <GText variant="bodyM" color={colors.textMid}>Couldn't load your profile.</GText>
+        <Pressable onPress={load} hitSlop={8} style={styles.retry}><GText variant="label" color={colors.red}>TRY AGAIN</GText></Pressable>
+      </View>
+    ) : (
+      <View style={styles.empty}><GText variant="bodyM" color={colors.textMid}>{copy}</GText></View>
+    );
+
   if (activeTab === 'opinions') {
     return (
-      <SafeAreaView style={styles.safe} edges={['top']}>
+      <Screen edges={['top']}>
         <FlatList
-          data={userOpinions}
+          data={loading ? [] : userOpinions}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <OpinionCard
@@ -160,22 +166,16 @@ export default function ProfileScreen() {
           ListHeaderComponent={renderHeader}
           contentContainerStyle={styles.listContent}
           ItemSeparatorComponent={() => <View style={{ height: spacing.md }} />}
-          ListEmptyComponent={
-            <View style={styles.empty}>
-              <GText variant="bodyM" color={colors.textMid}>
-                No opinions yet. It's not you, it's the board. Oh wait.
-              </GText>
-            </View>
-          }
+          ListEmptyComponent={emptyState("No opinions yet. It's not you, it's the board. Oh wait.")}
         />
-      </SafeAreaView>
+      </Screen>
     );
   }
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
+    <Screen edges={['top']}>
       <FlatList
-        data={quiverBoards}
+        data={loading ? [] : quiverBoards}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <BoardTile board={item} />}
         numColumns={3}
@@ -183,80 +183,28 @@ export default function ProfileScreen() {
         ListHeaderComponent={renderHeader}
         contentContainerStyle={styles.gridContent}
         showsVerticalScrollIndicator={false}
-        ListEmptyComponent={
-          <View style={styles.empty}>
-            <GText variant="bodyM" color={colors.textMid}>
-              No boards opinioned yet. Get out there.
-            </GText>
-          </View>
-        }
+        ListEmptyComponent={emptyState('No boards opinioned yet. Get out there.')}
       />
-    </SafeAreaView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: colors.bg,
-  },
-  settingsRow: {
-    alignItems: 'flex-end',
-    padding: spacing.xl,
-    paddingBottom: 0,
-  },
-  userCard: {
-    backgroundColor: colors.cardDark,
-    padding: spacing.xl,
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  avatar: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: colors.overlay,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.sm,
-  },
-  followRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-    marginTop: spacing.xs,
-  },
-  statsRow: {
-    flexDirection: 'row',
-  },
-  funLine: {
-    padding: spacing.xl,
-  },
-  tabs: {
-    flexDirection: 'row',
-    borderBottomWidth: 2,
-    borderBottomColor: colors.border,
-  },
-  tab: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: spacing.md,
-  },
-  tabActive: {
-    borderBottomWidth: 2,
-    borderBottomColor: colors.red,
-  },
-  listContent: {
-    paddingBottom: spacing.xl,
-  },
-  gridContent: {
-    gap: 2,
-    paddingBottom: spacing.xl,
-  },
-  gridRow: {
-    gap: 2,
-  },
-  empty: {
-    padding: spacing.xl,
-    alignItems: 'center',
-  },
+  signedOut: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: spacing.lg, padding: spacing.xl },
+  signInBtn: { backgroundColor: colors.red, paddingVertical: spacing.md, paddingHorizontal: spacing['2xl'], borderRadius: 2 },
+  settingsRow: { alignItems: 'flex-end', padding: spacing.xl, paddingBottom: 0 },
+  userCard: { backgroundColor: colors.cardDark, padding: spacing.xl, alignItems: 'center', gap: spacing.xs },
+  avatar: { width: 72, height: 72, borderRadius: 36, backgroundColor: colors.overlay, alignItems: 'center', justifyContent: 'center', marginBottom: spacing.sm },
+  followRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.xs },
+  statsRow: { flexDirection: 'row' },
+  funLine: { padding: spacing.xl },
+  tabs: { flexDirection: 'row', borderBottomWidth: 2, borderBottomColor: colors.border },
+  tab: { flex: 1, alignItems: 'center', paddingVertical: spacing.md },
+  tabActive: { borderBottomWidth: 2, borderBottomColor: colors.red },
+  listContent: { paddingBottom: spacing.xl },
+  gridContent: { gap: 2, paddingBottom: spacing.xl },
+  gridRow: { gap: 2 },
+  empty: { padding: spacing.xl, alignItems: 'center', gap: spacing.md },
+  loadingState: { padding: spacing.xl, gap: spacing.md },
+  retry: { paddingVertical: spacing.sm },
 });
