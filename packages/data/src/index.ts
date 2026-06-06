@@ -21,7 +21,7 @@ export { createClient, type SupabaseClient } from './client';
 export { getBoards, getBoard, submitBoard } from './queries/boards';
 export { getOpinions, submitOpinion, voteOnOpinion, deleteOpinion } from './queries/opinions';
 export { getShapers, getShaper, submitShaper } from './queries/shapers';
-export { getProfile, updateProfile } from './queries/profiles';
+export { getProfile, updateProfile, createProfile, isUsernameAvailable } from './queries/profiles';
 export { follow, unfollow, getFollowers, getFollowing } from './queries/follows';
 export { getLandingStats, type LandingStats } from './queries/stats';
 export { computeBadges } from './badges';
