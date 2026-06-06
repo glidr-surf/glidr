@@ -41,7 +41,7 @@ Community-owned app that helps surfers cut through shaper marketing. Every board
 - Board images use `object-position: top` to show the nose.
 - Ratings use **Phosphor stars** (mobile `Stars` component; `star-half` for fractional averages). This revises the earlier "surfer emoji / surfboard icon" approach — a custom surfboard-nose icon is parked for a professional designer (see spec §9). No emoji in the mobile UI.
 - Film grain overlay via SVG fractalNoise on `body::after`.
-- Database: Supabase (Postgres) with Privy auth. Flexible opinion schema (EAV for scores + tags).
+- Database: Supabase (Postgres) with Supabase-native email-OTP auth (Privy removed). Flexible opinion schema (EAV for scores + tags).
 - Root `.env` holds unprefixed secrets; `db:setup` script generates per-app prefixed `.env` files.
 - Opinions, not ratings. "Magic boards" = 5/5 rated boards.
 
