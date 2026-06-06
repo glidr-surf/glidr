@@ -84,3 +84,26 @@ export async function uploadImage(
   if (error) throw error;
   return data as ImageRow;
 }
+
+/** Map of owner_id -> ALL image paths (ordered by position), for one owner_type. */
+export async function fetchAllImagePaths(
+  client: SupabaseClient,
+  ownerType: ImageOwnerType,
+  ownerIds: string[],
+): Promise<Map<string, string[]>> {
+  if (ownerIds.length === 0) return new Map();
+  const { data, error } = await client
+    .from('images')
+    .select('owner_id, path, position')
+    .eq('owner_type', ownerType)
+    .in('owner_id', ownerIds)
+    .order('position', { ascending: true });
+  if (error) throw error;
+  const map = new Map<string, string[]>();
+  for (const r of data ?? []) {
+    const arr = map.get(r.owner_id as string) ?? [];
+    arr.push(r.path as string);
+    map.set(r.owner_id as string, arr);
+  }
+  return map;
+}

@@ -182,6 +182,7 @@ export interface Opinion {
   upvotes: number;
   downvotes: number;
   createdAt: string;
+  images?: string[];
 }
 
 export interface User {
@@ -190,6 +191,7 @@ export interface User {
   height?: string;
   weight?: string;
   createdAt: string;
+  avatarUrl?: string;
   opinionCount: number;
   magicBoardCount: number;
   followersCount: number;
@@ -201,6 +203,7 @@ export interface Shaper {
   name: string;
   location?: string;
   bio?: string;
+  logoUrl?: string;
   boardCount: number;
   avgRating: number;
   opinionCount: number;

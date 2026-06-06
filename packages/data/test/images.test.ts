@@ -1,5 +1,6 @@
 import { describe, it, expect, afterAll } from 'vitest';
 import { getBoards } from '../src/queries/boards';
+import { getProfile } from '../src/queries/profiles';
 import { imagePublicUrl, uploadImage, deleteImagesFor } from '../src/queries/images';
 import { anonClient, serviceClient, createTestUser } from './helpers';
 import { createProfile } from '../src/queries/profiles';
@@ -48,5 +49,21 @@ describe('uploadImage', () => {
     });
     expect(row.path).toMatch(new RegExp(`^shaper/${SHAPER}/.+\\.jpg$`));
     expect(row.uploaded_by).toBe(userId);
+  });
+});
+
+describe('getProfile avatar attach', () => {
+  let pid: string;
+  afterAll(async () => {
+    if (pid) await deleteImagesFor(serviceClient(), 'profile', pid);
+  });
+
+  it('populates User.avatarUrl from the images table', async () => {
+    const svc = serviceClient();
+    const { data } = await svc.from('profiles').select('id').limit(1).single();
+    pid = (data as { id: string }).id;
+    await svc.from('images').insert({ owner_type: 'profile', owner_id: pid, path: `profile/${pid}/a.jpg`, position: 0 });
+    const profile = await getProfile(anonClient(), pid);
+    expect(profile?.avatarUrl).toContain(`images/profile/${pid}/a.jpg`);
   });
 });

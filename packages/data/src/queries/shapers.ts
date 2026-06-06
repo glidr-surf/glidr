@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Shaper, VibeTag, SubmitShaperInput } from '../types';
+import { imagePublicUrl, fetchPrimaryImagePaths } from './images';
 
 interface ShaperStatsRow {
   shaper_id: string;
@@ -30,8 +31,10 @@ export async function getShapers(client: SupabaseClient): Promise<Shaper[]> {
 
   if (error) throw error;
   const rows = data ?? [];
-  const stats = await fetchShaperStats(client, rows.map((r) => r.id));
-  return rows.map((r) => mapShaper(r, stats.get(r.id)));
+  const ids = rows.map((r) => r.id);
+  const stats = await fetchShaperStats(client, ids);
+  const logos = await fetchPrimaryImagePaths(client, 'shaper', ids);
+  return rows.map((r) => mapShaper(client, r, stats.get(r.id), logos.get(r.id)));
 }
 
 export async function getShaper(
@@ -49,7 +52,8 @@ export async function getShaper(
     throw error;
   }
   const stats = await fetchShaperStats(client, [data.id]);
-  return mapShaper(data, stats.get(data.id));
+  const logos = await fetchPrimaryImagePaths(client, 'shaper', [data.id]);
+  return mapShaper(client, data, stats.get(data.id), logos.get(data.id));
 }
 
 export async function submitShaper(
@@ -71,12 +75,13 @@ export async function submitShaper(
   return data.id;
 }
 
-function mapShaper(row: any, stats?: ShaperStatsRow): Shaper {
+function mapShaper(client: SupabaseClient, row: any, stats?: ShaperStatsRow, logoPath?: string): Shaper {
   return {
     id: row.id,
     name: row.name,
     location: row.location ?? undefined,
     bio: row.bio ?? undefined,
+    logoUrl: logoPath ? imagePublicUrl(client, logoPath) : undefined,
     boardCount: stats?.board_count ?? 0,
     avgRating: stats?.avg_rating ?? 0,
     opinionCount: stats?.opinion_count ?? 0,

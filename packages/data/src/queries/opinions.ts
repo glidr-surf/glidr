@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Opinion, SubmitOpinionInput } from '../types';
+import { imagePublicUrl, fetchAllImagePaths } from './images';
 
 export async function getOpinions(
   client: SupabaseClient,
@@ -23,7 +24,9 @@ export async function getOpinions(
   const { data, error } = await query;
   if (error) throw error;
 
-  return (data ?? []).map(mapOpinion);
+  const rows = data ?? [];
+  const imagesByOpinion = await fetchAllImagePaths(client, 'opinion', rows.map((r) => r.id));
+  return rows.map((r) => mapOpinion(client, r, imagesByOpinion.get(r.id)));
 }
 
 export async function submitOpinion(
@@ -111,7 +114,7 @@ export async function deleteOpinion(
   if (error) throw error;
 }
 
-function mapOpinion(row: any): Opinion {
+function mapOpinion(client: SupabaseClient, row: any, imagePaths?: string[]): Opinion {
   const profile = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles;
   const votes = Array.isArray(row.opinion_vote_counts)
     ? row.opinion_vote_counts[0]
@@ -141,5 +144,6 @@ function mapOpinion(row: any): Opinion {
     upvotes: votes?.upvotes ?? 0,
     downvotes: votes?.downvotes ?? 0,
     createdAt: row.created_at,
+    images: (imagePaths ?? []).map((p) => imagePublicUrl(client, p)),
   };
 }
