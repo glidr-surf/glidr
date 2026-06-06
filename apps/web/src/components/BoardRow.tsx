@@ -46,11 +46,13 @@ export default function BoardRow({ board, review, user }: BoardRowProps) {
   return (
     <div className="group grid grid-cols-[60px_1fr] lg:grid-cols-[72px_56px_1fr] gap-md lg:gap-lg py-lg border-b border-border-soft items-start transition-colors hover:bg-[#EDE1C5]/40">
       <div className="w-[60px] h-[80px] lg:w-[72px] lg:h-[90px] overflow-hidden bg-[#E8DCC4] border border-border-soft">
-        <img
-          src={board.imageUrl}
-          alt={board.name}
-          className="w-full h-full object-cover object-top mix-blend-multiply group-hover:scale-105 transition-transform duration-300"
-        />
+        {board.imageUrl && (
+          <img
+            src={board.imageUrl}
+            alt={board.name}
+            className="w-full h-full object-cover object-top mix-blend-multiply group-hover:scale-105 transition-transform duration-300"
+          />
+        )}
       </div>
 
       {/* Desktop: dedicated rating column */}
