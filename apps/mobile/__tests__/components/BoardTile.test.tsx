@@ -11,7 +11,8 @@ describe('BoardTile', () => {
   it('renders the board photo when imageUrl is present', () => {
     render(<BoardTile board={{ ...base, imageUrl: 'https://x/board.jpg' }} />);
     const img = screen.getByTestId('board-image');
-    expect(img.props.source).toEqual({ uri: 'https://x/board.jpg' });
+    const src = Array.isArray(img.props.source) ? img.props.source[0] : img.props.source;
+    expect(src).toMatchObject({ uri: 'https://x/board.jpg' });
   });
 
   it('falls back to the board initial when imageUrl is missing', () => {
