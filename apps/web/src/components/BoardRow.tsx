@@ -6,7 +6,6 @@ const boardTypeColor: Record<BoardType, string> = {
   LOG: 'text-yellow',
   MID: 'text-blue',
   ALT: 'text-green',
-  EGG: 'text-green',
   GUN: 'text-red',
 };
 
