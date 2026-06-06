@@ -40,8 +40,8 @@ export function DiscreteSlider({ label, value, onChange, lowEnd, highEnd }: Disc
 
       {/* End labels */}
       <View style={styles.endLabels}>
-        <GText variant="micro">{lowEnd}</GText>
-        <GText variant="micro">{highEnd}</GText>
+        <GText variant="caption">{lowEnd}</GText>
+        <GText variant="caption">{highEnd}</GText>
       </View>
     </View>
   );

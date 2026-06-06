@@ -114,7 +114,7 @@ export function NittyGrittyStep({ state, onUpdate, onNext, onSkip }: StepProps) 
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <View style={styles.nav}>
         <View />
-        <GText variant="micro">DEEP DIVE · 3 OF 4</GText>
+        <GText variant="caption">DEEP DIVE · 3 OF 4</GText>
       </View>
 
       <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -135,7 +135,7 @@ export function NittyGrittyStep({ state, onUpdate, onNext, onSkip }: StepProps) 
                   style={[styles.chip, selected && styles.chipSelected]}
                   onPress={() => onUpdate({ quiverRole: selected ? undefined : role })}
                 >
-                  <GText variant="tag" style={selected ? styles.chipTextSelected : styles.chipText}>
+                  <GText variant="caption" style={selected ? styles.chipTextSelected : styles.chipText}>
                     {role}
                   </GText>
                 </Pressable>
@@ -156,7 +156,7 @@ export function NittyGrittyStep({ state, onUpdate, onNext, onSkip }: StepProps) 
                   style={[styles.chip, selected && styles.chipSelected]}
                   onPress={() => onUpdate({ finSetup: toggleItem(state.finSetup, fin) })}
                 >
-                  <GText variant="tag" style={selected ? styles.chipTextSelected : styles.chipText}>
+                  <GText variant="caption" style={selected ? styles.chipTextSelected : styles.chipText}>
                     {fin}
                   </GText>
                 </Pressable>

@@ -29,22 +29,22 @@ export function CompactOpinionCard({ opinion, board }: CompactOpinionCardProps) 
               {board.name}
             </GText>
             {opinion.tags['board_length']?.[0] && (
-              <GText variant="bodyXs">{opinion.tags['board_length'][0]}</GText>
+              <GText variant="caption">{opinion.tags['board_length'][0]}</GText>
             )}
           </View>
         )}
-        <GText variant="bodyXs">{formatRelativeTime(opinion.createdAt)}</GText>
+        <GText variant="caption">{formatRelativeTime(opinion.createdAt)}</GText>
       </View>
 
       <View style={styles.ratingRow}>
         <SurfboardRating rating={opinion.scores['overall_rating'] ?? 0} size={10} />
-        <GText variant="bodyXs" color={colors.textMid}>
+        <GText variant="caption" color={colors.textMid}>
           by {opinion.username}
         </GText>
       </View>
 
       {opinion.text && (
-        <GText variant="bodyS" numberOfLines={1} color={colors.textMid}>
+        <GText variant="bodyM" numberOfLines={1} color={colors.textMid}>
           {opinion.text}
         </GText>
       )}

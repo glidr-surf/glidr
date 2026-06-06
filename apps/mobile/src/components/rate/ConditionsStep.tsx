@@ -41,7 +41,7 @@ export function ConditionsStep({ state, onUpdate, onNext, onSkip }: StepProps) {
       {/* Nav */}
       <View style={styles.nav}>
         <View />
-        <GText variant="micro">DEEP DIVE · 2 OF 4</GText>
+        <GText variant="caption">DEEP DIVE · 2 OF 4</GText>
       </View>
 
       <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -63,7 +63,7 @@ export function ConditionsStep({ state, onUpdate, onNext, onSkip }: StepProps) {
                   style={[styles.chip, selected && styles.chipSelected]}
                   onPress={() => onUpdate({ waveSizes: toggleItem(state.waveSizes, size) })}
                 >
-                  <GText variant="tag" style={selected ? styles.chipTextSelected : styles.chipText}>
+                  <GText variant="caption" style={selected ? styles.chipTextSelected : styles.chipText}>
                     {size}
                   </GText>
                 </Pressable>
@@ -84,7 +84,7 @@ export function ConditionsStep({ state, onUpdate, onNext, onSkip }: StepProps) {
                   style={[styles.chip, selected && styles.chipSelected]}
                   onPress={() => onUpdate({ waveQualities: toggleItem(state.waveQualities, quality) })}
                 >
-                  <GText variant="tag" style={selected ? styles.chipTextSelected : styles.chipText}>
+                  <GText variant="caption" style={selected ? styles.chipTextSelected : styles.chipText}>
                     {quality}
                   </GText>
                 </Pressable>

@@ -31,19 +31,19 @@ export function RatingStep({ state, onUpdate, onNext, board }: RatingStepProps) 
         <Pressable onPress={() => router.back()} hitSlop={8}>
           <X size={20} color={colors.text} weight="bold" />
         </Pressable>
-        <GText variant="micro">1 OF 3</GText>
+        <GText variant="caption">1 OF 3</GText>
       </View>
 
       {/* Center content */}
       <View style={styles.center}>
         <GText variant="label" color={colors.textLight}>HOW'D IT GO?</GText>
         <GText variant="displayL" style={styles.boardName}>{board.name}</GText>
-        <GText variant="bodyXs" style={styles.shaperName}>{board.shaper.toUpperCase()}</GText>
+        <GText variant="caption" style={styles.shaperName}>{board.shaper.toUpperCase()}</GText>
 
         {/* Scale ends */}
         <View style={styles.scaleRow}>
-          <GText variant="micro">SOLD IT</GText>
-          <GText variant="micro">THE MAGIC BOARD</GText>
+          <GText variant="caption">SOLD IT</GText>
+          <GText variant="caption">THE MAGIC BOARD</GText>
         </View>
 
         {/* Surfboard icons */}

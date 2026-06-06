@@ -85,14 +85,14 @@ export default function ProfileScreen() {
           JOINED {joinDate.toUpperCase()}
         </GText>
         {(user.height || user.weight) && (
-          <GText variant="bodyXs" color={colors.white} style={{ opacity: 0.7 }}>
+          <GText variant="caption" color={colors.white} style={{ opacity: 0.7 }}>
             {[user.height, user.weight].filter(Boolean).join(' · ')}
           </GText>
         )}
         <View style={styles.followRow}>
-          <GText variant="bodyS" color={colors.white}>{user.followingCount} following</GText>
-          <GText variant="bodyS" color={colors.white}>·</GText>
-          <GText variant="bodyS" color={colors.white}>{user.followersCount} followers</GText>
+          <GText variant="bodyM" color={colors.white}>{user.followingCount} following</GText>
+          <GText variant="bodyM" color={colors.white}>·</GText>
+          <GText variant="bodyM" color={colors.white}>{user.followersCount} followers</GText>
         </View>
       </View>
 

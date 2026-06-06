@@ -14,7 +14,7 @@ export function BoardTypeTag({ type, size = 'sm' }: BoardTypeTagProps) {
 
   return (
     <View style={[styles.container, { backgroundColor: bgColor }, size === 'md' && styles.md]}>
-      <GText variant={size === 'sm' ? 'micro' : 'tag'} color={colors.white}>
+      <GText variant="caption" color={colors.white}>
         {type}
       </GText>
     </View>

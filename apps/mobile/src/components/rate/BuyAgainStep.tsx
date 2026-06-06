@@ -22,7 +22,7 @@ export function BuyAgainStep({ state, onUpdate, onNext, board }: BuyAgainStepPro
       {/* Nav */}
       <View style={styles.nav}>
         <View />
-        <GText variant="micro">3 OF 3</GText>
+        <GText variant="caption">3 OF 3</GText>
       </View>
 
       {/* Title */}
@@ -34,11 +34,11 @@ export function BuyAgainStep({ state, onUpdate, onNext, board }: BuyAgainStepPro
       <View style={styles.card}>
         <BoardTypeTag type={board.type} size="md" />
         <GText variant="displayM" style={styles.boardName}>{board.name}</GText>
-        <GText variant="bodyXs" style={styles.shaperName}>{board.shaper.toUpperCase()}</GText>
+        <GText variant="caption" style={styles.shaperName}>{board.shaper.toUpperCase()}</GText>
         <SurfboardRating rating={state.rating} size={16} />
         {state.vibeTag && (
           <View style={styles.vibeTagBadge}>
-            <GText variant="micro" color={colors.textLight}>{state.vibeTag}</GText>
+            <GText variant="caption" color={colors.textLight}>{state.vibeTag}</GText>
           </View>
         )}
       </View>
@@ -50,12 +50,12 @@ export function BuyAgainStep({ state, onUpdate, onNext, board }: BuyAgainStepPro
       <View style={styles.buttons}>
         <Pressable style={styles.btnNo} onPress={() => handleChoice(false)}>
           <GText variant="displayS">✗ NAH</GText>
-          <GText variant="bodyXs" color={colors.textMid}>FLOGGED IT TO A KOOK</GText>
+          <GText variant="caption" color={colors.textMid}>FLOGGED IT TO A KOOK</GText>
         </Pressable>
 
         <Pressable style={styles.btnYes} onPress={() => handleChoice(true)}>
           <GText variant="displayS" color={colors.white}>↺ YEAH</GText>
-          <GText variant="bodyXs" color={colors.white} style={styles.btnYesSubtext}>SHUT UP AND TAKE MY MONEY</GText>
+          <GText variant="caption" color={colors.white} style={styles.btnYesSubtext}>SHUT UP AND TAKE MY MONEY</GText>
         </Pressable>
       </View>
     </View>

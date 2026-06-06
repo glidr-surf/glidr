@@ -25,7 +25,7 @@ export function Chips({ options, selected, onSelect }: ChipsProps) {
             style={[styles.chip, isActive && styles.chipActive]}
           >
             <GText
-              variant="tag"
+              variant="caption"
               color={isActive ? colors.white : colors.textLight}
             >
               {option}

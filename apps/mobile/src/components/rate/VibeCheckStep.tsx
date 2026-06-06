@@ -52,7 +52,7 @@ export function VibeCheckStep({ onUpdate, onNext }: StepProps) {
       {/* Nav */}
       <View style={styles.nav}>
         <View />
-        <GText variant="micro">2 OF 3</GText>
+        <GText variant="caption">2 OF 3</GText>
       </View>
 
       {/* Header */}
@@ -79,7 +79,7 @@ export function VibeCheckStep({ onUpdate, onNext }: StepProps) {
 
       {/* Counter */}
       <View style={styles.counter}>
-        <GText variant="micro">{index + 1} OF {VIBE_TAGS.length}</GText>
+        <GText variant="caption">{index + 1} OF {VIBE_TAGS.length}</GText>
       </View>
 
       {/* CTAs */}

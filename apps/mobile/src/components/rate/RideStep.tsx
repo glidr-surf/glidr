@@ -20,7 +20,7 @@ export function RideStep({ state, onUpdate, onNext, onSkip }: StepProps) {
       {/* Nav */}
       <View style={styles.nav}>
         <View />
-        <GText variant="micro">DEEP DIVE · 1 OF 4</GText>
+        <GText variant="caption">DEEP DIVE · 1 OF 4</GText>
       </View>
 
       <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>

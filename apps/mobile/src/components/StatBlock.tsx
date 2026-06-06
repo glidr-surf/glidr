@@ -12,7 +12,7 @@ export function StatBlock({ value, label }: StatBlockProps) {
   return (
     <View style={styles.container}>
       <GText variant="displayM">{value}</GText>
-      <GText variant="micro">{label}</GText>
+      <GText variant="caption">{label}</GText>
     </View>
   );
 }

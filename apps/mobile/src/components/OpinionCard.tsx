@@ -63,7 +63,7 @@ export function OpinionCard({
         {(() => {
           const boardLength = opinion.tags['board_length']?.[0];
           return (opinion.userHeight || opinion.userWeight || boardLength) ? (
-            <GText variant="bodyXs">
+            <GText variant="caption">
               {[boardLength, opinion.userHeight, opinion.userWeight].filter(Boolean).join(' · ')}
             </GText>
           ) : null;
@@ -74,7 +74,7 @@ export function OpinionCard({
         <SurfboardRating rating={opinion.scores['overall_rating'] ?? 0} size={14} />
         {opinion.tags['vibe_tag']?.[0] && (
           <View style={styles.vibeTag}>
-            <GText variant="micro" color={colors.white}>
+            <GText variant="caption" color={colors.white}>
               {opinion.tags['vibe_tag'][0]}
             </GText>
           </View>
@@ -95,7 +95,7 @@ export function OpinionCard({
         <View style={styles.chips}>
           {opinion.tags['wave_size'].map((size) => (
             <View key={size} style={styles.conditionChip}>
-              <GText variant="micro">{size}</GText>
+              <GText variant="caption">{size}</GText>
             </View>
           ))}
         </View>
@@ -117,7 +117,7 @@ export function OpinionCard({
       )}
 
       <View style={styles.footer}>
-        <GText variant="bodyS" color={opinion.scores['buy_again'] ? colors.green : colors.red}>
+        <GText variant="bodyM" color={opinion.scores['buy_again'] ? colors.green : colors.red}>
           {opinion.scores['buy_again'] ? '↺ YES' : '✗ NO'}
         </GText>
 
@@ -125,13 +125,13 @@ export function OpinionCard({
           <Pressable onPress={onUpvote} style={styles.voteButton}>
             <ArrowFatUp size={14} color={colors.textLight} weight="regular" />
           </Pressable>
-          <GText variant="bodyXs">{opinion.upvotes - opinion.downvotes}</GText>
+          <GText variant="caption">{opinion.upvotes - opinion.downvotes}</GText>
           <Pressable onPress={onDownvote} style={styles.voteButton}>
             <ArrowFatDown size={14} color={colors.textLight} weight="regular" />
           </Pressable>
         </View>
 
-        <GText variant="bodyXs">{formatRelativeTime(opinion.createdAt)}</GText>
+        <GText variant="caption">{formatRelativeTime(opinion.createdAt)}</GText>
       </View>
     </View>
   );

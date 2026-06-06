@@ -1,4 +1,19 @@
 -- ============================================================
+-- Reset (makes this seed re-runnable)
+-- ============================================================
+
+truncate table
+  opinion_votes,
+  opinion_tags,
+  opinion_scores,
+  opinions,
+  follows,
+  boards,
+  shapers,
+  profiles
+  restart identity cascade;
+
+-- ============================================================
 -- Profiles (test users)
 -- ============================================================
 

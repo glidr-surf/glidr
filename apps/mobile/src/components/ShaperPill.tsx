@@ -21,8 +21,8 @@ export function ShaperPill({ shaper }: ShaperPillProps) {
       <View style={styles.avatar}>
         <GText variant="displayS" color={colors.white}>{initial}</GText>
       </View>
-      <GText variant="bodyS" numberOfLines={1}>{shaper.name}</GText>
-      <GText variant="micro">{shaper.boardCount} BOARDS</GText>
+      <GText variant="bodyM" numberOfLines={1}>{shaper.name}</GText>
+      <GText variant="caption">{shaper.boardCount} BOARDS</GText>
     </Pressable>
   );
 }

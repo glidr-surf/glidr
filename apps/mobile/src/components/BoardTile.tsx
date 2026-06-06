@@ -32,12 +32,12 @@ export function BoardTile({ board }: BoardTileProps) {
           <GText variant="displayS" color={colors.white} numberOfLines={1}>
             {board.name}
           </GText>
-          <GText variant="micro" color={colors.white} style={styles.shaperText}>
+          <GText variant="caption" color={colors.white} style={styles.shaperText}>
             {board.shaper.toUpperCase()}
           </GText>
           <View style={styles.statsRow}>
             <SurfboardRating rating={board.rating} size={8} color={colors.white} />
-            <GText variant="micro" color={colors.white}>
+            <GText variant="caption" color={colors.white}>
               {board.opinionCount}
             </GText>
           </View>

@@ -24,7 +24,7 @@ export function FreeTextStep({ state, onUpdate, onNext, onSkip }: StepProps) {
       {/* Nav */}
       <View style={styles.nav}>
         <View />
-        <GText variant="micro">DEEP DIVE · 4 OF 4</GText>
+        <GText variant="caption">DEEP DIVE · 4 OF 4</GText>
       </View>
 
       {/* Header */}
