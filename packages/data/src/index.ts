@@ -19,7 +19,7 @@ export type {
 } from './types';
 export { createClient, type SupabaseClient } from './client';
 export { getBoards, getBoard, submitBoard } from './queries/boards';
-export { imagePublicUrl, fetchPrimaryImagePaths } from './queries/images';
+export { imagePublicUrl, fetchPrimaryImagePaths, uploadImage, deleteImagesFor } from './queries/images';
 export { getOpinions, submitOpinion, voteOnOpinion, deleteOpinion } from './queries/opinions';
 export { getShapers, getShaper, submitShaper } from './queries/shapers';
 export { getProfile, updateProfile, createProfile, isUsernameAvailable } from './queries/profiles';

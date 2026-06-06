@@ -1,7 +1,8 @@
 import { describe, it, expect, afterAll } from 'vitest';
 import { getBoards } from '../src/queries/boards';
-import { imagePublicUrl } from '../src/queries/images';
-import { anonClient, serviceClient } from './helpers';
+import { imagePublicUrl, uploadImage, deleteImagesFor } from '../src/queries/images';
+import { anonClient, serviceClient, createTestUser } from './helpers';
+import { createProfile } from '../src/queries/profiles';
 
 const FLAT_TRACKER = '20000000-0000-0000-0000-000000000001';
 
@@ -28,5 +29,24 @@ describe('getBoards image attach', () => {
     const boards = await getBoards(anonClient());
     const ft = boards.find((b) => b.id === FLAT_TRACKER);
     expect(ft?.imageUrl).toContain(`images/board/${FLAT_TRACKER}/primary.jpg`);
+  });
+});
+
+describe('uploadImage', () => {
+  const SHAPER = '10000000-0000-0000-0000-000000000001';
+  afterAll(async () => {
+    await deleteImagesFor(serviceClient(), 'shaper', SHAPER);
+  });
+
+  it('uploads a file and records an images row owned by the user', async () => {
+    const { userId, client } = await createTestUser();
+    await createProfile(client, { id: userId, username: `imgtest_${userId.slice(0, 8)}` });
+    const blob = new Blob([new Uint8Array([1, 2, 3])], { type: 'image/jpeg' });
+    const row = await uploadImage(client, {
+      ownerType: 'shaper', ownerId: SHAPER, file: blob,
+      ext: 'jpg', contentType: 'image/jpeg', replace: true,
+    });
+    expect(row.path).toMatch(new RegExp(`^shaper/${SHAPER}/.+\\.jpg$`));
+    expect(row.uploaded_by).toBe(userId);
   });
 });
