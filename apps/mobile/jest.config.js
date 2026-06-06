@@ -6,5 +6,6 @@ module.exports = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@glidr/tokens$': '<rootDir>/../../packages/tokens/dist/index.js',
+    '^@glidr/data$': '<rootDir>/../../packages/data/dist/index.js',
   },
 };
