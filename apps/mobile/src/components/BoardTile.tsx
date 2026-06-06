@@ -1,15 +1,11 @@
-import { View, StyleSheet, Pressable, Dimensions } from 'react-native';
+import { View, Image, StyleSheet, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { GText } from './GText';
 import { BoardTypeTag } from './BoardTypeTag';
-import { SurfboardRating } from './SurfboardRating';
+import { Stars } from './Stars';
 import { colors } from '../theme/colors';
+import { spacing } from '../theme/spacing';
 import type { Board } from '../types';
-
-const SCREEN_WIDTH = Dimensions.get('window').width;
-const GAP = 2;
-const TILE_WIDTH = (SCREEN_WIDTH - GAP * 2) / 3;
-const TILE_HEIGHT = TILE_WIDTH / 0.65;
 
 interface BoardTileProps {
   board: Board;
@@ -19,27 +15,26 @@ export function BoardTile({ board }: BoardTileProps) {
   const router = useRouter();
 
   return (
-    <Pressable
-      onPress={() => router.push(`/board/${board.id}`)}
-      style={styles.container}
-    >
-      <View style={styles.inner}>
-        <View style={styles.tagPosition}>
-          <BoardTypeTag type={board.type} size="sm" />
+    <Pressable onPress={() => router.push(`/board/${board.id}`)} style={styles.wrap}>
+      <View style={styles.shadow} />
+      <View style={styles.frame}>
+        <View style={styles.imageWrap}>
+          {board.imageUrl ? (
+            <Image testID="board-image" source={{ uri: board.imageUrl }} style={styles.image} />
+          ) : (
+            <View style={styles.fallback}>
+              <GText variant="displayL" color={colors.surface}>{board.name.charAt(0)}</GText>
+            </View>
+          )}
+          <View style={styles.tag}>
+            <BoardTypeTag type={board.type} size="sm" />
+          </View>
         </View>
-
-        <View style={styles.gradient}>
-          <GText variant="displayS" color={colors.white} numberOfLines={1}>
-            {board.name}
-          </GText>
-          <GText variant="caption" color={colors.white} style={styles.shaperText}>
-            {board.shaper.toUpperCase()}
-          </GText>
-          <View style={styles.statsRow}>
-            <SurfboardRating rating={board.rating} size={8} color={colors.white} />
-            <GText variant="caption" color={colors.white}>
-              {board.opinionCount}
-            </GText>
+        <View style={styles.caption}>
+          <GText variant="displayS" color={colors.surface} numberOfLines={1}>{board.name}</GText>
+          <GText variant="caption" color={colors.yellow}>{board.shaper.toUpperCase()}</GText>
+          <View style={styles.stars}>
+            <Stars rating={board.rating} size={14} color={colors.yellow} />
           </View>
         </View>
       </View>
@@ -48,33 +43,13 @@ export function BoardTile({ board }: BoardTileProps) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    width: TILE_WIDTH,
-    height: TILE_HEIGHT,
-  },
-  inner: {
-    flex: 1,
-    backgroundColor: colors.cardDark,
-    justifyContent: 'flex-end',
-  },
-  tagPosition: {
-    position: 'absolute',
-    top: 6,
-    left: 6,
-    zIndex: 1,
-  },
-  gradient: {
-    padding: 6,
-    paddingTop: 20,
-    backgroundColor: 'rgba(42,39,32,0.92)',
-  },
-  shaperText: {
-    marginTop: 1,
-  },
-  statsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    marginTop: 3,
-  },
+  wrap: { flex: 1, position: 'relative' },
+  shadow: { position: 'absolute', top: 4, left: 4, right: -4, bottom: -4, backgroundColor: colors.text },
+  frame: { borderWidth: 2.5, borderColor: colors.text, backgroundColor: colors.cardDark },
+  imageWrap: { position: 'relative' },
+  image: { width: '100%', height: 128, resizeMode: 'cover' },
+  fallback: { width: '100%', height: 128, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.blue },
+  tag: { position: 'absolute', top: 7, left: 7 },
+  caption: { padding: spacing.sm },
+  stars: { marginTop: 4 },
 });
