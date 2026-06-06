@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Board, BoardType, VibeTag, SubmitBoardInput } from '../types';
+import { imagePublicUrl, fetchPrimaryImagePaths } from './images';
 
 interface BoardStatsRow {
   board_id: string;
@@ -29,7 +30,7 @@ export async function getBoards(
   let query = client
     .from('boards')
     .select(`
-      id, name, shaper_id, type, image_url, length, width, thickness, volume, verdict,
+      id, name, shaper_id, type, length, width, thickness, volume, verdict,
       shapers!inner ( name )
     `)
     .eq('status', 'approved');
@@ -45,8 +46,10 @@ export async function getBoards(
   if (error) throw error;
 
   const rows = data ?? [];
-  const stats = await fetchBoardStats(client, rows.map((r) => r.id));
-  return rows.map((r) => mapBoard(r, stats.get(r.id)));
+  const ids = rows.map((r) => r.id);
+  const stats = await fetchBoardStats(client, ids);
+  const images = await fetchPrimaryImagePaths(client, 'board', ids);
+  return rows.map((r) => mapBoard(client, r, stats.get(r.id), images.get(r.id)));
 }
 
 export async function getBoard(
@@ -56,7 +59,7 @@ export async function getBoard(
   const { data, error } = await client
     .from('boards')
     .select(`
-      id, name, shaper_id, type, image_url, length, width, thickness, volume, verdict,
+      id, name, shaper_id, type, length, width, thickness, volume, verdict,
       shapers!inner ( name )
     `)
     .eq('id', boardId)
@@ -68,7 +71,8 @@ export async function getBoard(
   }
 
   const stats = await fetchBoardStats(client, [data.id]);
-  return mapBoard(data, stats.get(data.id));
+  const images = await fetchPrimaryImagePaths(client, 'board', [data.id]);
+  return mapBoard(client, data, stats.get(data.id), images.get(data.id));
 }
 
 export async function submitBoard(
@@ -94,7 +98,7 @@ export async function submitBoard(
   return data.id;
 }
 
-function mapBoard(row: any, stats?: BoardStatsRow): Board {
+function mapBoard(client: SupabaseClient, row: any, stats?: BoardStatsRow, imagePath?: string): Board {
   const shaper = Array.isArray(row.shapers) ? row.shapers[0] : row.shapers;
 
   return {
@@ -103,7 +107,7 @@ function mapBoard(row: any, stats?: BoardStatsRow): Board {
     shaper: shaper?.name ?? '',
     shaperId: row.shaper_id,
     type: row.type as BoardType,
-    imageUrl: row.image_url ?? undefined,
+    imageUrl: imagePath ? imagePublicUrl(client, imagePath) : undefined,
     length: row.length ?? undefined,
     width: row.width ?? undefined,
     thickness: row.thickness ?? undefined,
