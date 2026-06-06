@@ -1,13 +1,14 @@
 import { View, StyleSheet, ScrollView, ViewProps } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, type Edge } from 'react-native-safe-area-context';
 import { colors } from '../theme/colors';
 
 interface ScreenProps extends ViewProps {
   children: React.ReactNode;
   scrollable?: boolean;
+  edges?: readonly Edge[];
 }
 
-export function Screen({ children, scrollable = false, style, ...props }: ScreenProps) {
+export function Screen({ children, scrollable = false, edges = ['top'], style, testID, ...props }: ScreenProps) {
   const content = scrollable ? (
     <ScrollView
       style={styles.scroll}
@@ -22,7 +23,11 @@ export function Screen({ children, scrollable = false, style, ...props }: Screen
     </View>
   );
 
-  return <SafeAreaView style={styles.container}>{content}</SafeAreaView>;
+  return (
+    <SafeAreaView testID={testID} style={styles.container} edges={edges}>
+      {content}
+    </SafeAreaView>
+  );
 }
 
 const styles = StyleSheet.create({
