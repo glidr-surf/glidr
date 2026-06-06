@@ -8,6 +8,10 @@ export function serviceClient(): SupabaseClient {
   return createClient(url(), service(), { auth: { persistSession: false } });
 }
 
+export function anonClient(): SupabaseClient {
+  return createClient(url(), anon(), { auth: { persistSession: false } });
+}
+
 export interface TestUser {
   userId: string;
   client: SupabaseClient;
