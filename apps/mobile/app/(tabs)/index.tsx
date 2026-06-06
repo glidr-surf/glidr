@@ -9,6 +9,7 @@ import { GText } from '../../src/components/GText';
 import { BoardTile } from '../../src/components/BoardTile';
 import { BoardTypeTag } from '../../src/components/BoardTypeTag';
 import { BoldBlock } from '../../src/components/BoldBlock';
+import { GlidrMark } from '../../src/components/GlidrMark';
 import { Skeleton } from '../../src/components/Skeleton';
 import { Stars } from '../../src/components/Stars';
 import { pluralize } from '../../src/utils/pluralize';
@@ -46,7 +47,10 @@ export default function HomeScreen() {
   const header = (
     <View>
       <View style={styles.headerBar}>
-        <GText variant="displayL" color={colors.surface} style={styles.logo}>GLIDR</GText>
+        <View style={styles.logoRow}>
+          <GlidrMark size={34} />
+          <GText variant="displayL" color={colors.surface} style={styles.logo}>GLIDR</GText>
+        </View>
         <Pressable onPress={() => router.push('/search')} hitSlop={12} accessibilityRole="button" accessibilityLabel="Search boards and shapers">
           <MagnifyingGlass size={24} color={colors.surface} weight="bold" />
         </Pressable>
@@ -123,6 +127,7 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   headerBar: { backgroundColor: colors.red, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.lg, paddingVertical: spacing.lg },
+  logoRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   logo: { letterSpacing: 2 },
   body: { padding: spacing.lg },
   pressed: { transform: [{ scale: 0.98 }], opacity: 0.9 },
