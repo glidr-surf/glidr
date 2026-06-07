@@ -3,23 +3,12 @@ import { renderApp } from '../support/renderApp';
 import { createTestUser, signInSingleton, cleanupUser, type TestUser } from '../support/auth';
 import { serviceClient } from '../support/db';
 
-// add-board.tsx is wired to the real data layer (submitShaper + submitBoard), NOT
-// a UI mock. BUT the happy-path write currently CANNOT complete for a normal
-// authenticated user: submitShaper/submitBoard chain `.insert(...).select('id')
-// .single()`, and the shapers/boards SELECT policy is `status = 'approved' OR
-// is_admin()` (00001_initial_schema.sql) — so reading back the just-inserted
-// `pending` row is denied by RLS and the call throws. The bare insert succeeds;
-// the chained read-back is what fails. The screen catches this and shows
-// "Couldn't add that board." So we assert the REAL wired behaviour here (wizard
-// renders → validates → advances → submit surfaces the error) and defer the
-// green-path persistence assertion until the data layer can read back its own
-// pending submissions (e.g. a submitter-can-read-own RLS policy or returning=
-// minimal insert + separate fetch).
-console.log(
-  '[e2e] add-board green-path persistence deferred — submitShaper/submitBoard ' +
-  'read back the inserted pending row via .select().single(), which RLS denies ' +
-  'for non-admin users; the screen surfaces "Couldn\'t add that board."',
-);
+// add-board.tsx is wired to the real data layer (submitShaper + submitBoard). Since
+// migration 00006 + submit*() inserting status='approved', a normal authenticated
+// user can add a board with no admin approval: the inserted row is immediately
+// readable (select policy "approved or is_admin"), so the .select().single()
+// read-back succeeds and the screen navigates to the new board. This journey drives
+// the real 3-step wizard and asserts the board + shaper actually persisted.
 
 let user: TestUser;
 const suffix = Date.now().toString(36);
@@ -32,9 +21,8 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
-  // The bare insert does land a `pending` shaper row before the read-back throws,
-  // so clean it up. Boards never get created (submitShaper throws first), but
-  // delete defensively. RLS forbids user delete (admin only) → service client.
+  // Both rows are created on the happy path; RLS forbids user delete (admin only),
+  // so clean up via the service client. Delete the board first (FK → shaper).
   const admin = serviceClient();
   await admin.from('boards').delete().eq('name', modelName);
   await admin.from('shapers').delete().eq('name', shaperName);
@@ -42,7 +30,7 @@ afterEach(async () => {
 });
 
 describe('add board', () => {
-  it('walks the 3-step wizard, validates each step, and submits', async () => {
+  it('walks the 3-step wizard and persists a public board', async () => {
     const { user: ue } = renderApp('/add-board');
 
     // Step 1 — basics. NEXT only advances once both shaper + model are filled.
@@ -60,14 +48,18 @@ describe('add board', () => {
     await waitFor(() => expect(screen.getByText('DIMENSIONS')).toBeTruthy());
     await ue.press(screen.getByText('ADD BOARD'));
 
-    // Wired submit path runs (requireAuth → submitShaper) and, under current RLS,
-    // surfaces the error rather than navigating away. Asserting this proves the
-    // form is genuinely wired to the data layer (not a static mock).
-    await waitFor(() => expect(screen.getByText(/couldn't add that board/i)).toBeTruthy());
+    // Persistence: the board + its shaper land as `approved` (publicly visible).
+    await waitFor(async () => {
+      const { data: boards } = await serviceClient()
+        .from('boards')
+        .select('id, name, type, status, shapers(name, status)')
+        .eq('name', modelName);
+      expect(boards?.length).toBe(1);
+      expect(boards![0].status).toBe('approved');
+      expect(boards![0].type).toBe('FISH');
+      const shaper = Array.isArray(boards![0].shapers) ? boards![0].shapers[0] : boards![0].shapers;
+      expect(shaper.name).toBe(shaperName);
+      expect(shaper.status).toBe('approved');
+    });
   }, 60000); // heaviest journey: 3-step wizard + per-char typing
-
-  it.todo(
-    'add-board persists a board on the happy path — DEFERRED: submit*().select().single() ' +
-    'read-back is RLS-denied for non-admin pending rows',
-  );
 });
