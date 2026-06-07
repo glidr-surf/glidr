@@ -1,7 +1,7 @@
 import { screen, waitFor } from '@testing-library/react-native';
 import { renderApp } from '../support/renderApp';
 import { createTestUser, signInSingleton, cleanupUser, type TestUser } from '../support/auth';
-import { serviceClient } from '../support/db';
+import { fetchUserVote } from '../support/readback';
 import { VOTE_BOARD, VOTE_OPINION } from '../support/fixtures';
 
 let user: TestUser;
@@ -28,12 +28,7 @@ describe('board detail → opinion vote', () => {
     // The user_id === user.userId check is the key guard: it proves userId went to
     // user_id and opinionId went to opinion_id — the exact arg order that regressed.
     await waitFor(async () => {
-      const { data } = await serviceClient()
-        .from('opinion_votes')
-        .select('vote, user_id, opinion_id')
-        .eq('opinion_id', VOTE_OPINION)
-        .eq('user_id', user.userId)
-        .single();
+      const data = await fetchUserVote(VOTE_OPINION, user.userId);
       expect(data?.vote).toBe(1);
       expect(data?.user_id).toBe(user.userId);
       expect(data?.opinion_id).toBe(VOTE_OPINION);
@@ -50,12 +45,7 @@ describe('board detail → opinion vote', () => {
     await ue.press(screen.getByTestId(`opinion-${VOTE_OPINION}-downvote`));
 
     await waitFor(async () => {
-      const { data } = await serviceClient()
-        .from('opinion_votes')
-        .select('vote, user_id, opinion_id')
-        .eq('opinion_id', VOTE_OPINION)
-        .eq('user_id', user.userId)
-        .single();
+      const data = await fetchUserVote(VOTE_OPINION, user.userId);
       expect(data?.vote).toBe(-1);
       expect(data?.user_id).toBe(user.userId);
       expect(data?.opinion_id).toBe(VOTE_OPINION);
