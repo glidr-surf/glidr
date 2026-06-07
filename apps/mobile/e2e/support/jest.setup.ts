@@ -1,6 +1,12 @@
 // Native-edge mocks ONLY. Never mock @glidr/data, supabase, or expo-router —
 // the whole point of these e2e tests is to exercise the real app + real DB.
 
+import { configure } from '@testing-library/react-native';
+
+// Real DB round-trips take ~2-3s — well over waitFor's 1000ms default. Bump the
+// async-util timeout globally so per-call timeouts aren't needed everywhere.
+configure({ asyncUtilTimeout: 10000 });
+
 // AsyncStorage's native module isn't present in jest; the package ships an
 // official in-memory mock (the supabase singleton uses it for session storage).
 jest.mock('@react-native-async-storage/async-storage', () =>

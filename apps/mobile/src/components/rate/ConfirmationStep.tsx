@@ -37,16 +37,16 @@ export function ConfirmationStep({ onDeepDive, onFinish, deepDiveDone = false }:
       {/* CTAs */}
       <View style={styles.actions}>
         {deepDiveDone ? (
-          <Pressable style={styles.ctaPrimary} onPress={onFinish}>
+          <Pressable testID="rate-finish" style={styles.ctaPrimary} onPress={onFinish}>
             <GText variant="displayS" color={colors.white}>POST IT</GText>
           </Pressable>
         ) : (
           <>
-            <Pressable style={styles.ctaPrimary} onPress={onDeepDive}>
+            <Pressable testID="rate-deepdive" style={styles.ctaPrimary} onPress={onDeepDive}>
               <GText variant="displayS" color={colors.white}>KEEP GOING — TELL US MORE</GText>
             </Pressable>
 
-            <Pressable style={styles.ctaSkip} onPress={onFinish}>
+            <Pressable testID="rate-finish" style={styles.ctaSkip} onPress={onFinish}>
               <GText variant="label" color={colors.textLight}>NAH, I'M GOOD</GText>
             </Pressable>
           </>

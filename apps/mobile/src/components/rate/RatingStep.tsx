@@ -50,7 +50,7 @@ export function RatingStep({ state, onUpdate, onNext, board }: RatingStepProps) 
 
         {/* Star rating */}
         <View style={styles.starsRow}>
-          <StarRating value={state.rating} onChange={(i) => onUpdate({ rating: i })} color={colors.red} />
+          <StarRating value={state.rating} onChange={(i) => onUpdate({ rating: i })} color={colors.red} testIDPrefix="rate-star" />
         </View>
 
         {/* Quip */}
@@ -65,6 +65,7 @@ export function RatingStep({ state, onUpdate, onNext, board }: RatingStepProps) 
 
       {/* CTA */}
       <Pressable
+        testID="rate-next"
         style={[styles.cta, state.rating === 0 && styles.ctaDisabled]}
         onPress={onNext}
         disabled={state.rating === 0}

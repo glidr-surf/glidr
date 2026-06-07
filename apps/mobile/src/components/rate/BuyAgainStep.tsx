@@ -44,7 +44,7 @@ export function BuyAgainStep({ state, onUpdate, onNext, onBack, board }: BuyAgai
 
       {/* Buttons — stacked, filling the space below the card */}
       <View style={styles.fill}>
-        <Pressable style={styles.btnYes} onPress={() => handleChoice(true)}>
+        <Pressable testID="buyagain-yes" style={styles.btnYes} onPress={() => handleChoice(true)}>
           <View style={styles.btnLabel}><ArrowsClockwise size={22} color={colors.white} weight="bold" /><GText variant="displayS" color={colors.white}>YEAH</GText></View>
           <GText variant="caption" color={colors.white} style={styles.btnYesSubtext}>SHUT UP AND TAKE MY MONEY</GText>
         </Pressable>

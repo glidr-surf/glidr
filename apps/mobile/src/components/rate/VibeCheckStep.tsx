@@ -82,7 +82,7 @@ export function VibeCheckStep({ onUpdate, onNext, onBack }: StepProps) {
 
       {/* CTAs */}
       <View style={styles.actions}>
-        <Pressable style={styles.cta} onPress={handleSelect}>
+        <Pressable testID="rate-next" style={styles.cta} onPress={handleSelect}>
           <GText variant="displayS" color={colors.white}>THAT'S THE ONE</GText>
         </Pressable>
 
