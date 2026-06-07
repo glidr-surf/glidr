@@ -9,6 +9,6 @@ describe('DimensionPicker', () => {
   });
   it('shows the formatted fraction when set', () => {
     render(<DimensionPicker kind="width" value={20.25} onChange={() => {}} />);
-    expect(screen.getByText('20¼" ▾')).toBeTruthy();
+    expect(screen.getByText('20 1/4" ▾')).toBeTruthy();
   });
 });

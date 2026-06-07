@@ -6,7 +6,7 @@ describe('dims', () => {
     expect(formatLength(72)).toBe(`6'0"`);
   });
   it('formats inches to nearest fraction', () => {
-    expect(formatInches(20.25, 8)).toBe('20¼"');
+    expect(formatInches(20.25, 8)).toBe('20 1/4"');
     expect(formatInches(2.5625, 16)).toBe('2 9/16"');
     expect(formatInches(19, 8)).toBe('19"');
   });
