@@ -90,7 +90,7 @@ export default function AddBoardScreen() {
             <GText variant="bodyM" color={colors.textMid} style={styles.sub}>Obscure shaper? Local legend? We want it all.</GText>
             <View style={styles.field}>
               <GText variant="label">PHOTO <GText variant="label" color={colors.textLight}>(OPTIONAL)</GText></GText>
-              <ImageField onPicked={setPhoto} />
+              <ImageField testID="add-board-photo" onPicked={setPhoto} />
             </View>
             <View style={styles.field}>
               <GText variant="label">SHAPER</GText>
