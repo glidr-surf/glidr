@@ -32,7 +32,13 @@
     "newArchEnabled": true,
     "plugins": [
       "expo-router",
-      "expo-font"
+      "expo-font",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Glidr needs access to your photos so you can add a photo of your board."
+        }
+      ]
     ]
   }
 }
