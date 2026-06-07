@@ -1,8 +1,11 @@
-import { View, Image, StyleSheet, Pressable } from 'react-native';
+import { View, StyleSheet, Pressable } from 'react-native';
+import { Image } from 'expo-image';
+import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { GText } from './GText';
 import { BoardTypeTag } from './BoardTypeTag';
 import { Stars } from './Stars';
+import { BoldBlock } from './BoldBlock';
 import { colors } from '../theme/colors';
 import { spacing } from '../theme/spacing';
 import type { Board } from '../types';
@@ -15,12 +18,24 @@ export function BoardTile({ board }: BoardTileProps) {
   const router = useRouter();
 
   return (
-    <Pressable onPress={() => router.push(`/board/${board.id}`)} style={styles.wrap}>
-      <View style={styles.shadow} />
-      <View style={styles.frame}>
+    <Pressable
+      style={({ pressed }) => [styles.wrap, pressed && styles.pressed]}
+      onPress={() => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        router.push(`/board/${board.id}`);
+      }}
+    >
+      <BoldBlock tone="ink">
         <View style={styles.imageWrap}>
           {board.imageUrl ? (
-            <Image testID="board-image" source={{ uri: board.imageUrl }} style={styles.image} />
+            <Image
+              testID="board-image"
+              source={{ uri: board.imageUrl }}
+              style={styles.image}
+              contentFit="cover"
+              contentPosition="top"
+              transition={200}
+            />
           ) : (
             <View style={styles.fallback}>
               <GText variant="displayL" color={colors.surface}>{board.name.charAt(0)}</GText>
@@ -37,17 +52,16 @@ export function BoardTile({ board }: BoardTileProps) {
             <Stars rating={board.rating} size={14} color={colors.yellow} />
           </View>
         </View>
-      </View>
+      </BoldBlock>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: { flex: 1, position: 'relative' },
-  shadow: { position: 'absolute', top: 4, left: 4, right: -4, bottom: -4, backgroundColor: colors.text },
-  frame: { borderWidth: 2.5, borderColor: colors.text, backgroundColor: colors.cardDark },
+  wrap: { flex: 1 },
+  pressed: { transform: [{ scale: 0.98 }], opacity: 0.9 },
   imageWrap: { position: 'relative' },
-  image: { width: '100%', height: 128, resizeMode: 'cover' },
+  image: { width: '100%', height: 128 },
   fallback: { width: '100%', height: 128, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.blue },
   tag: { position: 'absolute', top: 7, left: 7 },
   caption: { padding: spacing.sm },

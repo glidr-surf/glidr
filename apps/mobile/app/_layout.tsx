@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useFonts } from 'expo-font';
@@ -7,6 +7,7 @@ import { DMSans_400Regular, DMSans_500Medium, DMSans_600SemiBold, DMSans_700Bold
 import { colors } from '../src/theme/colors';
 import { AuthProvider } from '../src/context/AuthContext';
 import { AuthModal } from '../src/components/AuthModal';
+import { BrandIntro } from '../src/components/BrandIntro';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -18,6 +19,7 @@ export default function RootLayout() {
     DMSans_600SemiBold,
     DMSans_700Bold,
   });
+  const [introDone, setIntroDone] = useState(false);
 
   useEffect(() => {
     if (fontsLoaded) SplashScreen.hideAsync();
@@ -40,6 +42,7 @@ export default function RootLayout() {
         <Stack.Screen name="username-picker" options={{ presentation: 'fullScreenModal', gestureEnabled: false }} />
       </Stack>
       <AuthModal />
+      {!introDone && <BrandIntro onDone={() => setIntroDone(true)} />}
     </AuthProvider>
   );
 }

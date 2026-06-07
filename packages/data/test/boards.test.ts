@@ -2,12 +2,12 @@ import { describe, it, expect } from 'vitest';
 import { getBoards, getBoard } from '../src/queries/boards';
 import { anonClient } from './helpers';
 
-const FLAT_TRACKER = '20000000-0000-0000-0000-000000000001';
+const FLAT_TRACKER = '20000000-0000-0000-0000-00000000000a';
 
 describe('getBoards', () => {
   it('returns approved boards with populated stats', async () => {
     const boards = await getBoards(anonClient());
-    expect(boards.length).toBeGreaterThanOrEqual(8);
+    expect(boards.length).toBe(16);
     const ft = boards.find((b) => b.id === FLAT_TRACKER);
     expect(ft).toBeDefined();
     expect(ft!.shaper).toBe('Christenson');
@@ -19,6 +19,9 @@ describe('getBoards', () => {
     const fish = await getBoards(anonClient(), { type: 'FISH' });
     expect(fish.length).toBeGreaterThanOrEqual(1);
     expect(fish.every((b) => b.type === 'FISH')).toBe(true);
+    const types = new Set((await getBoards(anonClient())).map((b) => b.type));
+    expect(types.has('EGG' as never)).toBe(false);
+    expect(types).toEqual(new Set(['SHORT', 'FISH', 'MID', 'LOG', 'ALT']));
   });
 });
 

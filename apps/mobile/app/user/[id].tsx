@@ -6,6 +6,8 @@ import { GText } from '../../src/components/GText';
 import { StatBlock } from '../../src/components/StatBlock';
 import { BoardTile } from '../../src/components/BoardTile';
 import { OpinionCard } from '../../src/components/OpinionCard';
+import { navBack } from '../../src/utils/navBack';
+import { pluralize } from '../../src/utils/pluralize';
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
 import { getOpinions, getBoards } from '@glidr/data';
@@ -45,7 +47,7 @@ export default function UserProfileScreen() {
   const renderHeader = () => (
     <View>
       <View style={styles.nav}>
-        <Pressable onPress={() => router.back()} style={styles.navButton}>
+        <Pressable onPress={() => navBack(router)} style={styles.navButton}>
           <CaretLeft size={20} color={colors.text} weight="bold" />
         </Pressable>
       </View>
@@ -75,7 +77,7 @@ export default function UserProfileScreen() {
 
       <View style={styles.funLine}>
         <GText variant="bodyM" color={colors.textMid}>
-          {username} has opinioned {boardIds.length} boards. Favourite shaper: {topShaper}. Probably owns a van.
+          {username} has opinioned {pluralize(boardIds.length, 'board')}. Favourite shaper: {topShaper}. Probably owns a van.
         </GText>
       </View>
 

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { View, TextInput, ScrollView, Pressable, StyleSheet, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GText } from '../src/components/GText';
 import { colors } from '../src/theme/colors';
 import { spacing } from '../src/theme/spacing';
@@ -17,6 +17,7 @@ type UniquenessState = 'empty' | 'checking' | 'taken' | 'available';
 
 export default function UsernamePickerScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { refreshUser } = useAuth();
   const [username, setUsername] = useState('');
   const [focused, setFocused] = useState(false);
@@ -64,9 +65,9 @@ export default function UsernamePickerScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+    <View style={styles.safe}>
       <ScrollView
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.xl }]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
@@ -143,13 +144,13 @@ export default function UsernamePickerScreen() {
         </View>
       </ScrollView>
 
-      <View style={styles.footer}>
+      <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.md }]}>
         {error && <GText variant="caption" color={colors.red} style={{ marginBottom: spacing.sm, textAlign: 'center' }}>{error}</GText>}
         <Pressable onPress={() => canSubmit && onSubmit()} style={[styles.cta, !canSubmit && styles.ctaDisabled]}>
           {submitting ? <ActivityIndicator color={colors.white} /> : <GText variant="displayS" color={colors.white}>LET'S GO</GText>}
         </Pressable>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 

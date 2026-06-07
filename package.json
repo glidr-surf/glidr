@@ -5,7 +5,8 @@
     "dev": "turbo dev",
     "build": "turbo build",
     "typecheck": "turbo typecheck",
-    "lint": "turbo lint"
+    "lint": "turbo lint",
+    "brand:gen": "pnpm --filter @glidr/brand gen && pnpm --filter @glidr/brand outline"
   },
   "devDependencies": {
     "turbo": "^2",

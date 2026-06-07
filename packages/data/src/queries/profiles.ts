@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { CreateProfileInput, User } from '../types';
+import { imagePublicUrl, fetchPrimaryImagePaths } from './images';
 
 export async function getProfile(
   client: SupabaseClient,
@@ -24,12 +25,15 @@ export async function getProfile(
 
   if (statsError) throw statsError;
 
+  const avatarPath = (await fetchPrimaryImagePaths(client, 'profile', [userId])).get(userId);
+
   return {
     id: data.id,
     username: data.username,
     height: data.height ?? undefined,
     weight: data.weight ?? undefined,
     createdAt: data.created_at,
+    avatarUrl: avatarPath ? imagePublicUrl(client, avatarPath) : undefined,
     opinionCount: stats?.opinion_count ?? 0,
     magicBoardCount: stats?.magic_board_count ?? 0,
     followersCount: stats?.followers_count ?? 0,

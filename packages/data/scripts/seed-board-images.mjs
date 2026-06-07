@@ -8,16 +8,24 @@ import path from 'node:path';
 
 const ASSETS = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../apps/web/public/boards');
 const MAP = {
+  'HYPTO KRYPTO': 'haydenshapes-hypto-krypto.jpg',
+  'FEVER': 'ci-fever.png',
+  'CI MID': 'ci-mid.png',
+  'POD MOD': 'ci-pod-mod.png',
+  "RNF '96": 'lost-rnf-96.jpg',
+  'PUDDLE JUMPER': 'lost-puddle-jumper.jpg',
+  'DRIVER 3.0': 'lost-driver.jpg',
+  'GHOST': 'pyzel-ghost.png',
+  'MID LENGTH CRISIS': 'pyzel-mid-length-crisis.png',
   'FLAT TRACKER': 'christenson-flat-tracker.jpg',
-  'SWEET POTATO': 'hayden-misc.jpg',
-  'HYPTO KRYPTO': 'hayden-hypto-krypto.jpg',
-  'ELEVATOR': 'bing-elevator.webp',
-  'OG FLYER': 'ci-og-flyer.jpg',
-  'CHRIS FISH': 'christenson-fish.jpg',
-  'MINI SIMMONS': 'bing-california-pin.jpg',
-  'RHINOCEROS': 'ci-happy.jpg',
+  'CHRISTENSON FISH': 'christenson-fish.png',
+  'SPROUT': 'cjnelson-sprout.png',
+  '#77': 'sharpeye-77.jpg',
+  'TWINSMAN': 'album-twinsman.png',
+  'SWEET POTATO': 'firewire-sweet-potato.png',
+  'CHERRY PICKER': 'skindog-cherry-picker.png',
 };
-const MIME = { jpg: 'image/jpeg', webp: 'image/webp' };
+const MIME = { jpg: 'image/jpeg', webp: 'image/webp', png: 'image/png' };
 
 const sb = createClient(process.env.SB_URL, process.env.SB_SERVICE_KEY, { auth: { persistSession: false } });
 const { data: boards, error } = await sb.from('boards').select('id, name');

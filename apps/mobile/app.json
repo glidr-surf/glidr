@@ -9,9 +9,11 @@
       "ios",
       "android"
     ],
-    "icon": "./assets/icon.svg",
+    "icon": "./assets/icon.png",
     "splash": {
-      "backgroundColor": "#F2E6CE"
+      "image": "./assets/splash-wordmark.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#E8432A"
     },
     "ios": {
       "bundleIdentifier": "surf.glidr.app",
@@ -20,7 +22,8 @@
     "android": {
       "package": "surf.glidr.app",
       "adaptiveIcon": {
-        "backgroundColor": "#F2E6CE"
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#E8432A"
       }
     },
     "experiments": {

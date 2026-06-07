@@ -5,6 +5,7 @@ type Tone = 'ink' | 'red' | 'yellow' | 'blue';
 
 interface BoldBlockProps extends ViewProps {
   tone?: Tone;
+  offset?: number;
 }
 
 const toneBg: Record<Tone, string> = {
@@ -14,10 +15,10 @@ const toneBg: Record<Tone, string> = {
   blue: colors.blue,
 };
 
-export function BoldBlock({ tone = 'ink', style, children, testID, ...props }: BoldBlockProps) {
+export function BoldBlock({ tone = 'ink', offset = 4, style, children, testID, ...props }: BoldBlockProps) {
   return (
     <View style={styles.wrap}>
-      <View style={styles.shadow} />
+      <View style={[styles.shadow, { top: offset, left: offset, right: -offset, bottom: -offset }]} />
       <View
         testID={testID ? `${testID}-content` : undefined}
         style={[styles.content, { backgroundColor: toneBg[tone] }, style]}
@@ -33,10 +34,6 @@ const styles = StyleSheet.create({
   wrap: { position: 'relative' },
   shadow: {
     position: 'absolute',
-    top: 4,
-    left: 4,
-    right: -4,
-    bottom: -4,
     backgroundColor: colors.text,
   },
   content: {

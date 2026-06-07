@@ -6,6 +6,7 @@ import { GText } from '../../src/components/GText';
 import { StatBlock } from '../../src/components/StatBlock';
 import { BoardTile } from '../../src/components/BoardTile';
 import { Chips } from '../../src/components/Chips';
+import { navBack } from '../../src/utils/navBack';
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
 import { getShaper, getBoards } from '@glidr/data';
@@ -43,7 +44,7 @@ export default function ShaperScreen() {
       {/* Hero */}
       <View style={styles.hero}>
         <View style={styles.nav}>
-          <Pressable onPress={() => router.back()} style={styles.navButton}>
+          <Pressable onPress={() => navBack(router)} style={styles.navButton}>
             <CaretLeft size={20} color={colors.white} weight="bold" />
           </Pressable>
           <Pressable style={styles.navButton}>

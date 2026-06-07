@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { getShapers, getShaper } from '../src/queries/shapers';
 import { anonClient } from './helpers';
 
-const CHRISTENSON = '10000000-0000-0000-0000-000000000001';
+const CHRISTENSON = '10000000-0000-0000-0000-000000000005';
 
 describe('getShapers', () => {
   it('returns approved shapers with populated stats', async () => {
