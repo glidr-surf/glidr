@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { View, FlatList, Pressable, StyleSheet, Alert } from 'react-native';
+import { View, Pressable, StyleSheet, Alert } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -7,10 +7,8 @@ import { GearSix, Camera } from 'phosphor-react-native';
 import { Image } from 'expo-image';
 import { GText } from '../../src/components/GText';
 import { StatBlock } from '../../src/components/StatBlock';
-import { BoardTile } from '../../src/components/BoardTile';
-import { OpinionCard } from '../../src/components/OpinionCard';
+import { ProfileBoardsTabs } from '../../src/components/ProfileBoardsTabs';
 import { Screen } from '../../src/components/Screen';
-import { Skeleton } from '../../src/components/Skeleton';
 import { pluralize } from '../../src/utils/pluralize';
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
@@ -27,7 +25,6 @@ export default function ProfileScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { isAuthenticated, showAuthModal, user, refreshUser } = useAuth();
-  const [activeTab, setActiveTab] = useState<'quiver' | 'opinions'>('quiver');
   const [userOpinions, setUserOpinions] = useState<Opinion[]>([]);
   const [boards, setBoards] = useState<Board[]>([]);
   const [badges, setBadges] = useState<Badge[]>([]);
@@ -59,16 +56,8 @@ export default function ProfileScreen() {
   const boardMap = Object.fromEntries(boards.map((b) => [b.id, b]));
 
   const quiverBoards = useMemo(() => {
-    // show MY rating for each board, not the board's overall average
-    const myRating: Record<string, number> = {};
-    for (const o of userOpinions) {
-      if (myRating[o.boardId] == null) myRating[o.boardId] = o.scores['overall_rating'] ?? 0;
-    }
     const boardIds = [...new Set(userOpinions.map((o) => o.boardId))];
-    return boardIds
-      .map((id) => boardMap[id])
-      .filter(Boolean)
-      .map((b) => ({ ...b, rating: myRating[b.id] ?? b.rating }));
+    return boardIds.map((id) => boardMap[id]).filter(Boolean);
   }, [userOpinions, boardMap]);
 
   const badgeCount = badges.filter((b) => b.earned).length;
@@ -148,62 +137,17 @@ export default function ProfileScreen() {
         </GText>
       </View>
 
-      <View style={styles.tabs}>
-        <Pressable onPress={() => setActiveTab('quiver')} style={[styles.tab, activeTab === 'quiver' && styles.tabActive]}>
-          <GText variant="label" color={activeTab === 'quiver' ? colors.text : colors.textLight}>QUIVER</GText>
-        </Pressable>
-        <Pressable onPress={() => setActiveTab('opinions')} style={[styles.tab, activeTab === 'opinions' && styles.tabActive]}>
-          <GText variant="label" color={activeTab === 'opinions' ? colors.text : colors.textLight}>OPINIONS</GText>
-        </Pressable>
-      </View>
     </View>
   );
 
-  const emptyState = (copy: string) =>
-    loading ? (
-      <View style={styles.loadingState}>
-        <Skeleton height={70} />
-        <Skeleton height={70} />
-      </View>
-    ) : error ? (
-      <View style={styles.empty}>
-        <GText variant="bodyM" color={colors.textMid}>Couldn't load your profile.</GText>
-        <Pressable onPress={load} hitSlop={8} style={styles.retry}><GText variant="label" color={colors.red}>TRY AGAIN</GText></Pressable>
-      </View>
-    ) : (
-      <View style={styles.empty}><GText variant="bodyM" color={colors.textMid}>{copy}</GText></View>
-    );
-
-  if (activeTab === 'opinions') {
+  if (error) {
     return (
       <Screen edges={[]}>
         <StatusBar style="light" />
-        <FlatList
-          key="opinions"
-          data={loading ? [] : userOpinions}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <OpinionCard
-              opinion={item}
-              board={boardMap[item.boardId]}
-              showBoardInfo
-              isOwn
-              onEdit={() => router.push(('/rate-flow?boardId=' + item.boardId + '&opinionId=' + item.id) as any)}
-              onDelete={() => Alert.alert(
-                'Delete Opinion',
-                "Remove this opinion? The board won't miss you either.",
-                [
-                  { text: 'KEEP IT', style: 'cancel' },
-                  { text: 'DELETE', style: 'destructive', onPress: () => {} },
-                ],
-              )}
-            />
-          )}
-          ListHeaderComponent={renderHeader}
-          contentContainerStyle={styles.listContent}
-          ItemSeparatorComponent={() => <View style={{ height: spacing.md }} />}
-          ListEmptyComponent={emptyState("No opinions yet. It's not you, it's the board. Oh wait.")}
-        />
+        <View style={styles.signedOut}>
+          <GText variant="bodyM" color={colors.textMid}>Couldn't load your profile.</GText>
+          <Pressable onPress={load} hitSlop={8} style={styles.retry}><GText variant="label" color={colors.red}>TRY AGAIN</GText></Pressable>
+        </View>
       </Screen>
     );
   }
@@ -211,17 +155,25 @@ export default function ProfileScreen() {
   return (
     <Screen edges={[]}>
       <StatusBar style="light" />
-      <FlatList
-        key="quiver"
-        data={loading ? [] : quiverBoards}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <BoardTile board={item} />}
-        numColumns={3}
-        columnWrapperStyle={styles.gridRow}
-        ListHeaderComponent={renderHeader}
-        contentContainerStyle={styles.gridContent}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={emptyState('No boards opinioned yet. Get out there.')}
+      <ProfileBoardsTabs
+        header={renderHeader()}
+        quiverBoards={quiverBoards}
+        opinions={userOpinions}
+        boardMap={boardMap}
+        isOwn
+        loading={loading}
+        bottomPadding={TAB_BAR_CLEARANCE}
+        quiverEmpty="No boards opinioned yet. Get out there."
+        opinionsEmpty="No opinions yet. It's not you, it's the board. Oh wait."
+        onEditOpinion={(op) => router.push(('/rate-flow?boardId=' + op.boardId + '&opinionId=' + op.id) as any)}
+        onDeleteOpinion={() => Alert.alert(
+          'Delete Opinion',
+          "Remove this opinion? The board won't miss you either.",
+          [
+            { text: 'KEEP IT', style: 'cancel' },
+            { text: 'DELETE', style: 'destructive', onPress: () => {} },
+          ],
+        )}
       />
     </Screen>
   );
@@ -239,13 +191,5 @@ const styles = StyleSheet.create({
   followRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.xs },
   statsRow: { flexDirection: 'row' },
   funLine: { padding: spacing.xl },
-  tabs: { flexDirection: 'row', borderBottomWidth: 2, borderBottomColor: colors.border },
-  tab: { flex: 1, alignItems: 'center', paddingVertical: spacing.md },
-  tabActive: { borderBottomWidth: 2, borderBottomColor: colors.red },
-  listContent: { paddingBottom: TAB_BAR_CLEARANCE },
-  gridContent: { gap: 2, paddingBottom: TAB_BAR_CLEARANCE },
-  gridRow: { gap: 2 },
-  empty: { padding: spacing.xl, alignItems: 'center', gap: spacing.md },
-  loadingState: { padding: spacing.xl, gap: spacing.md },
   retry: { paddingVertical: spacing.sm },
 });
