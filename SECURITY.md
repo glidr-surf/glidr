@@ -4,7 +4,7 @@
 
 Please **don't** open a public issue for security problems.
 
-Email **dom@gobob.xyz** with:
+Email **dominik.harz@gmail.com** with:
 
 - what you found,
 - how to reproduce it,
