@@ -43,12 +43,12 @@ export function NittyGrittyStep({ state, onUpdate, onNext, onSkip, onBack, stepL
           <GText variant="label" style={styles.sectionLabel}>QUIVER ROLE</GText>
           <View style={styles.chips}>
             {QUIVER_ROLES.map((role) => {
-              const selected = state.quiverRole === role;
+              const selected = state.quiverRoles.includes(role);
               return (
                 <Pressable
                   key={role}
                   style={[styles.chip, selected && styles.chipSelected]}
-                  onPress={() => onUpdate({ quiverRole: selected ? undefined : role })}
+                  onPress={() => onUpdate({ quiverRoles: toggleItem(state.quiverRoles, role) })}
                 >
                   <GText variant="caption" style={selected ? styles.chipTextSelected : styles.chipText}>
                     {role}

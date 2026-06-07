@@ -23,7 +23,7 @@ export interface RateFlowState {
   paddlePower?: number;
   waveSizes: WaveSize[];
   waveQualities: WaveQuality[];
-  quiverRole?: QuiverRole;
+  quiverRoles: QuiverRole[];
   finSetup: FinSetup[];
   boardLength?: string;
   boardWidth?: string;
@@ -39,6 +39,7 @@ export function createInitialState(boardId: string): RateFlowState {
     rating: 0,
     waveSizes: [],
     waveQualities: [],
+    quiverRoles: [],
     finSetup: [],
   };
 }

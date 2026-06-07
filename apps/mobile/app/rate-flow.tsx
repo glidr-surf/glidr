@@ -93,7 +93,7 @@ export default function RateFlowScreen() {
           ...(state.vibeTag ? { vibe_tag: [state.vibeTag] } : {}),
           ...(state.waveSizes.length > 0 ? { wave_size: state.waveSizes } : {}),
           ...(state.waveQualities.length > 0 ? { wave_quality: state.waveQualities } : {}),
-          ...(state.quiverRole ? { quiver_role: [state.quiverRole] } : {}),
+          ...(state.quiverRoles.length > 0 ? { quiver_role: state.quiverRoles } : {}),
           ...(state.finSetup.length > 0 ? { fin_setup: state.finSetup } : {}),
           ...(state.boardLength ? { board_length: [state.boardLength] } : {}),
           ...(state.boardWidth ? { board_width: [state.boardWidth] } : {}),
