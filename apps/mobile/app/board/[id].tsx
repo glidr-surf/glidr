@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { View, FlatList, Pressable, StyleSheet, Alert } from 'react-native';
 import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../../src/context/AuthContext';
@@ -66,11 +67,12 @@ export default function BoardProfileScreen() {
       const { data } = await supabase.auth.getSession();
       const userId = data.session?.user.id;
       if (!userId) return;
+      tapHaptic();
       try {
-        await voteOnOpinion(supabase, opinionId, userId, vote);
+        await voteOnOpinion(supabase, userId, opinionId, vote);
         loadOps();
-      } catch {
-        // ignore — counts will reconcile on next load
+      } catch (e) {
+        Alert.alert('Vote failed', e instanceof Error ? e.message : 'Try again.');
       }
     });
 
@@ -122,8 +124,12 @@ export default function BoardProfileScreen() {
       <View style={[styles.hero, { paddingTop: insets.top + spacing.lg }]}>
         {board.imageUrl && (
           <>
-            <Image source={{ uri: board.imageUrl }} style={styles.heroImg} contentFit="cover" contentPosition="top" transition={200} />
-            <View style={styles.heroScrim} />
+            <Image source={{ uri: board.imageUrl }} style={styles.heroImg} contentFit="contain" contentPosition="center" transition={200} />
+            <LinearGradient
+              colors={['rgba(20,18,16,0.15)', 'transparent', 'rgba(20,18,16,0.5)', 'rgba(20,18,16,0.88)']}
+              locations={[0, 0.35, 0.72, 1]}
+              style={styles.heroScrim}
+            />
           </>
         )}
         <View style={styles.nav}>
