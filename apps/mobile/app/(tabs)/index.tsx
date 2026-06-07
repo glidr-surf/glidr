@@ -65,6 +65,7 @@ export default function HomeScreen() {
           <Skeleton height={249} style={styles.heroSkeleton} />
         ) : featured ? (
           <Pressable
+            testID={`board-tile-${featured.id}`}
             style={({ pressed }) => [styles.posterWrap, pressed && styles.pressed]}
             onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); router.push(`/board/${featured.id}`); }}
           >
