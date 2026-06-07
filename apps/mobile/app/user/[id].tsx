@@ -11,7 +11,7 @@ import { BoardTile } from '../../src/components/BoardTile';
 import { OpinionCard } from '../../src/components/OpinionCard';
 import { Skeleton } from '../../src/components/Skeleton';
 import { navBack } from '../../src/utils/navBack';
-import { pluralize } from '../../src/utils/pluralize';
+import { boardOpinionPhrase } from '../../src/utils/boardOpinions';
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
 import { getOpinions, getBoards } from '@glidr/data';
@@ -108,7 +108,7 @@ export default function UserProfileScreen() {
 
       <View style={styles.funLine}>
         <GText variant="bodyM" color={colors.textMid}>
-          {username} has opinioned {pluralize(boardIds.length, 'board')}. Favourite shaper: {topShaper}. Probably owns a van.
+          {username} has {boardOpinionPhrase(boardIds.length)}. Favourite shaper: {topShaper}. Probably owns a van.
         </GText>
       </View>
 
