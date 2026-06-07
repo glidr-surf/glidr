@@ -36,9 +36,18 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Glidr needs access to your photos so you can add a photo of your board."
+          "photosPermission": "Glidr needs access to your photos so you can add a photo of your board.",
+          "cameraPermission": false,
+          "microphonePermission": false
         }
       ]
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "8b8d3596-36f3-4c97-8013-26919140e55e"
+      }
+    },
+    "owner": "nud3l"
   }
 }
