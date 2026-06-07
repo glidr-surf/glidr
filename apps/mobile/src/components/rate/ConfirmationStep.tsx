@@ -35,6 +35,8 @@ export function ConfirmationStep({ onDeepDive, onFinish, deepDiveDone = false }:
       </View>
 
       {/* CTAs */}
+      {/* Both branches reuse testID="rate-finish" for the finish action; only one
+          branch renders at a time (deepDiveDone), so the e2e selector stays unambiguous. */}
       <View style={styles.actions}>
         {deepDiveDone ? (
           <Pressable testID="rate-finish" style={styles.ctaPrimary} onPress={onFinish}>
