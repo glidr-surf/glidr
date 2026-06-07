@@ -58,6 +58,7 @@ export function ConditionsStep({ state, onUpdate, onNext, onSkip, onBack, stepLa
               return (
                 <Pressable
                   key={size}
+                  testID={`conditions-wave-${size}`}
                   style={[styles.chip, selected && styles.chipSelected]}
                   onPress={() => onUpdate({ waveSizes: toggleItem(state.waveSizes, size) })}
                 >
@@ -79,6 +80,7 @@ export function ConditionsStep({ state, onUpdate, onNext, onSkip, onBack, stepLa
               return (
                 <Pressable
                   key={quality}
+                  testID={`conditions-quality-${quality}`}
                   style={[styles.chip, selected && styles.chipSelected]}
                   onPress={() => onUpdate({ waveQualities: toggleItem(state.waveQualities, quality) })}
                 >
@@ -94,7 +96,7 @@ export function ConditionsStep({ state, onUpdate, onNext, onSkip, onBack, stepLa
 
       {/* CTAs */}
       <View style={styles.actions}>
-        <Pressable style={styles.cta} onPress={onNext}>
+        <Pressable testID="rate-next" style={styles.cta} onPress={onNext}>
           <GText variant="displayS" color={colors.white}>NEXT</GText>
         </Pressable>
         <Pressable onPress={handleSkip} style={styles.skip}>
