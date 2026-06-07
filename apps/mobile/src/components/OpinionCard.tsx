@@ -140,11 +140,11 @@ export function OpinionCard({
         </View>
 
         <View style={styles.votes}>
-          <Pressable onPress={onUpvote} style={styles.voteButton}>
+          <Pressable testID={`opinion-${opinion.id}-upvote`} onPress={onUpvote} style={styles.voteButton}>
             <ArrowFatUp size={14} color={colors.textLight} weight="regular" />
           </Pressable>
-          <GText variant="caption">{opinion.upvotes - opinion.downvotes}</GText>
-          <Pressable onPress={onDownvote} style={styles.voteButton}>
+          <GText testID={`opinion-${opinion.id}-score`} variant="caption">{opinion.upvotes - opinion.downvotes}</GText>
+          <Pressable testID={`opinion-${opinion.id}-downvote`} onPress={onDownvote} style={styles.voteButton}>
             <ArrowFatDown size={14} color={colors.textLight} weight="regular" />
           </Pressable>
         </View>
