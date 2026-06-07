@@ -1,6 +1,21 @@
+<p align="center">
+  <img src="apps/web/public/social-card.png" alt="Glidr — community-owned surfboard ratings" width="640">
+</p>
+
+<p align="center">
+  <a href="https://glidr.surf"><img alt="Live" src="https://img.shields.io/badge/live-glidr.surf-E8432A"></a>
+  <a href="./LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue"></a>
+  <a href="./CONTRIBUTING.md"><img alt="PRs welcome" src="https://img.shields.io/badge/PRs-welcome-brightgreen"></a>
+</p>
+
 # Glidr
 
-Surfboard opinions from kooks and corelords. Find your next magic board.
+Surfboard opinions from kooks and corelords. Every board "paddles like a dream
+and turns on a dime" — according to the shaper. Glidr is where surfers share how
+boards **actually** ride, so you can find your next magic board without the
+marketing froth.
+
+Community-owned. Open source. **It's the board, silly.**
 
 **Live:** [glidr.surf](https://glidr.surf)
 
@@ -11,7 +26,7 @@ Surfboard opinions from kooks and corelords. Find your next magic board.
 - **Mobile:** Expo + React Native
 - **Data:** Shared `@glidr/data` package — types, queries, Supabase client
 - **Database:** Supabase (Postgres), Row-Level Security, Edge Functions
-- **Auth:** Privy (social OAuth + web3 wallets)
+- **Auth:** Supabase email OTP (one-time codes), provider-agnostic identity
 - **Tokens:** Shared design tokens in `packages/tokens/`
 
 ## Structure
@@ -33,7 +48,6 @@ packages/
 - pnpm (`corepack enable`)
 - [Supabase CLI](https://supabase.com/docs/guides/cli) (`brew install supabase/tap/supabase`)
 - A Supabase project
-- A Privy app
 
 ### 1. Install dependencies
 
@@ -52,19 +66,17 @@ Fill in your values:
 ```
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_KEY=your-anon-key
-PRIVY_APP_ID=your-privy-app-id
 ```
 
 ### 3. Run setup
 
-This generates per-app `.env` files, pushes the database migration, seeds data, deploys edge functions, and sets edge-function secrets:
+This generates per-app `.env` files, pushes the database migrations, seeds data,
+and deploys edge functions:
 
 ```
 supabase login
 pnpm --filter @glidr/data db:setup
 ```
-
-> **Auth note:** Supabase doesn't support Privy as a native third-party JWT provider, so authenticated writes need a token-exchange flow (verify the Privy JWT in an edge function, then mint/link a Supabase session). That's wired separately — `AuthContext` currently has stubs. Read-only data works immediately via the anon key + RLS.
 
 ### 4. Start developing
 
@@ -87,13 +99,25 @@ pnpm --filter @glidr/data db:reset    Reset and re-seed database
 
 ## Environment
 
-All secrets live in the root `.env` (gitignored). The setup script generates framework-prefixed `.env` files in each app directory:
+All secrets live in the root `.env` (gitignored). The setup script generates
+framework-prefixed `.env` files in each app directory:
 
 - `apps/mobile/.env` — `EXPO_PUBLIC_*` prefixed
 - `apps/web/.env` — `VITE_*` prefixed
 
 These are also gitignored. Never commit `.env` files.
 
+## Contributing
+
+Froth welcome — corelords and kooks alike. See [CONTRIBUTING.md](./CONTRIBUTING.md)
+for setup, conventions, and the brand voice. Be cool, don't be a kook
+([Code of Conduct](./CODE_OF_CONDUCT.md)).
+
 ## Deploy
 
-GitHub Pages via `.github/workflows/deploy.yml`. Custom domain: glidr.surf. Pushes to main auto-deploy.
+GitHub Pages via `.github/workflows/deploy.yml`. Custom domain: glidr.surf.
+Pushes to main auto-deploy.
+
+## License
+
+[MIT](./LICENSE) © Dominik Harz
