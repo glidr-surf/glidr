@@ -8,14 +8,16 @@ interface StarRatingProps {
   onChange: (v: number) => void;
   size?: number;
   color?: string;
+  testIDPrefix?: string;
 }
 
-export function StarRating({ value, onChange, size = 44, color = colors.yellow }: StarRatingProps) {
+export function StarRating({ value, onChange, size = 44, color = colors.yellow, testIDPrefix }: StarRatingProps) {
   return (
     <View style={styles.row}>
       {[1, 2, 3, 4, 5].map((i) => (
         <Pressable
           key={i}
+          testID={testIDPrefix ? `${testIDPrefix}-${i}` : undefined}
           hitSlop={6}
           accessibilityRole="button"
           accessibilityLabel={`Rate ${i} of 5`}

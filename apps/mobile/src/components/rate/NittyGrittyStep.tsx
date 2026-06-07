@@ -47,6 +47,7 @@ export function NittyGrittyStep({ state, onUpdate, onNext, onSkip, onBack, stepL
               return (
                 <Pressable
                   key={role}
+                  testID={`nitty-role-${role}`}
                   style={[styles.chip, selected && styles.chipSelected]}
                   onPress={() => onUpdate({ quiverRoles: toggleItem(state.quiverRoles, role) })}
                 >
@@ -68,6 +69,7 @@ export function NittyGrittyStep({ state, onUpdate, onNext, onSkip, onBack, stepL
               return (
                 <Pressable
                   key={fin}
+                  testID={`nitty-fin-${fin}`}
                   style={[styles.chip, selected && styles.chipSelected]}
                   onPress={() => onUpdate({ finSetup: toggleItem(state.finSetup, fin) })}
                 >
@@ -82,7 +84,7 @@ export function NittyGrittyStep({ state, onUpdate, onNext, onSkip, onBack, stepL
       </ScrollView>
 
       <View style={styles.actions}>
-        <Pressable style={styles.cta} onPress={onNext}>
+        <Pressable testID="rate-next" style={styles.cta} onPress={onNext}>
           <GText variant="displayS" color={colors.white}>NEXT</GText>
         </Pressable>
         <Pressable onPress={handleSkip} style={styles.skip}>

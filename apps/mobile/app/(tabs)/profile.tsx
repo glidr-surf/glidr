@@ -31,7 +31,7 @@ export default function ProfileScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
-  const load = useCallback(() => {
+  const load = useCallback((isActive: () => boolean = () => true) => {
     if (!user) return;
     setLoading(true);
     setError(false);
@@ -41,15 +41,20 @@ export default function ProfileScreen() {
       computeBadges(supabase, user.id),
     ])
       .then(([ops, bs, bg]) => {
+        if (!isActive()) return;
         setUserOpinions([...ops].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
         setBoards(bs);
         setBadges(bg);
       })
-      .catch(() => setError(true))
-      .finally(() => setLoading(false));
+      .catch(() => { if (isActive()) setError(true); })
+      .finally(() => { if (isActive()) setLoading(false); });
   }, [user]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    let active = true;
+    load(() => active);
+    return () => { active = false; };
+  }, [load]);
   // refetch on focus only after a mutation (e.g. posting an opinion)
   useFocusEffect(useCallback(() => { if (consumeDirty(PROFILE_KEY)) load(); }, [load]));
 
@@ -146,7 +151,7 @@ export default function ProfileScreen() {
         <StatusBar style="light" />
         <View style={styles.signedOut}>
           <GText variant="bodyM" color={colors.textMid}>Couldn't load your profile.</GText>
-          <Pressable onPress={load} hitSlop={8} style={styles.retry}><GText variant="label" color={colors.red}>TRY AGAIN</GText></Pressable>
+          <Pressable onPress={() => load()} hitSlop={8} style={styles.retry}><GText variant="label" color={colors.red}>TRY AGAIN</GText></Pressable>
         </View>
       </Screen>
     );

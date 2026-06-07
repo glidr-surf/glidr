@@ -36,6 +36,7 @@ export function RideStep({ state, onUpdate, onNext, onSkip, onBack, stepLabel }:
             onChange={(v) => onUpdate({ speed: v })}
             lowEnd="ABSOLUTE BOG"
             highEnd="ABSOLUTELY FLYING"
+            testIDPrefix="ride-speed"
           />
           <DiscreteSlider
             label="MANOEUVRABILITY"
@@ -43,6 +44,7 @@ export function RideStep({ state, onUpdate, onNext, onSkip, onBack, stepLabel }:
             onChange={(v) => onUpdate({ manoeuvrability: v })}
             lowEnd="BARGE"
             highEnd="WHIPPY AS"
+            testIDPrefix="ride-manoeuvrability"
           />
           <DiscreteSlider
             label="PADDLE POWER"
@@ -50,13 +52,14 @@ export function RideStep({ state, onUpdate, onNext, onSkip, onBack, stepLabel }:
             onChange={(v) => onUpdate({ paddlePower: v })}
             lowEnd="ARM BURNER"
             highEnd="WAVE MAGNET"
+            testIDPrefix="ride-paddle"
           />
         </View>
       </ScrollView>
 
       {/* CTAs */}
       <View style={styles.actions}>
-        <Pressable style={styles.cta} onPress={onNext}>
+        <Pressable testID="rate-next" style={styles.cta} onPress={onNext}>
           <GText variant="displayS" color={colors.white}>NEXT</GText>
         </Pressable>
         <Pressable onPress={handleSkip} style={styles.skip}>

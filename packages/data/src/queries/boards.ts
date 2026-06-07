@@ -89,7 +89,8 @@ export async function submitBoard(
       width: input.width ?? null,
       thickness: input.thickness ?? null,
       volume: input.volume ?? null,
-      status: 'pending',
+      // Added boards/shapers are public immediately (no admin approval — see 00006).
+      status: 'approved',
     })
     .select('id')
     .single();

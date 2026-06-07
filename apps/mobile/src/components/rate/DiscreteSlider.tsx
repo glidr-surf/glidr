@@ -9,9 +9,10 @@ interface DiscreteSliderProps {
   onChange: (value: number) => void;
   lowEnd: string;
   highEnd: string;
+  testIDPrefix?: string;
 }
 
-export function DiscreteSlider({ label, value, onChange, lowEnd, highEnd }: DiscreteSliderProps) {
+export function DiscreteSlider({ label, value, onChange, lowEnd, highEnd, testIDPrefix }: DiscreteSliderProps) {
   return (
     <View style={styles.container}>
       {/* Top row: label + value */}
@@ -30,6 +31,7 @@ export function DiscreteSlider({ label, value, onChange, lowEnd, highEnd }: Disc
           return (
             <Pressable
               key={segValue}
+              testID={testIDPrefix ? `${testIDPrefix}-${segValue}` : undefined}
               style={[styles.segment, filled ? styles.segmentFilled : styles.segmentEmpty]}
               onPress={() => onChange(segValue)}
               hitSlop={4}

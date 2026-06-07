@@ -31,6 +31,7 @@ export function FreeTextStep({ state, onUpdate, onNext, onSkip, onBack, stepLabe
 
         <View style={styles.inputContainer}>
           <TextInput
+            testID="rate-freetext-input"
             style={styles.textInput}
             value={state.text ?? ''}
             onChangeText={(t) => {
@@ -48,7 +49,7 @@ export function FreeTextStep({ state, onUpdate, onNext, onSkip, onBack, stepLabe
         </View>
 
         <View style={styles.actions}>
-          <Pressable style={styles.cta} onPress={onNext}>
+          <Pressable testID="rate-next" style={styles.cta} onPress={onNext}>
             <GText variant="displayS" color={colors.white}>SEND IT</GText>
           </Pressable>
           <Pressable onPress={handleSkip} style={styles.skip}>

@@ -1,0 +1,7 @@
+export const FLAT_TRACKER = '20000000-0000-0000-0000-00000000000a'; // Christenson, 2 opinions
+export const VOTE_BOARD = '20000000-0000-0000-0000-000000000001';
+export const VOTE_OPINION = '30000000-0000-0000-0000-000000000001';
+
+export const CHRISTENSON_SHAPER = '10000000-0000-0000-0000-000000000005'; // shapes FLAT TRACKER
+export const SEED_USER = '00000000-0000-0000-0000-000000000001'; // SaltyDawg — has opinions (incl. FLAT TRACKER)
+export const SEED_USER_NAME = 'SALTYDAWG'; // profile screen uppercases the username

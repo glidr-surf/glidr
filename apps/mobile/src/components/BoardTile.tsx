@@ -19,6 +19,7 @@ export function BoardTile({ board }: BoardTileProps) {
 
   return (
     <Pressable
+      testID={`board-tile-${board.id}`}
       style={({ pressed }) => [styles.wrap, pressed && styles.pressed]}
       onPress={() => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);

@@ -39,7 +39,7 @@ export function DimensionsStep({ state, onUpdate, onNext, onSkip, onBack, stepLa
         <DimensionFields value={dims} onChange={updateDims} />
       </ScrollView>
       <View style={styles.actions}>
-        <Pressable style={styles.cta} onPress={onNext}>
+        <Pressable testID="rate-next" style={styles.cta} onPress={onNext}>
           <GText variant="displayS" color={colors.white}>NEXT</GText>
         </Pressable>
         <Pressable onPress={handleSkip} style={styles.skip}>

@@ -1,0 +1,58 @@
+name: test
+
+# Opt JS actions into Node 24 ahead of GitHub's 2026-06-16 forced switch
+# (matches deploy.yml; silences the Node 20 deprecation warning).
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # Node 22+ for native global WebSocket — supabase-js RealtimeClient
+          # (used by the @glidr/data integration tests) requires it.
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # Mobile jest maps @glidr/data and @glidr/tokens to their built dist output,
+      # so these must be built before any mobile test runs.
+      - run: pnpm --filter @glidr/tokens build
+      - run: pnpm --filter @glidr/data build
+
+      - run: pnpm typecheck
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      # `supabase start` blocks until the stack is healthy and applies migrations
+      # + seed.sql, so the DB is warm and seeded before the suites run. `db reset`
+      # guarantees a pristine seed even if a cached volume lingered.
+      - name: Start local Supabase
+        working-directory: packages/data
+        run: supabase start
+
+      - name: Reset + seed database
+        run: pnpm --filter @glidr/data db:reset
+
+      - name: Mobile unit tests
+        run: pnpm --filter @glidr/mobile test
+
+      - name: Data integration tests
+        run: pnpm --filter @glidr/data test
+
+      - name: Mobile e2e journeys
+        run: pnpm --filter @glidr/mobile test:e2e

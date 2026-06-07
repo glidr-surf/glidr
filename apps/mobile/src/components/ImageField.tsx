@@ -9,14 +9,16 @@ interface ImageFieldProps {
   initialUrl?: string;
   label?: string;
   height?: number;
+  testID?: string;
   onPicked: (img: PickedImage) => void;
 }
 
-export function ImageField({ initialUrl, label = 'ADD PHOTO', height = 180, onPicked }: ImageFieldProps) {
+export function ImageField({ initialUrl, label = 'ADD PHOTO', height = 180, testID, onPicked }: ImageFieldProps) {
   const [preview, setPreview] = useState<string | undefined>(initialUrl);
 
   return (
     <Pressable
+      testID={testID}
       style={[styles.box, { height }]}
       onPress={async () => {
         const img = await pickImage();
