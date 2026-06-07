@@ -59,8 +59,16 @@ export default function ProfileScreen() {
   const boardMap = Object.fromEntries(boards.map((b) => [b.id, b]));
 
   const quiverBoards = useMemo(() => {
+    // show MY rating for each board, not the board's overall average
+    const myRating: Record<string, number> = {};
+    for (const o of userOpinions) {
+      if (myRating[o.boardId] == null) myRating[o.boardId] = o.scores['overall_rating'] ?? 0;
+    }
     const boardIds = [...new Set(userOpinions.map((o) => o.boardId))];
-    return boardIds.map((id) => boardMap[id]).filter(Boolean);
+    return boardIds
+      .map((id) => boardMap[id])
+      .filter(Boolean)
+      .map((b) => ({ ...b, rating: myRating[b.id] ?? b.rating }));
   }, [userOpinions, boardMap]);
 
   const badgeCount = badges.filter((b) => b.earned).length;
