@@ -1,6 +1,7 @@
 import { View, Pressable, StyleSheet } from 'react-native';
 import { X, ArrowsClockwise } from 'phosphor-react-native';
 import { GText } from '../GText';
+import { StepNav } from './StepNav';
 import { BoardTypeTag } from '../BoardTypeTag';
 import { Stars } from '../Stars';
 import { colors } from '../../theme/colors';
@@ -12,7 +13,7 @@ interface BuyAgainStepProps extends StepProps {
   board: Board;
 }
 
-export function BuyAgainStep({ state, onUpdate, onNext, board }: BuyAgainStepProps) {
+export function BuyAgainStep({ state, onUpdate, onNext, onBack, board }: BuyAgainStepProps) {
   const handleChoice = (value: boolean) => {
     onUpdate({ buyAgain: value });
     onNext();
@@ -21,10 +22,7 @@ export function BuyAgainStep({ state, onUpdate, onNext, board }: BuyAgainStepPro
   return (
     <View style={styles.container}>
       {/* Nav */}
-      <View style={styles.nav}>
-        <View />
-        <GText variant="caption">3 OF 3</GText>
-      </View>
+      <StepNav onBack={onBack} label="3 OF 3" />
 
       {/* Title */}
       <View style={styles.header}>

@@ -6,7 +6,7 @@ import { Screen } from '../src/components/Screen';
 import { GText } from '../src/components/GText';
 import { ShaperAutocomplete } from '../src/components/ShaperAutocomplete';
 import { ImageField } from '../src/components/ImageField';
-import { DimensionPicker } from '../src/components/DimensionPicker';
+import { DimensionFields } from '../src/components/DimensionFields';
 import { navBack } from '../src/utils/navBack';
 import { colors } from '../src/theme/colors';
 import { spacing } from '../src/theme/spacing';
@@ -128,10 +128,10 @@ export default function AddBoardScreen() {
           <>
             <GText variant="displayL" style={styles.h}>DIMENSIONS</GText>
             <GText variant="bodyM" color={colors.textMid} style={styles.sub}>Optional — tap to set, or skip straight to adding.</GText>
-            <DimensionPicker kind="length" value={length} onChange={setLength} />
-            <DimensionPicker kind="width" value={width} onChange={setWidth} />
-            <DimensionPicker kind="thickness" value={thickness} onChange={setThickness} />
-            <DimensionPicker kind="volume" value={volume} onChange={setVolume} />
+            <DimensionFields
+              value={{ length, width, thickness, volume }}
+              onChange={(d) => { setLength(d.length); setWidth(d.width); setThickness(d.thickness); setVolume(d.volume); }}
+            />
             {error && <GText variant="caption" color={colors.red} style={styles.error}>{error}</GText>}
           </>
         )}

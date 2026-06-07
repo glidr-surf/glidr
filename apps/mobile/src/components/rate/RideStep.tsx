@@ -1,12 +1,13 @@
 import { View, Pressable, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GText } from '../GText';
+import { StepNav } from './StepNav';
 import { DiscreteSlider } from './DiscreteSlider';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
 import type { StepProps } from './types';
 
-export function RideStep({ state, onUpdate, onNext, onSkip }: StepProps) {
+export function RideStep({ state, onUpdate, onNext, onSkip, onBack, stepLabel }: StepProps) {
   const handleSkip = () => {
     if (onSkip) {
       onSkip();
@@ -18,10 +19,7 @@ export function RideStep({ state, onUpdate, onNext, onSkip }: StepProps) {
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       {/* Nav */}
-      <View style={styles.nav}>
-        <View />
-        <GText variant="caption">DEEP DIVE · 1 OF 4</GText>
-      </View>
+      <StepNav onBack={onBack} label={stepLabel} />
 
       <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Header */}

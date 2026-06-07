@@ -1,6 +1,7 @@
 import { View, Pressable, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GText } from '../GText';
+import { StepNav } from './StepNav';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
 import type { StepProps } from './types';
@@ -27,7 +28,7 @@ function toggleItem<T>(arr: T[], item: T): T[] {
   return arr.includes(item) ? arr.filter((x) => x !== item) : [...arr, item];
 }
 
-export function ConditionsStep({ state, onUpdate, onNext, onSkip }: StepProps) {
+export function ConditionsStep({ state, onUpdate, onNext, onSkip, onBack, stepLabel }: StepProps) {
   const handleSkip = () => {
     if (onSkip) {
       onSkip();
@@ -39,10 +40,7 @@ export function ConditionsStep({ state, onUpdate, onNext, onSkip }: StepProps) {
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       {/* Nav */}
-      <View style={styles.nav}>
-        <View />
-        <GText variant="caption">DEEP DIVE · 2 OF 4</GText>
-      </View>
+      <StepNav onBack={onBack} label={stepLabel} />
 
       <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Header */}

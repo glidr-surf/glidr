@@ -14,6 +14,7 @@ import { ConfirmationStep } from '../src/components/rate/ConfirmationStep';
 import { RideStep } from '../src/components/rate/RideStep';
 import { ConditionsStep } from '../src/components/rate/ConditionsStep';
 import { NittyGrittyStep } from '../src/components/rate/NittyGrittyStep';
+import { DimensionsStep } from '../src/components/rate/DimensionsStep';
 import { FreeTextStep } from '../src/components/rate/FreeTextStep';
 import { createInitialState } from '../src/components/rate/types';
 import type { RateFlowState, RateFlowStep } from '../src/components/rate/types';
@@ -26,9 +27,13 @@ const STEP_ORDER: RateFlowStep[] = [
   'ride',
   'conditions',
   'nitty-gritty',
+  'dimensions',
   'free-text',
   'done',
 ];
+
+// Optional deep-dive branch (after confirmation) — used to label/number its steps.
+const DEEP_DIVE: RateFlowStep[] = ['ride', 'conditions', 'nitty-gritty', 'dimensions', 'free-text'];
 
 export default function RateFlowScreen() {
   const router = useRouter();
@@ -57,6 +62,17 @@ export default function RateFlowScreen() {
     }
   };
 
+  const onBack = () => {
+    const i = STEP_ORDER.indexOf(state.step);
+    if (i <= 0) { router.back(); return; }
+    setState((prev) => ({ ...prev, step: STEP_ORDER[i - 1] }));
+  };
+
+  const deepLabel = (() => {
+    const i = DEEP_DIVE.indexOf(state.step);
+    return i >= 0 ? `DEEP DIVE · ${i + 1} OF ${DEEP_DIVE.length}` : undefined;
+  })();
+
   const submittingRef = useRef(false);
   const onFinish = async () => {
     if (submittingRef.current) return;
@@ -80,6 +96,9 @@ export default function RateFlowScreen() {
           ...(state.quiverRole ? { quiver_role: [state.quiverRole] } : {}),
           ...(state.finSetup.length > 0 ? { fin_setup: state.finSetup } : {}),
           ...(state.boardLength ? { board_length: [state.boardLength] } : {}),
+          ...(state.boardWidth ? { board_width: [state.boardWidth] } : {}),
+          ...(state.boardThickness ? { board_thickness: [state.boardThickness] } : {}),
+          ...(state.boardVolume != null ? { board_volume: [`${state.boardVolume}L`] } : {}),
         },
         });
       }
@@ -113,6 +132,7 @@ export default function RateFlowScreen() {
             state={state}
             onUpdate={onUpdate}
             onNext={onNext}
+            onBack={onBack}
           />
         )}
         {state.step === 'buy-again' && (
@@ -120,6 +140,7 @@ export default function RateFlowScreen() {
             state={state}
             onUpdate={onUpdate}
             onNext={onNext}
+            onBack={onBack}
             board={board}
           />
         )}
@@ -136,6 +157,8 @@ export default function RateFlowScreen() {
             onUpdate={onUpdate}
             onNext={onNext}
             onSkip={onNext}
+            onBack={onBack}
+            stepLabel={deepLabel}
           />
         )}
         {state.step === 'conditions' && (
@@ -144,6 +167,8 @@ export default function RateFlowScreen() {
             onUpdate={onUpdate}
             onNext={onNext}
             onSkip={onNext}
+            onBack={onBack}
+            stepLabel={deepLabel}
           />
         )}
         {state.step === 'nitty-gritty' && (
@@ -152,6 +177,18 @@ export default function RateFlowScreen() {
             onUpdate={onUpdate}
             onNext={onNext}
             onSkip={onNext}
+            onBack={onBack}
+            stepLabel={deepLabel}
+          />
+        )}
+        {state.step === 'dimensions' && (
+          <DimensionsStep
+            state={state}
+            onUpdate={onUpdate}
+            onNext={onNext}
+            onSkip={onNext}
+            onBack={onBack}
+            stepLabel={deepLabel}
           />
         )}
         {state.step === 'free-text' && (
@@ -160,6 +197,8 @@ export default function RateFlowScreen() {
             onUpdate={onUpdate}
             onNext={onNext}
             onSkip={onNext}
+            onBack={onBack}
+            stepLabel={deepLabel}
           />
         )}
       </View>

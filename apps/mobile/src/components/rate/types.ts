@@ -8,6 +8,7 @@ export type RateFlowStep =
   | 'ride'
   | 'conditions'
   | 'nitty-gritty'
+  | 'dimensions'
   | 'free-text'
   | 'done';
 
@@ -47,4 +48,6 @@ export interface StepProps {
   onUpdate: (updates: Partial<RateFlowState>) => void;
   onNext: () => void;
   onSkip?: () => void;
+  onBack?: () => void;
+  stepLabel?: string;
 }
