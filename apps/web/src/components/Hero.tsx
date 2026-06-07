@@ -12,7 +12,7 @@ export default function Hero() {
       </h1>
       <div className="w-[60px] h-[4px] bg-red mb-lg animate-fade-up-1" />
       <p className="text-body-l text-text-mid max-w-[440px] mb-xl animate-fade-up-2">
-        Find your next magic board. Honest reviews from kooks and corelords. No board paddles like a log and turns like a shortie.
+        Find your next magic board. Honest reviews from kooks and corelords.
       </p>
       <div className="hidden lg:block animate-fade-up-3">
         <WaitlistForm />

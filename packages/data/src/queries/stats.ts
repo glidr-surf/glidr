@@ -7,15 +7,19 @@ export interface LandingStats {
 }
 
 export async function getLandingStats(client: SupabaseClient): Promise<LandingStats> {
-  const [opinionsRes, shapersRes, magicRes] = await Promise.all([
-    client.from('opinions').select('id', { count: 'exact', head: true }),
-    client.from('shapers').select('id', { count: 'exact', head: true }).eq('status', 'approved'),
-    client.from('board_stats').select('board_id', { count: 'exact', head: true }).eq('avg_rating', 5),
-  ]);
+  const { data, error } = await client.rpc('landing_stats').single<{
+    total_opinions: number;
+    total_shapers: number;
+    magic_boards: number;
+  }>();
+
+  if (error || !data) {
+    return { totalOpinions: 0, totalShapers: 0, magicBoards: 0 };
+  }
 
   return {
-    totalOpinions: opinionsRes.count ?? 0,
-    totalShapers: shapersRes.count ?? 0,
-    magicBoards: magicRes.count ?? 0,
+    totalOpinions: data.total_opinions ?? 0,
+    totalShapers: data.total_shapers ?? 0,
+    magicBoards: data.magic_boards ?? 0,
   };
 }
