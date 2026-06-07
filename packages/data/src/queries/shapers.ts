@@ -66,7 +66,8 @@ export async function submitShaper(
       name: input.name,
       location: input.location ?? null,
       bio: input.bio ?? null,
-      status: 'pending',
+      // Added boards/shapers are public immediately (no admin approval — see 00006).
+      status: 'approved',
     })
     .select('id')
     .single();
