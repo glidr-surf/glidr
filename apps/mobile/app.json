@@ -17,7 +17,10 @@
     },
     "ios": {
       "bundleIdentifier": "surf.glidr.app",
-      "supportsTablet": false
+      "supportsTablet": false,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "surf.glidr.app",
