@@ -39,6 +39,7 @@ export default function SearchScreen() {
         <View style={styles.input}>
           <MagnifyingGlass size={18} color={colors.textLight} weight="bold" />
           <TextInput
+            testID="search-input"
             style={styles.field}
             value={query}
             onChangeText={setQuery}

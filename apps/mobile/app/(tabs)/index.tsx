@@ -55,7 +55,7 @@ export default function HomeScreen() {
           <GlidrMark size={34} />
           <GText variant="displayL" color={colors.surface} style={styles.logo}>GLIDR</GText>
         </View>
-        <Pressable onPress={() => router.push('/search')} hitSlop={12} accessibilityRole="button" accessibilityLabel="Search boards and shapers">
+        <Pressable testID="header-search" onPress={() => router.push('/search')} hitSlop={12} accessibilityRole="button" accessibilityLabel="Search boards and shapers">
           <MagnifyingGlass size={24} color={colors.surface} weight="bold" />
         </Pressable>
       </View>
