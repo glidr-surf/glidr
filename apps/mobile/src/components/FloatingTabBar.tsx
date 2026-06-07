@@ -43,6 +43,7 @@ export function FloatingTabBar({ state, navigation }: FloatingTabBarProps) {
               accessibilityRole="button"
               accessibilityState={{ selected: focused }}
               accessibilityLabel={route.name}
+              testID={`tab-${route.name === 'index' ? 'browse' : route.name}`}
             >
               <View style={[styles.iconWrap, focused && styles.iconWrapActive]}>
                 <Icon size={25} color={focused ? colors.yellow : 'rgba(242,230,206,0.6)'} weight={focused ? 'fill' : 'bold'} />
