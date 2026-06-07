@@ -1,6 +1,7 @@
 const UNI: Record<string, string> = { '1/8': '⅛', '1/4': '¼', '3/8': '⅜', '1/2': '½', '5/8': '⅝', '3/4': '¾', '7/8': '⅞' };
 
-function frac(numer: number, denom: number): string {
+/** Reduced fraction label, e.g. (2,8) -> "¼", (4,8) -> "½", (3,16) -> "3/16". Empty for 0. */
+export function fractionLabel(numer: number, denom: number): string {
   if (numer === 0) return '';
   const gcd = (a: number, b: number): number => (b ? gcd(b, a % b) : a);
   const k = gcd(numer, denom);
@@ -24,7 +25,7 @@ export function formatInches(inches: number, denom: 8 | 16): string {
   const numer = Math.round((inches - whole) * denom);
   if (numer === 0) return `${whole}"`;
   if (numer === denom) return `${whole + 1}"`;
-  const f = frac(numer, denom);
+  const f = fractionLabel(numer, denom);
   return f.length === 1 ? `${whole}${f}"` : `${whole} ${f}"`;
 }
 

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { View, Text, Pressable, Modal, TextInput, StyleSheet } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import { formatLength, formatInches, formatVolume, lengthToInches, partsToInches, parseDecimal } from '../utils/dims';
+import { formatLength, formatInches, formatVolume, lengthToInches, partsToInches, parseDecimal, fractionLabel } from '../utils/dims';
 import { colors } from '../theme/colors';
 import { spacing } from '../theme/spacing';
 import { fonts } from '../theme/typography';
@@ -28,10 +28,11 @@ export function DimensionPicker({ kind, value, onChange }: { kind: Kind; value: 
   const [num, setNum] = useState(0);
   const [dec, setDec] = useState('');
   const [vol, setVol] = useState(30);
+  const [volTenth, setVolTenth] = useState(0);
 
   const commit = () => {
     if (kind === 'length') onChange(lengthToInches(ft, inch, half === 1));
-    else if (kind === 'volume') onChange(vol);
+    else if (kind === 'volume') onChange(vol + volTenth / 10);
     else if (mode === 'decimal') {
       const d = parseDecimal(dec);
       if (d == null) { setOpen(false); return; }
@@ -79,7 +80,7 @@ export function DimensionPicker({ kind, value, onChange }: { kind: Kind; value: 
               {dual && mode === 'fraction' && (
                 <>
                   <Picker style={styles.wheel} selectedValue={whole} onValueChange={(v) => setWhole(Number(v))}>{range(kind === 'thickness' ? 1 : 16, kind === 'thickness' ? 4 : 24).map((n) => <Picker.Item key={n} label={`${n}"`} value={n} />)}</Picker>
-                  <Picker style={styles.wheel} selectedValue={num} onValueChange={(v) => setNum(Number(v))}>{range(0, denom - 1).map((n) => <Picker.Item key={n} label={n === 0 ? '0' : `${n}/${denom}`} value={n} />)}</Picker>
+                  <Picker style={styles.wheel} selectedValue={num} onValueChange={(v) => setNum(Number(v))}>{range(0, denom - 1).map((n) => <Picker.Item key={n} label={n === 0 ? '0' : fractionLabel(n, denom)} value={n} />)}</Picker>
                 </>
               )}
               {dual && mode === 'decimal' && (
@@ -89,7 +90,10 @@ export function DimensionPicker({ kind, value, onChange }: { kind: Kind; value: 
                 </View>
               )}
               {kind === 'volume' && (
-                <Picker style={styles.wheel} selectedValue={vol} onValueChange={(v) => setVol(Number(v))}>{range(10, 120).map((n) => <Picker.Item key={n} label={`${n} L`} value={n} />)}</Picker>
+                <>
+                  <Picker style={styles.wheel} selectedValue={vol} onValueChange={(v) => setVol(Number(v))}>{range(10, 120).map((n) => <Picker.Item key={n} label={`${n}`} value={n} />)}</Picker>
+                  <Picker style={styles.wheel} selectedValue={volTenth} onValueChange={(v) => setVolTenth(Number(v))}>{range(0, 9).map((n) => <Picker.Item key={n} label={`.${n} L`} value={n} />)}</Picker>
+                </>
               )}
             </View>
           </Pressable>
