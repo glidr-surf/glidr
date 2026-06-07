@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Shaper, VibeTag, SubmitShaperInput } from '../types';
-import { imagePublicUrl, fetchPrimaryImagePaths } from './images';
+import { imagePublicUrl, fetchPrimaryImagePaths, type PrimaryImage } from './images';
 
 interface ShaperStatsRow {
   shaper_id: string;
@@ -75,13 +75,13 @@ export async function submitShaper(
   return data.id;
 }
 
-function mapShaper(client: SupabaseClient, row: any, stats?: ShaperStatsRow, logoPath?: string): Shaper {
+function mapShaper(client: SupabaseClient, row: any, stats?: ShaperStatsRow, logo?: PrimaryImage): Shaper {
   return {
     id: row.id,
     name: row.name,
     location: row.location ?? undefined,
     bio: row.bio ?? undefined,
-    logoUrl: logoPath ? imagePublicUrl(client, logoPath) : undefined,
+    logoUrl: logo ? imagePublicUrl(client, logo.path, logo.id) : undefined,
     boardCount: stats?.board_count ?? 0,
     avgRating: stats?.avg_rating ?? 0,
     opinionCount: stats?.opinion_count ?? 0,

@@ -8,6 +8,7 @@ export type RateFlowStep =
   | 'ride'
   | 'conditions'
   | 'nitty-gritty'
+  | 'dimensions'
   | 'free-text'
   | 'done';
 
@@ -22,7 +23,7 @@ export interface RateFlowState {
   paddlePower?: number;
   waveSizes: WaveSize[];
   waveQualities: WaveQuality[];
-  quiverRole?: QuiverRole;
+  quiverRoles: QuiverRole[];
   finSetup: FinSetup[];
   boardLength?: string;
   boardWidth?: string;
@@ -38,6 +39,7 @@ export function createInitialState(boardId: string): RateFlowState {
     rating: 0,
     waveSizes: [],
     waveQualities: [],
+    quiverRoles: [],
     finSetup: [],
   };
 }
@@ -47,4 +49,6 @@ export interface StepProps {
   onUpdate: (updates: Partial<RateFlowState>) => void;
   onNext: () => void;
   onSkip?: () => void;
+  onBack?: () => void;
+  stepLabel?: string;
 }

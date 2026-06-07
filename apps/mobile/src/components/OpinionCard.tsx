@@ -1,6 +1,6 @@
 import { View, StyleSheet, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ArrowFatUp, ArrowFatDown } from 'phosphor-react-native';
+import { ArrowFatUp, ArrowFatDown, ArrowsClockwise, X } from 'phosphor-react-native';
 import { GText } from './GText';
 import { Stars } from './Stars';
 import { BoardTypeTag } from './BoardTypeTag';
@@ -41,10 +41,7 @@ export function OpinionCard({
         >
           <BoardTypeTag type={board.type} />
           <View style={styles.boardText}>
-            <GText variant="displayS">
-              {board.name}
-              {opinion.tags['board_length']?.[0] ? ` ${opinion.tags['board_length'][0]}` : ''}
-            </GText>
+            <GText variant="displayS">{board.name}</GText>
             <Pressable onPress={() => router.push(`/shaper/${board.shaperId}`)}>
               <GText variant="label" color={colors.red}>
                 {board.shaper.toUpperCase()}
@@ -60,12 +57,19 @@ export function OpinionCard({
             {opinion.username}
           </GText>
         </Pressable>
+        {(opinion.userHeight || opinion.userWeight) && (
+          <GText variant="caption" color={colors.textMid}>
+            Surfer · {[opinion.userHeight, opinion.userWeight].filter(Boolean).join(' · ')}
+          </GText>
+        )}
         {(() => {
-          const boardLength = opinion.tags['board_length']?.[0];
-          return (opinion.userHeight || opinion.userWeight || boardLength) ? (
-            <GText variant="caption">
-              {[boardLength, opinion.userHeight, opinion.userWeight].filter(Boolean).join(' · ')}
-            </GText>
+          const dims = ['board_length', 'board_width', 'board_thickness']
+            .map((k) => opinion.tags[k]?.[0])
+            .filter(Boolean)
+            .join(' × ');
+          const rides = [dims, opinion.tags['board_volume']?.[0]].filter(Boolean).join(' · ');
+          return rides ? (
+            <GText variant="caption" color={colors.text} style={styles.rides}>Rides: {rides}</GText>
           ) : null;
         })()}
       </View>
@@ -91,15 +95,22 @@ export function OpinionCard({
         </GText>
       )}
 
-      {(opinion.tags['wave_size']?.length ?? 0) > 0 && (
-        <View style={styles.chips}>
-          {opinion.tags['wave_size'].map((size) => (
-            <View key={size} style={styles.conditionChip}>
-              <GText variant="caption">{size}</GText>
-            </View>
-          ))}
-        </View>
-      )}
+      {(() => {
+        const pills = [
+          ...(opinion.tags['fin_setup'] ?? []),
+          ...(opinion.tags['wave_size'] ?? []),
+          ...(opinion.tags['quiver_role'] ?? []),
+        ];
+        return pills.length > 0 && (
+          <View style={styles.chips}>
+            {pills.map((p) => (
+              <View key={p} style={styles.conditionChip}>
+                <GText variant="caption">{p}</GText>
+              </View>
+            ))}
+          </View>
+        );
+      })()}
 
       {isOwn && (onEdit || onDelete) && (
         <View style={styles.ownActions}>
@@ -117,9 +128,16 @@ export function OpinionCard({
       )}
 
       <View style={styles.footer}>
-        <GText variant="bodyM" color={opinion.scores['buy_again'] ? colors.green : colors.red}>
-          {opinion.scores['buy_again'] ? '↺ YES' : '✗ NO'}
-        </GText>
+        <View style={styles.buyAgain}>
+          {opinion.scores['buy_again'] ? (
+            <ArrowsClockwise size={13} color={colors.green} weight="bold" />
+          ) : (
+            <X size={13} color={colors.red} weight="bold" />
+          )}
+          <GText variant="caption" color={opinion.scores['buy_again'] ? colors.green : colors.red}>
+            {opinion.scores['buy_again'] ? 'WOULD BUY AGAIN' : "WON'T BUY AGAIN"}
+          </GText>
+        </View>
 
         <View style={styles.votes}>
           <Pressable onPress={onUpvote} style={styles.voteButton}>
@@ -162,6 +180,9 @@ const styles = StyleSheet.create({
   header: {
     gap: 2,
   },
+  rides: {
+    marginTop: 1,
+  },
   ratingRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -193,6 +214,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginTop: spacing.xs,
+  },
+  buyAgain: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
   },
   votes: {
     flexDirection: 'row',

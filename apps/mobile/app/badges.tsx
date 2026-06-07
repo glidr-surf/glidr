@@ -1,9 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { View, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { CaretLeft, Medal, Lightning, ThumbsDown, PencilSimple, Stack, Trophy, ArrowFatUp, Fire } from 'phosphor-react-native';
 import type { Icon } from 'phosphor-react-native';
 import { GText } from '../src/components/GText';
+import { Screen } from '../src/components/Screen';
+import { Skeleton } from '../src/components/Skeleton';
+import { navBack } from '../src/utils/navBack';
 import { colors } from '../src/theme/colors';
 import { spacing } from '../src/theme/spacing';
 import { computeBadges } from '@glidr/data';
@@ -26,19 +29,25 @@ export default function BadgesScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const [allBadges, setAllBadges] = useState<Badge[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  useEffect(() => {
-    if (!user) return;
-    computeBadges(supabase, user.id).then(setAllBadges);
+  const load = useCallback(() => {
+    if (!user) { setLoading(false); return; }
+    setLoading(true);
+    setError(false);
+    computeBadges(supabase, user.id).then(setAllBadges).catch(() => setError(true)).finally(() => setLoading(false));
   }, [user]);
+
+  useEffect(() => { load(); }, [load]);
 
   const earned = allBadges.filter((b) => b.earned);
   const inProgress = allBadges.filter((b) => !b.earned);
 
   return (
-    <View style={styles.screen}>
+    <Screen edges={['top']}>
       <View style={styles.nav}>
-        <Pressable onPress={() => router.back()} style={styles.navButton}>
+        <Pressable onPress={() => navBack(router)} style={styles.navButton} hitSlop={8} accessibilityRole="button" accessibilityLabel="Go back">
           <CaretLeft size={20} color={colors.text} weight="bold" />
         </Pressable>
         <GText variant="label">{earned.length} OF {allBadges.length}</GText>
@@ -49,6 +58,17 @@ export default function BadgesScreen() {
           <GText variant="displayL">BADGES</GText>
           <GText variant="bodyM" color={colors.textMid}>Proof you actually surf. Probably.</GText>
         </View>
+
+        {loading ? (
+          <View style={styles.section}><Skeleton height={80} /><Skeleton height={80} /></View>
+        ) : error ? (
+          <View style={styles.section}>
+            <GText variant="bodyM" color={colors.textMid}>Couldn't load badges.</GText>
+            <Pressable onPress={load} hitSlop={8}><GText variant="label" color={colors.red}>TRY AGAIN</GText></Pressable>
+          </View>
+        ) : allBadges.length === 0 ? (
+          <View style={styles.section}><GText variant="bodyM" color={colors.textMid}>No badges yet — go surf.</GText></View>
+        ) : null}
 
         {earned.length > 0 && (
           <View style={styles.section}>
@@ -100,7 +120,7 @@ export default function BadgesScreen() {
           </View>
         )}
       </ScrollView>
-    </View>
+    </Screen>
   );
 }
 
@@ -114,7 +134,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: spacing.xl,
-    paddingTop: 60,
   },
   navButton: {
     padding: spacing.xs,

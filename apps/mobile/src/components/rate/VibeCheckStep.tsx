@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { View, Pressable, StyleSheet } from 'react-native';
 import { CaretLeft, CaretRight } from 'phosphor-react-native';
 import { GText } from '../GText';
+import { StepNav } from './StepNav';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
 import type { StepProps } from './types';
@@ -30,7 +31,7 @@ const VIBE_TAGS: { tag: VibeTag; description: string }[] = [
   },
 ];
 
-export function VibeCheckStep({ onUpdate, onNext }: StepProps) {
+export function VibeCheckStep({ onUpdate, onNext, onBack }: StepProps) {
   const [index, setIndex] = useState(0);
   const current = VIBE_TAGS[index];
 
@@ -50,10 +51,7 @@ export function VibeCheckStep({ onUpdate, onNext }: StepProps) {
   return (
     <View style={styles.container}>
       {/* Nav */}
-      <View style={styles.nav}>
-        <View />
-        <GText variant="caption">2 OF 3</GText>
-      </View>
+      <StepNav onBack={onBack} label="2 OF 3" />
 
       {/* Header */}
       <View style={styles.header}>

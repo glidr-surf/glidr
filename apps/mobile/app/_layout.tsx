@@ -6,6 +6,7 @@ import { BebasNeue_400Regular } from '@expo-google-fonts/bebas-neue';
 import { DMSans_400Regular, DMSans_500Medium, DMSans_600SemiBold, DMSans_700Bold } from '@expo-google-fonts/dm-sans';
 import { colors } from '../src/theme/colors';
 import { AuthProvider } from '../src/context/AuthContext';
+import { UnitsProvider } from '../src/context/UnitsContext';
 import { AuthModal } from '../src/components/AuthModal';
 import { BrandIntro } from '../src/components/BrandIntro';
 
@@ -29,6 +30,7 @@ export default function RootLayout() {
 
   return (
     <AuthProvider>
+      <UnitsProvider>
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="search" options={{ animation: 'fade' }} />
@@ -43,6 +45,7 @@ export default function RootLayout() {
       </Stack>
       <AuthModal />
       {!introDone && <BrandIntro onDone={() => setIntroDone(true)} />}
+      </UnitsProvider>
     </AuthProvider>
   );
 }

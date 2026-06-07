@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Board, BoardType, VibeTag, SubmitBoardInput } from '../types';
-import { imagePublicUrl, fetchPrimaryImagePaths } from './images';
+import { imagePublicUrl, fetchPrimaryImagePaths, type PrimaryImage } from './images';
 
 interface BoardStatsRow {
   board_id: string;
@@ -98,7 +98,7 @@ export async function submitBoard(
   return data.id;
 }
 
-function mapBoard(client: SupabaseClient, row: any, stats?: BoardStatsRow, imagePath?: string): Board {
+function mapBoard(client: SupabaseClient, row: any, stats?: BoardStatsRow, image?: PrimaryImage): Board {
   const shaper = Array.isArray(row.shapers) ? row.shapers[0] : row.shapers;
 
   return {
@@ -107,7 +107,7 @@ function mapBoard(client: SupabaseClient, row: any, stats?: BoardStatsRow, image
     shaper: shaper?.name ?? '',
     shaperId: row.shaper_id,
     type: row.type as BoardType,
-    imageUrl: imagePath ? imagePublicUrl(client, imagePath) : undefined,
+    imageUrl: image ? imagePublicUrl(client, image.path, image.id) : undefined,
     length: row.length ?? undefined,
     width: row.width ?? undefined,
     thickness: row.thickness ?? undefined,

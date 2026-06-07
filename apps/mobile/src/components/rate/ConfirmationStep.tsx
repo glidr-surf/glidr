@@ -1,4 +1,5 @@
 import { View, Pressable, StyleSheet } from 'react-native';
+import { HandWaving } from 'phosphor-react-native';
 import { GText } from '../GText';
 import { StatBlock } from '../StatBlock';
 import { colors } from '../../theme/colors';
@@ -10,16 +11,17 @@ interface ConfirmationStepProps {
   state: RateFlowState;
   onDeepDive: () => void;
   onFinish: () => void;
+  deepDiveDone?: boolean;
 }
 
-export function ConfirmationStep({ onDeepDive, onFinish }: ConfirmationStepProps) {
+export function ConfirmationStep({ onDeepDive, onFinish, deepDiveDone = false }: ConfirmationStepProps) {
   const { user } = useAuth();
 
   return (
     <View style={styles.container}>
       {/* Center content */}
       <View style={styles.center}>
-        <GText variant="displayXl">🤙</GText>
+        <HandWaving size={56} color={colors.red} weight="fill" />
         <GText variant="displayL" style={styles.noted}>NOTED.</GText>
         <GText variant="bodyM" color={colors.textMid} style={styles.tagline}>
           One step closer to the magic board. Probably.
@@ -34,13 +36,21 @@ export function ConfirmationStep({ onDeepDive, onFinish }: ConfirmationStepProps
 
       {/* CTAs */}
       <View style={styles.actions}>
-        <Pressable style={styles.ctaPrimary} onPress={onDeepDive}>
-          <GText variant="displayS" color={colors.white}>KEEP GOING — TELL US MORE</GText>
-        </Pressable>
+        {deepDiveDone ? (
+          <Pressable style={styles.ctaPrimary} onPress={onFinish}>
+            <GText variant="displayS" color={colors.white}>POST IT</GText>
+          </Pressable>
+        ) : (
+          <>
+            <Pressable style={styles.ctaPrimary} onPress={onDeepDive}>
+              <GText variant="displayS" color={colors.white}>KEEP GOING — TELL US MORE</GText>
+            </Pressable>
 
-        <Pressable style={styles.ctaSkip} onPress={onFinish}>
-          <GText variant="label" color={colors.textLight}>NAH, I'M GOOD</GText>
-        </Pressable>
+            <Pressable style={styles.ctaSkip} onPress={onFinish}>
+              <GText variant="label" color={colors.textLight}>NAH, I'M GOOD</GText>
+            </Pressable>
+          </>
+        )}
       </View>
     </View>
   );

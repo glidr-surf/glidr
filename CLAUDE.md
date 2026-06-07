@@ -26,7 +26,8 @@ Established in the 2026-06 mobile redesign. Full spec: `docs/superpowers/specs/2
 - **Images:** render `board.imageUrl` in full colour inside riso frames (no duotone/Skia). Fallback when null = accent block with the board's Bebas initial + type tag. `object-position: top` to show the nose.
 - **Icons:** Phosphor (`phosphor-react-native`) — bold weight default, fill for active. **No emoji anywhere in the UI.**
 - **Type:** no readable/primary content below 15px; tiny uppercase reserved for section labels & metadata only.
-- **Navigation:** dark tab bar, yellow active; 3 tabs (Browse / Rate / Profile). Search lives in a header magnifier → stacked search screen, not a tab. Tab bar + sticky CTAs use `useSafeAreaInsets()`; tap targets ≥48dp (Apple HIG 44pt / Material 48dp; bottom nav kept because it's the most thumb-reachable zone).
+- **Navigation:** dark **floating pill** tab bar (rounded, inset from edges with a gap above the home indicator), yellow active; 3 tabs (Browse / Rate / Profile). Search lives in a header magnifier → stacked search screen, not a tab. Tab bar + sticky CTAs use `useSafeAreaInsets()`; tap targets ≥48dp (Apple HIG 44pt / Material 48dp; bottom nav kept because it's the most thumb-reachable zone).
+- **Never hardcode UI dimensions.** Tab/nav heights, pill width/insets, safe-area offsets, tap targets — derive them from the approved mock's proportions + UX standards (Apple HIG / Material), use `useSafeAreaInsets()` (never magic numbers), and **screenshot on the simulator to verify** before shipping. (We've shipped wrong hardcoded values twice — bottom nav, then the pill bar.)
 
 ## Brand voice
 

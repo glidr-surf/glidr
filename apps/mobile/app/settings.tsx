@@ -1,25 +1,28 @@
 import { useState } from 'react';
-import { View, ScrollView, Pressable, Switch, StyleSheet } from 'react-native';
+import { View, ScrollView, Pressable, Switch, StyleSheet, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { CaretLeft } from 'phosphor-react-native';
 import { GText } from '../src/components/GText';
+import { Screen } from '../src/components/Screen';
 import { CardGroup } from '../src/components/CardGroup';
+import { navBack } from '../src/utils/navBack';
 import { colors } from '../src/theme/colors';
 import { spacing } from '../src/theme/spacing';
 import { useAuth } from '../src/context/AuthContext';
+import { useUnits } from '../src/context/UnitsContext';
 
 export default function SettingsScreen() {
   const router = useRouter();
   const { isAuthenticated, signOut, showAuthModal, user } = useAuth();
-  const [units, setUnits] = useState<'imperial' | 'metric'>('imperial');
+  const { units, setUnits } = useUnits();
   const [notifyUpvotes, setNotifyUpvotes] = useState(true);
   const [notifyFollowers, setNotifyFollowers] = useState(true);
   const [notifyVerdicts, setNotifyVerdicts] = useState(true);
 
   return (
-    <View style={styles.screen}>
+    <Screen edges={['top']}>
       <View style={styles.nav}>
-        <Pressable onPress={() => router.back()} style={styles.navButton}>
+        <Pressable onPress={() => navBack(router)} style={styles.navButton} hitSlop={8} accessibilityRole="button" accessibilityLabel="Go back">
           <CaretLeft size={20} color={colors.text} weight="bold" />
         </Pressable>
       </View>
@@ -55,25 +58,22 @@ export default function SettingsScreen() {
         {/* Units */}
         <View style={styles.section}>
           <GText variant="label" style={styles.sectionLabel}>UNITS</GText>
-          <GText variant="bodyM" color={colors.textMid} style={styles.sectionLabel}>Body measurements. Board dimensions always imperial.</GText>
-          <View style={styles.toggleRow}>
+          <CardGroup>
             <Pressable
-              onPress={() => setUnits('imperial')}
-              style={[styles.toggleOption, units === 'imperial' && styles.toggleActive]}
+              style={styles.unitsRow}
+              onPress={() => Alert.alert('Units', 'Body measurements', [
+                { text: 'Imperial (ft/in, lbs)', onPress: () => setUnits('imperial') },
+                { text: 'Metric (cm, kg)', onPress: () => setUnits('metric') },
+                { text: 'Cancel', style: 'cancel' },
+              ])}
             >
-              <GText variant="caption" color={units === 'imperial' ? colors.white : colors.textLight}>
-                IMPERIAL (FT/IN, LBS)
-              </GText>
+              <View>
+                <GText variant="bodyM">Units</GText>
+                <GText variant="caption" color={colors.textMid}>Body measurements</GText>
+              </View>
+              <GText variant="bodyM">{units === 'imperial' ? 'Imperial' : 'Metric'} ▾</GText>
             </Pressable>
-            <Pressable
-              onPress={() => setUnits('metric')}
-              style={[styles.toggleOption, units === 'metric' && styles.toggleActive]}
-            >
-              <GText variant="caption" color={units === 'metric' ? colors.white : colors.textLight}>
-                METRIC (CM, KG)
-              </GText>
-            </Pressable>
-          </View>
+          </CardGroup>
         </View>
 
         {/* Notifications */}
@@ -99,7 +99,7 @@ export default function SettingsScreen() {
               />
             </View>
             <View style={styles.cardSwitchRow}>
-              <GText variant="bodyM" style={styles.switchLabel}>New verdicts on your boards</GText>
+              <GText variant="bodyM" style={styles.switchLabel}>New opinions on your boards</GText>
               <Switch
                 value={notifyVerdicts}
                 onValueChange={setNotifyVerdicts}
@@ -110,38 +110,34 @@ export default function SettingsScreen() {
           </CardGroup>
         </View>
 
-        {/* Account */}
-        <View style={styles.section}>
-          <GText variant="label" style={styles.sectionLabel}>ACCOUNT</GText>
-          {isAuthenticated ? (
-            <>
-              <CardGroup>
-                <View style={styles.cardField}>
-                  <GText variant="caption" color={colors.textMid}>SIGNED IN VIA</GText>
-                  <GText variant="bodyM">Google</GText>
-                </View>
-                <Pressable style={styles.cardAction} onPress={signOut}>
-                  <GText variant="label">SIGN OUT</GText>
-                </Pressable>
-                <Pressable style={styles.cardAction}>
-                  <GText variant="label" color={colors.red}>DELETE ACCOUNT</GText>
-                </Pressable>
-              </CardGroup>
-              <GText variant="bodyM" color={colors.textLight} style={styles.accountNote}>
-                This removes all your opinions. The boards won't miss you either.
-              </GText>
-            </>
-          ) : (
-            <GText variant="bodyM" color={colors.textMid}>Not signed in.</GText>
-          )}
-        </View>
+        {/* Account — only when signed in */}
+        {isAuthenticated && (
+          <View style={styles.section}>
+            <GText variant="label" style={styles.sectionLabel}>ACCOUNT</GText>
+            <CardGroup>
+              <View style={styles.cardField}>
+                <GText variant="caption" color={colors.textMid}>SIGNED IN VIA</GText>
+                <GText variant="bodyM">Email</GText>
+              </View>
+              <Pressable style={styles.cardAction} onPress={signOut}>
+                <GText variant="label">SIGN OUT</GText>
+              </Pressable>
+              <Pressable style={styles.cardAction}>
+                <GText variant="label" color={colors.red}>DELETE ACCOUNT</GText>
+              </Pressable>
+            </CardGroup>
+            <GText variant="bodyM" color={colors.textLight} style={styles.accountNote}>
+              This removes all your opinions. The boards won't miss you either.
+            </GText>
+          </View>
+        )}
 
         {/* Version */}
         <View style={styles.footer}>
           <GText variant="caption">GLIDR V0.1.0 — STILL IN BETA. LIKE YOUR SURFING.</GText>
         </View>
       </ScrollView>
-    </View>
+    </Screen>
   );
 }
 
@@ -152,7 +148,6 @@ const styles = StyleSheet.create({
   },
   nav: {
     padding: spacing.xl,
-    paddingTop: 60,
     paddingBottom: 0,
   },
   navButton: {
@@ -190,21 +185,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
   },
-  toggleRow: {
+  unitsRow: {
     flexDirection: 'row',
-    gap: 0,
-    marginHorizontal: spacing.xl,
-  },
-  toggleOption: {
-    flex: 1,
-    paddingVertical: spacing.sm,
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.borderSoft,
-  },
-  toggleActive: {
-    backgroundColor: colors.red,
-    borderColor: colors.red,
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
   },
   switchLabel: {
     flex: 1,

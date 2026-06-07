@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import { View, FlatList, Pressable, StyleSheet, Alert } from 'react-native';
+import { View, FlatList, Pressable, StyleSheet, Alert, Share } from 'react-native';
 import { Image } from 'expo-image';
+import { StatusBar } from 'expo-status-bar';
 import * as Haptics from 'expo-haptics';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import { useAuth } from '../../src/context/AuthContext';
 import { CaretLeft, ShareNetwork } from 'phosphor-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -17,15 +18,27 @@ import { Button } from '../../src/components/Button';
 import { Skeleton } from '../../src/components/Skeleton';
 import { pluralize } from '../../src/utils/pluralize';
 import { navBack } from '../../src/utils/navBack';
+import { aggregateSpecs } from '../../src/utils/opinionSpecs';
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
-import { getBoard, getOpinions } from '@glidr/data';
+import { boardTypeColors } from '../../src/theme/boardTypes';
+import { consumeDirty, boardKey } from '../../src/lib/refreshBus';
+import { getBoard, getOpinions, voteOnOpinion } from '@glidr/data';
 import type { Board, Opinion } from '@glidr/data';
 import { supabase } from '../../src/lib/supabase';
 
 const SORT_OPTIONS = ['RECENT', 'HELPFUL', 'CONTROVERSIAL'];
 
 const tapHaptic = () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+function SpecRow({ k, v }: { k: string; v: string }) {
+  return (
+    <View style={styles.specRow}>
+      <GText variant="label" color={colors.textMid}>{k}</GText>
+      <GText variant="bodyM">{v}</GText>
+    </View>
+  );
+}
 
 export default function BoardProfileScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -37,6 +50,7 @@ export default function BoardProfileScreen() {
   const [opinions, setOpinions] = useState<Opinion[]>([]);
   const [loadingOps, setLoadingOps] = useState(true);
   const [opsError, setOpsError] = useState(false);
+  const [myVotes, setMyVotes] = useState<Record<string, 1 | -1>>({});
 
   const { requireAuth, user } = useAuth();
   const insets = useSafeAreaInsets();
@@ -60,6 +74,47 @@ export default function BoardProfileScreen() {
   }, [id]);
 
   useEffect(() => { loadBoard(); loadOps(); }, [loadBoard, loadOps]);
+  // on return, refetch only if an opinion was posted for this board (e.g. from the rate flow)
+  useFocusEffect(
+    useCallback(() => {
+      if (consumeDirty(boardKey(id ?? ''))) { loadBoard(); loadOps(); }
+    }, [id, loadBoard, loadOps]),
+  );
+
+  const onShare = () => {
+    tapHaptic();
+    if (!board) return;
+    Share.share({ message: `${board.name} by ${board.shaper} on Glidr — https://glidr.surf/board/${board.id}` }).catch(() => {});
+  };
+
+  const handleVote = (opinionId: string, vote: 1 | -1) =>
+    requireAuth(async () => {
+      const { data } = await supabase.auth.getSession();
+      const userId = data.session?.user.id;
+      if (!userId) return;
+      tapHaptic();
+      const prev = myVotes[opinionId] ?? 0;
+      if (prev === vote) return; // already voted this way
+      // optimistic, in place — no full reload
+      setOpinions((ops) =>
+        ops.map((o) => {
+          if (o.id !== opinionId) return o;
+          let { upvotes, downvotes } = o;
+          if (prev === 1) upvotes -= 1;
+          if (prev === -1) downvotes -= 1;
+          if (vote === 1) upvotes += 1;
+          else downvotes += 1;
+          return { ...o, upvotes, downvotes };
+        }),
+      );
+      setMyVotes((m) => ({ ...m, [opinionId]: vote }));
+      try {
+        await voteOnOpinion(supabase, userId, opinionId, vote);
+      } catch (e) {
+        loadOps(); // reconcile on failure
+        Alert.alert('Vote failed', e instanceof Error ? e.message : 'Try again.');
+      }
+    });
 
   const sortedOpinions = [...opinions].sort((a, b) => {
     if (sort === 'HELPFUL') return (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes);
@@ -73,6 +128,7 @@ export default function BoardProfileScreen() {
   const avgSpeed = withSpeed.length > 0 ? withSpeed.reduce((s, o) => s + (o.scores['speed'] ?? 0), 0) / withSpeed.length : 0;
   const avgManoeuvrability = withManoeuvre.length > 0 ? withManoeuvre.reduce((s, o) => s + (o.scores['manoeuvrability'] ?? 0), 0) / withManoeuvre.length : 0;
   const avgPaddlePower = withPaddle.length > 0 ? withPaddle.reduce((s, o) => s + (o.scores['paddle_power'] ?? 0), 0) / withPaddle.length : 0;
+  const specs = aggregateSpecs(opinions);
 
   if (boardError) {
     return (
@@ -105,14 +161,8 @@ export default function BoardProfileScreen() {
 
   const renderHeader = () => (
     <View>
-      {/* Hero */}
-      <View style={[styles.hero, { paddingTop: insets.top + spacing.lg }]}>
-        {board.imageUrl && (
-          <>
-            <Image source={{ uri: board.imageUrl }} style={styles.heroImg} contentFit="cover" contentPosition="top" transition={200} />
-            <View style={styles.heroScrim} />
-          </>
-        )}
+      {/* Hero — light riso framed card */}
+      <View style={[styles.hero, { paddingTop: insets.top + spacing.sm }]}>
         <View style={styles.nav}>
           <Pressable
             onPress={() => { tapHaptic(); navBack(router); }}
@@ -121,29 +171,44 @@ export default function BoardProfileScreen() {
             accessibilityRole="button"
             accessibilityLabel="Go back"
           >
-            <CaretLeft size={20} color={colors.white} weight="bold" />
+            <CaretLeft size={22} color={colors.text} weight="bold" />
           </Pressable>
           <Pressable
-            onPress={tapHaptic}
+            onPress={onShare}
             style={({ pressed }) => [styles.navButton, pressed && styles.pressed]}
             hitSlop={8}
             accessibilityRole="button"
             accessibilityLabel="Share this board"
           >
-            <ShareNetwork size={20} color={colors.white} weight="regular" />
+            <ShareNetwork size={22} color={colors.text} weight="bold" />
           </Pressable>
         </View>
 
-        <BoardTypeTag type={board.type} size="md" />
-        <GText variant="displayXl" color={colors.white}>{board.name}</GText>
-        <Pressable onPress={() => router.push(`/shaper/${board.shaperId}`)} accessibilityRole="link">
-          <GText variant="label" color={colors.red}>{board.shaper.toUpperCase()}</GText>
-        </Pressable>
-        {board.topVibeTag && (
-          <View style={styles.heroVibeTag}>
-            <GText variant="caption" color={colors.white}>{board.topVibeTag}</GText>
+        <View style={styles.frameWrap}>
+          <View style={styles.frameShadow} />
+          <View style={styles.frame}>
+            {board.imageUrl ? (
+              <Image source={{ uri: board.imageUrl }} style={styles.frameImg} contentFit="contain" transition={200} />
+            ) : (
+              <View style={[styles.frameFallback, { backgroundColor: boardTypeColors[board.type] ?? colors.blue }]}>
+                <GText variant="displayXl" color={colors.white}>{board.name.charAt(0).toUpperCase()}</GText>
+              </View>
+            )}
           </View>
-        )}
+        </View>
+
+        <View style={styles.heroMeta}>
+          <BoardTypeTag type={board.type} size="md" />
+          <GText variant="displayXl">{board.name}</GText>
+          <Pressable onPress={() => router.push(`/shaper/${board.shaperId}`)} accessibilityRole="link">
+            <GText variant="label" color={colors.red}>{board.shaper.toUpperCase()}</GText>
+          </Pressable>
+          {board.topVibeTag && (
+            <View style={styles.heroVibeTag}>
+              <GText variant="caption" color={colors.textMid}>{board.topVibeTag}</GText>
+            </View>
+          )}
+        </View>
       </View>
 
       {/* Stats Row */}
@@ -191,6 +256,15 @@ export default function BoardProfileScreen() {
           <PerformanceBar label="SPEED" value={avgSpeed} lowEnd="ABSOLUTE BOG" highEnd="ABSOLUTELY FLYING" />
           <PerformanceBar label="MANOEUVRABILITY" value={avgManoeuvrability} lowEnd="BARGE" highEnd="WHIPPY AS" />
           <PerformanceBar label="PADDLE POWER" value={avgPaddlePower} lowEnd="ARM BURNER" highEnd="WAVE MAGNET" />
+          {(specs.typicalFins || specs.bestIn || specs.quiverRole || specs.dimsRidden) && (
+            <View style={styles.specRows}>
+              <GText variant="label" style={styles.specsSubhead}>FROM THE OPINIONS</GText>
+              {specs.typicalFins && <SpecRow k="TYPICAL FINS" v={specs.typicalFins} />}
+              {specs.bestIn && <SpecRow k="BEST IN" v={specs.bestIn} />}
+              {specs.quiverRole && <SpecRow k="QUIVER ROLE" v={specs.quiverRole} />}
+              {specs.dimsRidden && <SpecRow k="DIMS RIDDEN" v={specs.dimsRidden} />}
+            </View>
+          )}
         </View>
       )}
     </View>
@@ -198,7 +272,7 @@ export default function BoardProfileScreen() {
 
   const cta = (
     <View style={[styles.stickyCta, { paddingBottom: insets.bottom + 12 }]}>
-      <Button label="RATE THIS BOARD" onPress={() => { tapHaptic(); requireAuth(() => router.push('/(tabs)/rate' as any)); }} />
+      <Button label="RATE THIS BOARD" onPress={() => { tapHaptic(); requireAuth(() => router.push(`/rate-flow?boardId=${board.id}` as any)); }} />
     </View>
   );
 
@@ -206,6 +280,7 @@ export default function BoardProfileScreen() {
 
   return (
     <Screen edges={[]}>
+      <StatusBar style="dark" />
       <FlatList
         data={isOpinions && !loadingOps ? sortedOpinions : []}
         keyExtractor={(item) => item.id}
@@ -214,6 +289,8 @@ export default function BoardProfileScreen() {
             <OpinionCard
               opinion={item}
               isOwn={item.userId === user?.id}
+              onUpvote={() => handleVote(item.id, 1)}
+              onDownvote={() => handleVote(item.id, -1)}
               onEdit={item.userId === user?.id ? () => router.push(('/rate-flow?boardId=' + item.boardId + '&opinionId=' + item.id) as any) : undefined}
               onDelete={item.userId === user?.id ? () => Alert.alert(
                 'Delete Opinion',
@@ -288,16 +365,19 @@ const styles = StyleSheet.create({
   loadingBody: { padding: spacing.lg, gap: spacing.md },
   opsLoading: { padding: spacing.lg, gap: spacing.md },
   hero: {
-    position: 'relative',
-    backgroundColor: colors.cardDark,
-    padding: spacing.xl,
-    gap: spacing.sm,
+    backgroundColor: colors.bg,
+    paddingHorizontal: spacing.xl,
+    paddingBottom: spacing.lg,
   },
-  heroImg: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%' },
-  heroScrim: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(20,18,16,0.55)' },
   nav: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: spacing.md },
   navButton: { padding: spacing.xs },
-  heroVibeTag: { backgroundColor: colors.red, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 2, alignSelf: 'flex-start', marginTop: spacing.xs },
+  frameWrap: { position: 'relative', marginRight: 6, marginBottom: 6 },
+  frameShadow: { position: 'absolute', top: 6, left: 6, right: -6, bottom: -6, backgroundColor: colors.text, borderRadius: 4 },
+  frame: { height: 240, backgroundColor: colors.surface, borderWidth: 2.5, borderColor: colors.text, borderRadius: 4, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  frameImg: { width: '100%', height: '100%' },
+  frameFallback: { width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' },
+  heroMeta: { marginTop: spacing.lg, gap: spacing.xs, alignItems: 'flex-start' },
+  heroVibeTag: { backgroundColor: colors.surfaceCard, borderWidth: 1, borderColor: colors.borderSoft, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 2, alignSelf: 'flex-start', marginTop: spacing.xs },
   statsRow: { flexDirection: 'row', borderBottomWidth: 2, borderBottomColor: colors.text },
   verdictWrap: { margin: spacing.lg },
   verdict: { padding: spacing.lg, gap: spacing.sm },
@@ -306,8 +386,11 @@ const styles = StyleSheet.create({
   tabs: { flexDirection: 'row', borderBottomWidth: 2, borderBottomColor: colors.border },
   tab: { flex: 1, alignItems: 'center', paddingVertical: spacing.md },
   tabActive: { borderBottomWidth: 2, borderBottomColor: colors.red },
-  sortSection: { paddingVertical: spacing.md, paddingHorizontal: spacing.lg },
+  sortSection: { paddingVertical: spacing.md },
   specsSection: { padding: spacing.xl, gap: spacing.sm },
+  specRows: { marginTop: spacing.lg, gap: 0 },
+  specsSubhead: { marginBottom: spacing.sm },
+  specRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: spacing.md, borderBottomWidth: 1, borderBottomColor: colors.borderSoft },
   opinionItem: { paddingHorizontal: spacing.lg, marginBottom: spacing.md },
   empty: { padding: spacing.xl, alignItems: 'center', gap: spacing.md },
   stickyCta: { position: 'absolute', bottom: 0, left: 0, right: 0, paddingHorizontal: spacing.lg, paddingTop: spacing.md, backgroundColor: colors.bg },
