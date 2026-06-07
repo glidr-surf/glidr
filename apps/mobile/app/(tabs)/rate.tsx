@@ -1,13 +1,14 @@
 import { useState, useEffect, useMemo } from 'react';
 import { View, TextInput, FlatList, Pressable, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { MagnifyingGlass } from 'phosphor-react-native';
 import { useRouter } from 'expo-router';
+import { Screen } from '../../src/components/Screen';
 import { GText } from '../../src/components/GText';
-import { BoardTypeTag } from '../../src/components/BoardTypeTag';
+import { BoardThumb } from '../../src/components/BoardThumb';
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
 import { fonts } from '../../src/theme/typography';
+import { TAB_BAR_CLEARANCE } from '../../src/theme/layout';
 import { getBoards } from '@glidr/data';
 import type { Board } from '@glidr/data';
 import { supabase } from '../../src/lib/supabase';
@@ -16,9 +17,7 @@ import { useAuth } from '../../src/context/AuthContext';
 function BoardRow({ board, onPress }: { board: Board; onPress: () => void }) {
   return (
     <Pressable style={styles.row} onPress={onPress}>
-      <View style={styles.rowTag}>
-        <BoardTypeTag type={board.type} size="sm" />
-      </View>
+      <BoardThumb board={board} />
       <View style={styles.rowText}>
         <GText variant="bodyM">{board.name}</GText>
         <GText variant="caption" color={colors.textMid}>{board.shaper}</GText>
@@ -47,7 +46,7 @@ export default function RateScreen() {
   }, [boards, query]);
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
+    <Screen edges={['top']}>
       <FlatList
         data={filtered}
         keyExtractor={(item) => item.id}
@@ -58,7 +57,6 @@ export default function RateScreen() {
             onPress={() => requireAuth(() => router.push(`/rate-flow?boardId=${item.id}` as any))}
           />
         )}
-        style={styles.boardList}
         ItemSeparatorComponent={() => <View style={styles.listSeparator} />}
         ListHeaderComponent={
           <View style={styles.header}>
@@ -89,17 +87,13 @@ export default function RateScreen() {
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
       />
-    </SafeAreaView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: colors.bg,
-  },
   listContent: {
-    paddingBottom: spacing.xl,
+    paddingBottom: TAB_BAR_CLEARANCE,
   },
   header: {
     padding: spacing.xl,
@@ -128,21 +122,9 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     gap: spacing.md,
   },
-  rowTag: {
-    width: 36,
-    height: 48,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   rowText: {
     flex: 1,
     gap: 2,
-  },
-  boardList: {
-    marginHorizontal: spacing.xl,
-    backgroundColor: colors.surfaceCard,
-    borderRadius: 2,
-    overflow: 'hidden',
   },
   listSeparator: {
     height: 1,
