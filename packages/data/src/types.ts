@@ -1,6 +1,6 @@
 // --- Value types (union string literals) ---
 
-export type BoardType = 'FISH' | 'LOG' | 'MID' | 'SHORT' | 'EGG' | 'ALT' | 'GUN';
+export type BoardType = 'FISH' | 'LOG' | 'MID' | 'SHORT' | 'ALT' | 'GUN';
 
 export type VibeTag =
   | 'KOOK CANNON'
