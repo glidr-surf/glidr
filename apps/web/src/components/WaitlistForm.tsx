@@ -89,13 +89,13 @@ export default function WaitlistForm() {
   }
 
   return (
-    <div className="max-w-[420px]">
-      <div className="font-mono text-label uppercase text-text-mid mb-md">
+    <div className="max-w-[440px]">
+      <div className="font-mono text-label uppercase text-bg/80 mb-md">
         Sign up for alpha testing
       </div>
 
       {status === 'done' ? (
-        <p className="font-mono text-body-s text-green leading-relaxed">
+        <p className="font-mono text-body-s font-medium text-bg leading-relaxed">
           You're in. Check your inbox for your TestFlight invite.
         </p>
       ) : (
@@ -107,26 +107,22 @@ export default function WaitlistForm() {
               name="email"
               required
               placeholder="Your email"
-              className="flex-1 min-w-0 px-lg py-md border-2 border-border bg-transparent font-body text-body-m text-text outline-none placeholder:text-text-light focus:border-red"
+              className="flex-1 min-w-0 h-[56px] px-lg border-[2.5px] border-border bg-bg font-body text-body-m text-text outline-none placeholder:text-text-mid focus:border-yellow"
             />
             <button
               type="submit"
               disabled={status === 'sending'}
-              className="font-display text-body-m tracking-[2px] px-xl py-md bg-text text-bg border-none cursor-pointer disabled:opacity-50 hover:bg-red transition-colors duration-200"
+              className="font-display text-body-l tracking-[2px] px-xl h-[56px] bg-yellow text-text border-[2.5px] border-border cursor-pointer disabled:opacity-50 hover:bg-bg transition-colors duration-200"
             >
               {status === 'sending' ? '...' : 'JOIN'}
             </button>
           </form>
           <div ref={widgetRef} className="empty:hidden mt-md" />
-          <p
-            className={`font-mono text-micro mt-md ${
-              status === 'error' ? 'text-red' : 'text-text-light'
-            }`}
-          >
-            {status === 'error'
-              ? 'Something went wrong. Try again.'
-              : "We'll email you a TestFlight link for the iOS app."}
-          </p>
+          {status === 'error' && (
+            <p className="font-mono text-micro mt-md text-bg font-bold">
+              Something went wrong. Try again.
+            </p>
+          )}
         </>
       )}
     </div>

@@ -1,37 +1,35 @@
-import NavBar from './components/NavBar';
+import { useEffect, useState } from 'react';
+import { getLandingStats } from '@glidr/data';
+import type { LandingStats } from '@glidr/data';
+import { supabase } from './lib/supabase';
 import Hero from './components/Hero';
-import WaitlistForm from './components/WaitlistForm';
-import BoardList from './components/BoardList';
-import StatStack from './components/StatStack';
+import BoardFan from './components/BoardFan';
+import StatStrip from './components/StatStrip';
 import Footer from './components/Footer';
 
 export default function LandingPage() {
+  const [stats, setStats] = useState<LandingStats | null>(null);
+
+  useEffect(() => {
+    getLandingStats(supabase).then(setStats).catch(() => setStats(null));
+  }, []);
+
   return (
-    <div className="lg:h-screen lg:overflow-hidden">
-      <div className="max-w-[1200px] mx-auto px-2xl lg:h-full lg:grid lg:grid-rows-[auto_1fr_auto]">
-        <NavBar />
+    <div className="lg:h-screen lg:overflow-hidden overflow-x-hidden flex flex-col">
+      <main className="flex-1 min-h-0 min-w-0 flex flex-col lg:grid lg:grid-cols-[46fr_54fr]">
+        {/* Red panel — wordmark, headline, signup */}
+        <section className="bg-red lg:min-h-0 min-w-0">
+          <Hero />
+        </section>
 
-        <main className="lg:grid lg:grid-cols-2 lg:gap-[40px] lg:items-stretch lg:min-h-0">
-          <div className="lg:flex lg:items-center">
-            <Hero />
-          </div>
+        {/* Board panel — the fanned boards, with stats beneath on the right */}
+        <section className="bg-bg min-h-svh lg:min-h-0 min-w-0 flex flex-col">
+          <BoardFan />
+          <StatStrip stats={stats} className="px-2xl pb-xl lg:pb-2xl" />
+        </section>
+      </main>
 
-          <div className="hidden lg:grid lg:grid-cols-[1fr_auto] lg:gap-lg lg:items-stretch lg:min-h-0 animate-fade-up-4">
-            <BoardList />
-            <StatStack />
-          </div>
-
-          <div className="lg:hidden mt-xl">
-            <BoardList />
-          </div>
-          <div className="lg:hidden mt-xl">
-            <WaitlistForm />
-          </div>
-          <div className="lg:hidden mt-xl">
-            <StatStack />
-          </div>
-        </main>
-
+      <div className="px-2xl bg-bg">
         <Footer />
       </div>
     </div>
