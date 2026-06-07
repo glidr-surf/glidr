@@ -84,12 +84,10 @@ export default function UsernamePickerScreen() {
           {photo ? (
             <Image source={{ uri: photo.uri }} style={styles.avatarImg} contentFit="cover" />
           ) : (
-            <>
-              <Camera size={24} color={colors.textMid} weight="bold" />
-              <GText variant="label" color={colors.textMid}>ADD PHOTO</GText>
-            </>
+            <Camera size={28} color={colors.textMid} weight="bold" />
           )}
         </Pressable>
+        <GText variant="caption" color={colors.textMid} style={styles.avatarHint}>{photo ? 'CHANGE PHOTO' : 'ADD A PHOTO'}</GText>
 
         <View style={[styles.inputRow, focused && styles.inputRowFocused]}>
           <TextInput
@@ -154,8 +152,9 @@ const styles = StyleSheet.create({
   content: { padding: spacing.xl, paddingBottom: spacing['2xl'] },
   title: { textAlign: 'center', marginBottom: spacing.sm },
   subtitle: { textAlign: 'center', marginBottom: spacing.lg },
-  avatar: { width: 88, height: 88, borderRadius: 44, borderWidth: 2, borderColor: colors.borderSoft, borderStyle: 'dashed', alignSelf: 'center', alignItems: 'center', justifyContent: 'center', gap: 3, marginBottom: spacing.lg, overflow: 'hidden' },
+  avatar: { width: 88, height: 88, borderRadius: 44, borderWidth: 2, borderColor: colors.borderSoft, borderStyle: 'dashed', alignSelf: 'center', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   avatarImg: { width: 88, height: 88 },
+  avatarHint: { textAlign: 'center', marginTop: spacing.xs, marginBottom: spacing.lg },
   inputRow: { flexDirection: 'row', alignItems: 'center', borderWidth: 2, borderColor: colors.border, paddingHorizontal: spacing.md, gap: spacing.sm },
   inputRowFocused: { borderColor: colors.red },
   input: { flex: 1, fontFamily: fonts.bodyMedium, fontSize: 16, color: colors.text, paddingVertical: spacing.md },
