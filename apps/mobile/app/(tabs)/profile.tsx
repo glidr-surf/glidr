@@ -3,7 +3,8 @@ import { View, FlatList, Pressable, StyleSheet, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { GearSix } from 'phosphor-react-native';
+import { GearSix, Camera } from 'phosphor-react-native';
+import { Image } from 'expo-image';
 import { GText } from '../../src/components/GText';
 import { StatBlock } from '../../src/components/StatBlock';
 import { BoardTile } from '../../src/components/BoardTile';
@@ -15,7 +16,8 @@ import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
 import { TAB_BAR_CLEARANCE } from '../../src/theme/layout';
 import { boardOpinionPhrase } from '../../src/utils/boardOpinions';
-import { getOpinions, getBoards, computeBadges } from '@glidr/data';
+import { pickImage } from '../../src/lib/pickImage';
+import { getOpinions, getBoards, computeBadges, uploadImage } from '@glidr/data';
 import type { Board, Opinion, Badge } from '@glidr/data';
 import { supabase } from '../../src/lib/supabase';
 import { useAuth } from '../../src/context/AuthContext';
@@ -23,7 +25,7 @@ import { useAuth } from '../../src/context/AuthContext';
 export default function ProfileScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { isAuthenticated, showAuthModal, user } = useAuth();
+  const { isAuthenticated, showAuthModal, user, refreshUser } = useAuth();
   const [activeTab, setActiveTab] = useState<'quiver' | 'opinions'>('quiver');
   const [userOpinions, setUserOpinions] = useState<Opinion[]>([]);
   const [boards, setBoards] = useState<Board[]>([]);
@@ -79,15 +81,34 @@ export default function ProfileScreen() {
     );
   }
 
+  const changePhoto = async () => {
+    if (!user) return;
+    const img = await pickImage();
+    if (!img) return;
+    try {
+      await uploadImage(supabase, { ownerType: 'profile', ownerId: user.id, file: img.blob, ext: img.ext, contentType: img.contentType, replace: true });
+      await refreshUser();
+    } catch {
+      Alert.alert('Upload failed', 'Could not update your photo. Have another go.');
+    }
+  };
+
   const renderHeader = () => (
     <View>
       <View style={[styles.userCard, { paddingTop: insets.top + spacing.md }]}>
         <Pressable style={styles.gear} onPress={() => router.push('/settings')} hitSlop={10} accessibilityRole="button" accessibilityLabel="Settings">
           <GearSix size={26} color={colors.white} weight="bold" />
         </Pressable>
-        <View style={styles.avatar}>
-          <GText variant="displayXl" color={colors.white}>{user.username.charAt(0).toUpperCase()}</GText>
-        </View>
+        <Pressable style={styles.avatarWrap} onPress={changePhoto} accessibilityRole="button" accessibilityLabel="Change profile photo">
+          <View style={styles.avatar}>
+            {user.avatarUrl ? (
+              <Image source={{ uri: user.avatarUrl }} style={styles.avatarImg} contentFit="cover" />
+            ) : (
+              <GText variant="displayXl" color={colors.white}>{user.username.charAt(0).toUpperCase()}</GText>
+            )}
+          </View>
+          <View style={styles.cameraBadge}><Camera size={13} color={colors.white} weight="fill" /></View>
+        </Pressable>
         <GText variant="displayL" color={colors.white}>{user.username.toUpperCase()}</GText>
         <GText variant="label" color={colors.white} style={{ opacity: 0.7 }}>JOINED {joinDate.toUpperCase()}</GText>
         {(user.height || user.weight) && (
@@ -198,7 +219,10 @@ const styles = StyleSheet.create({
   signInBtn: { backgroundColor: colors.red, paddingVertical: spacing.md, paddingHorizontal: spacing['2xl'], borderRadius: 2 },
   gear: { alignSelf: 'flex-end' },
   userCard: { backgroundColor: colors.red, paddingHorizontal: spacing.xl, paddingBottom: spacing.xl, alignItems: 'center', gap: spacing.xs },
-  avatar: { width: 72, height: 72, borderRadius: 36, backgroundColor: 'rgba(255,255,255,0.18)', alignItems: 'center', justifyContent: 'center', marginBottom: spacing.sm },
+  avatarWrap: { marginBottom: spacing.sm },
+  avatar: { width: 72, height: 72, borderRadius: 36, backgroundColor: 'rgba(255,255,255,0.18)', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  avatarImg: { width: 72, height: 72 },
+  cameraBadge: { position: 'absolute', bottom: 0, right: 0, width: 26, height: 26, borderRadius: 13, backgroundColor: colors.text, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: colors.red },
   followRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.xs },
   statsRow: { flexDirection: 'row' },
   funLine: { padding: spacing.xl },

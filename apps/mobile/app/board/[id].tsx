@@ -211,7 +211,7 @@ export default function BoardProfileScreen() {
 
   const cta = (
     <View style={[styles.stickyCta, { paddingBottom: insets.bottom + 12 }]}>
-      <Button label="RATE THIS BOARD" onPress={() => { tapHaptic(); requireAuth(() => router.push('/(tabs)/rate' as any)); }} />
+      <Button label="RATE THIS BOARD" onPress={() => { tapHaptic(); requireAuth(() => router.push(`/rate-flow?boardId=${board.id}` as any)); }} />
     </View>
   );
 
