@@ -6,6 +6,7 @@ import { getBoard, submitOpinion } from '@glidr/data';
 import type { Board } from '@glidr/data';
 import { supabase } from '../src/lib/supabase';
 import { useAuth } from '../src/context/AuthContext';
+import { navBack } from '../src/utils/navBack';
 import { colors } from '../src/theme/colors';
 import { RatingStep } from '../src/components/rate/RatingStep';
 import { VibeCheckStep } from '../src/components/rate/VibeCheckStep';
@@ -56,7 +57,7 @@ export default function RateFlowScreen() {
     const currentIndex = STEP_ORDER.indexOf(state.step);
     const nextStep = STEP_ORDER[currentIndex + 1];
     if (nextStep === 'done') {
-      router.back();
+      navBack(router);
     } else if (nextStep) {
       setState((prev) => ({ ...prev, step: nextStep }));
     }
@@ -64,7 +65,7 @@ export default function RateFlowScreen() {
 
   const onBack = () => {
     const i = STEP_ORDER.indexOf(state.step);
-    if (i <= 0) { router.back(); return; }
+    if (i <= 0) { navBack(router); return; }
     setState((prev) => ({ ...prev, step: STEP_ORDER[i - 1] }));
   };
 
@@ -102,7 +103,7 @@ export default function RateFlowScreen() {
         },
         });
       }
-      router.back();
+      navBack(router);
     } catch {
       submittingRef.current = false;
       Alert.alert("Couldn't post that opinion", 'Try again in a sec.');
