@@ -41,6 +41,7 @@ export default function RateFlowScreen() {
   const { boardId } = useLocalSearchParams<{ boardId: string; opinionId?: string }>();
   const { user } = useAuth();
   const [board, setBoard] = useState<Board | null>(null);
+  const [deepDiveDone, setDeepDiveDone] = useState(false);
 
   useEffect(() => {
     if (!boardId) return;
@@ -114,6 +115,12 @@ export default function RateFlowScreen() {
     setState((prev) => ({ ...prev, step: 'ride' }));
   };
 
+  // end of the deep dive -> back to the confirmation/success screen (which submits)
+  const finishDeepDive = () => {
+    setDeepDiveDone(true);
+    setState((prev) => ({ ...prev, step: 'confirmation' }));
+  };
+
   if (!board) return null;
 
   return (
@@ -150,6 +157,7 @@ export default function RateFlowScreen() {
             state={state}
             onDeepDive={onDeepDive}
             onFinish={onFinish}
+            deepDiveDone={deepDiveDone}
           />
         )}
         {state.step === 'ride' && (
@@ -196,8 +204,8 @@ export default function RateFlowScreen() {
           <FreeTextStep
             state={state}
             onUpdate={onUpdate}
-            onNext={onNext}
-            onSkip={onNext}
+            onNext={finishDeepDive}
+            onSkip={finishDeepDive}
             onBack={onBack}
             stepLabel={deepLabel}
           />

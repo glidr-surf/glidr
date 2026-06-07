@@ -168,6 +168,7 @@ export default function ProfileScreen() {
       <Screen edges={[]}>
         <StatusBar style="light" />
         <FlatList
+          key="opinions"
           data={loading ? [] : userOpinions}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
@@ -200,6 +201,7 @@ export default function ProfileScreen() {
     <Screen edges={[]}>
       <StatusBar style="light" />
       <FlatList
+        key="quiver"
         data={loading ? [] : quiverBoards}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <BoardTile board={item} />}

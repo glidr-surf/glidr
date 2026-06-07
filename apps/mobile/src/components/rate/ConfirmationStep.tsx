@@ -11,9 +11,10 @@ interface ConfirmationStepProps {
   state: RateFlowState;
   onDeepDive: () => void;
   onFinish: () => void;
+  deepDiveDone?: boolean;
 }
 
-export function ConfirmationStep({ onDeepDive, onFinish }: ConfirmationStepProps) {
+export function ConfirmationStep({ onDeepDive, onFinish, deepDiveDone = false }: ConfirmationStepProps) {
   const { user } = useAuth();
 
   return (
@@ -35,13 +36,21 @@ export function ConfirmationStep({ onDeepDive, onFinish }: ConfirmationStepProps
 
       {/* CTAs */}
       <View style={styles.actions}>
-        <Pressable style={styles.ctaPrimary} onPress={onDeepDive}>
-          <GText variant="displayS" color={colors.white}>KEEP GOING — TELL US MORE</GText>
-        </Pressable>
+        {deepDiveDone ? (
+          <Pressable style={styles.ctaPrimary} onPress={onFinish}>
+            <GText variant="displayS" color={colors.white}>POST IT</GText>
+          </Pressable>
+        ) : (
+          <>
+            <Pressable style={styles.ctaPrimary} onPress={onDeepDive}>
+              <GText variant="displayS" color={colors.white}>KEEP GOING — TELL US MORE</GText>
+            </Pressable>
 
-        <Pressable style={styles.ctaSkip} onPress={onFinish}>
-          <GText variant="label" color={colors.textLight}>NAH, I'M GOOD</GText>
-        </Pressable>
+            <Pressable style={styles.ctaSkip} onPress={onFinish}>
+              <GText variant="label" color={colors.textLight}>NAH, I'M GOOD</GText>
+            </Pressable>
+          </>
+        )}
       </View>
     </View>
   );

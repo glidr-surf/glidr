@@ -379,7 +379,7 @@ const styles = StyleSheet.create({
   tabs: { flexDirection: 'row', borderBottomWidth: 2, borderBottomColor: colors.border },
   tab: { flex: 1, alignItems: 'center', paddingVertical: spacing.md },
   tabActive: { borderBottomWidth: 2, borderBottomColor: colors.red },
-  sortSection: { paddingVertical: spacing.md, paddingHorizontal: spacing.lg },
+  sortSection: { paddingVertical: spacing.md },
   specsSection: { padding: spacing.xl, gap: spacing.sm },
   specRows: { marginTop: spacing.lg, gap: 0 },
   specsSubhead: { marginBottom: spacing.sm },
