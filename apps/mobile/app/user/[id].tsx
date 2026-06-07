@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { View, FlatList, Pressable, StyleSheet } from 'react-native';
+import { View, Pressable, StyleSheet } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
@@ -7,8 +7,7 @@ import { CaretLeft } from 'phosphor-react-native';
 import { Screen } from '../../src/components/Screen';
 import { GText } from '../../src/components/GText';
 import { StatBlock } from '../../src/components/StatBlock';
-import { BoardTile } from '../../src/components/BoardTile';
-import { OpinionCard } from '../../src/components/OpinionCard';
+import { ProfileBoardsTabs } from '../../src/components/ProfileBoardsTabs';
 import { Skeleton } from '../../src/components/Skeleton';
 import { navBack } from '../../src/utils/navBack';
 import { boardOpinionPhrase } from '../../src/utils/boardOpinions';
@@ -24,7 +23,6 @@ export default function UserProfileScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const [activeTab, setActiveTab] = useState<'quiver' | 'opinions'>('quiver');
   const [following, setFollowing] = useState(false);
   const [userOpinions, setUserOpinions] = useState<Opinion[]>([]);
   const [boards, setBoards] = useState<Board[]>([]);
@@ -111,46 +109,18 @@ export default function UserProfileScreen() {
           {username} has {boardOpinionPhrase(boardIds.length)}. Favourite shaper: {topShaper}. Probably owns a van.
         </GText>
       </View>
-
-      <View style={styles.tabs}>
-        <Pressable onPress={() => setActiveTab('quiver')} style={[styles.tab, activeTab === 'quiver' && styles.tabActive]}>
-          <GText variant="label" color={activeTab === 'quiver' ? colors.text : colors.textLight}>QUIVER</GText>
-        </Pressable>
-        <Pressable onPress={() => setActiveTab('opinions')} style={[styles.tab, activeTab === 'opinions' && styles.tabActive]}>
-          <GText variant="label" color={activeTab === 'opinions' ? colors.text : colors.textLight}>OPINIONS</GText>
-        </Pressable>
-      </View>
     </View>
   );
 
-  if (activeTab === 'opinions') {
-    return (
-      <Screen edges={['top']}>
-        <FlatList
-          data={userOpinions}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <OpinionCard opinion={item} board={boardMap[item.boardId]} showBoardInfo />}
-          ListHeaderComponent={renderHeader}
-          contentContainerStyle={styles.listContent}
-          ItemSeparatorComponent={() => <View style={{ height: spacing.md }} />}
-          ListEmptyComponent={<View style={styles.empty}><GText variant="bodyM" color={colors.textMid}>No opinions yet. They're probably still waxing up.</GText></View>}
-        />
-      </Screen>
-    );
-  }
-
   return (
     <Screen edges={['top']}>
-      <FlatList
-        data={quiverBoards}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <BoardTile board={item} />}
-        numColumns={3}
-        columnWrapperStyle={styles.gridRow}
-        ListHeaderComponent={renderHeader}
-        contentContainerStyle={styles.gridContent}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={<View style={styles.empty}><GText variant="bodyM" color={colors.textMid}>No boards opinioned yet.</GText></View>}
+      <ProfileBoardsTabs
+        header={renderHeader()}
+        quiverBoards={quiverBoards}
+        opinions={userOpinions}
+        boardMap={boardMap}
+        quiverEmpty="No boards opinioned yet."
+        opinionsEmpty="No opinions yet. They're probably still waxing up."
       />
     </Screen>
   );
@@ -169,11 +139,4 @@ const styles = StyleSheet.create({
   followButtonActive: { backgroundColor: colors.red, borderColor: colors.red },
   statsRow: { flexDirection: 'row' },
   funLine: { padding: spacing.xl },
-  tabs: { flexDirection: 'row', borderBottomWidth: 2, borderBottomColor: colors.border },
-  tab: { flex: 1, alignItems: 'center', paddingVertical: spacing.md },
-  tabActive: { borderBottomWidth: 2, borderBottomColor: colors.red },
-  listContent: { paddingBottom: spacing.xl },
-  gridContent: { gap: 2, paddingBottom: spacing.xl },
-  gridRow: { gap: 2 },
-  empty: { padding: spacing.xl, alignItems: 'center' },
 });
