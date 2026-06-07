@@ -19,7 +19,7 @@ import { pluralize } from '../../src/utils/pluralize';
 import { navBack } from '../../src/utils/navBack';
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
-import { getBoard, getOpinions } from '@glidr/data';
+import { getBoard, getOpinions, voteOnOpinion } from '@glidr/data';
 import type { Board, Opinion } from '@glidr/data';
 import { supabase } from '../../src/lib/supabase';
 
@@ -60,6 +60,19 @@ export default function BoardProfileScreen() {
   }, [id]);
 
   useEffect(() => { loadBoard(); loadOps(); }, [loadBoard, loadOps]);
+
+  const handleVote = (opinionId: string, vote: 1 | -1) =>
+    requireAuth(async () => {
+      const { data } = await supabase.auth.getSession();
+      const userId = data.session?.user.id;
+      if (!userId) return;
+      try {
+        await voteOnOpinion(supabase, opinionId, userId, vote);
+        loadOps();
+      } catch {
+        // ignore — counts will reconcile on next load
+      }
+    });
 
   const sortedOpinions = [...opinions].sort((a, b) => {
     if (sort === 'HELPFUL') return (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes);
@@ -214,6 +227,8 @@ export default function BoardProfileScreen() {
             <OpinionCard
               opinion={item}
               isOwn={item.userId === user?.id}
+              onUpvote={() => handleVote(item.id, 1)}
+              onDownvote={() => handleVote(item.id, -1)}
               onEdit={item.userId === user?.id ? () => router.push(('/rate-flow?boardId=' + item.boardId + '&opinionId=' + item.id) as any) : undefined}
               onDelete={item.userId === user?.id ? () => Alert.alert(
                 'Delete Opinion',

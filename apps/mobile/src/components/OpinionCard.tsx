@@ -1,6 +1,6 @@
 import { View, StyleSheet, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ArrowFatUp, ArrowFatDown } from 'phosphor-react-native';
+import { ArrowFatUp, ArrowFatDown, ArrowsClockwise, X } from 'phosphor-react-native';
 import { GText } from './GText';
 import { Stars } from './Stars';
 import { BoardTypeTag } from './BoardTypeTag';
@@ -117,9 +117,16 @@ export function OpinionCard({
       )}
 
       <View style={styles.footer}>
-        <GText variant="bodyM" color={opinion.scores['buy_again'] ? colors.green : colors.red}>
-          {opinion.scores['buy_again'] ? '↺ YES' : '✗ NO'}
-        </GText>
+        <View style={styles.buyAgain}>
+          {opinion.scores['buy_again'] ? (
+            <ArrowsClockwise size={13} color={colors.green} weight="bold" />
+          ) : (
+            <X size={13} color={colors.red} weight="bold" />
+          )}
+          <GText variant="caption" color={opinion.scores['buy_again'] ? colors.green : colors.red}>
+            {opinion.scores['buy_again'] ? 'WOULD BUY AGAIN' : "WON'T BUY AGAIN"}
+          </GText>
+        </View>
 
         <View style={styles.votes}>
           <Pressable onPress={onUpvote} style={styles.voteButton}>
@@ -193,6 +200,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginTop: spacing.xs,
+  },
+  buyAgain: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
   },
   votes: {
     flexDirection: 'row',
