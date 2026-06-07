@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { View, FlatList, Pressable, StyleSheet, Alert } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { GearSix, Camera } from 'phosphor-react-native';
@@ -17,6 +17,7 @@ import { spacing } from '../../src/theme/spacing';
 import { TAB_BAR_CLEARANCE } from '../../src/theme/layout';
 import { boardOpinionPhrase } from '../../src/utils/boardOpinions';
 import { pickImage } from '../../src/lib/pickImage';
+import { consumeDirty, PROFILE_KEY } from '../../src/lib/refreshBus';
 import { getOpinions, getBoards, computeBadges, uploadImage } from '@glidr/data';
 import type { Board, Opinion, Badge } from '@glidr/data';
 import { supabase } from '../../src/lib/supabase';
@@ -52,6 +53,8 @@ export default function ProfileScreen() {
   }, [user]);
 
   useEffect(() => { load(); }, [load]);
+  // refetch on focus only after a mutation (e.g. posting an opinion)
+  useFocusEffect(useCallback(() => { if (consumeDirty(PROFILE_KEY)) load(); }, [load]));
 
   const boardMap = Object.fromEntries(boards.map((b) => [b.id, b]));
 

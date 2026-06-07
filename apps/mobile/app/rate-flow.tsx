@@ -7,6 +7,7 @@ import type { Board } from '@glidr/data';
 import { supabase } from '../src/lib/supabase';
 import { useAuth } from '../src/context/AuthContext';
 import { navBack } from '../src/utils/navBack';
+import { markDirty, boardKey, PROFILE_KEY } from '../src/lib/refreshBus';
 import { colors } from '../src/theme/colors';
 import { RatingStep } from '../src/components/rate/RatingStep';
 import { VibeCheckStep } from '../src/components/rate/VibeCheckStep';
@@ -103,6 +104,7 @@ export default function RateFlowScreen() {
           ...(state.boardVolume != null ? { board_volume: [`${state.boardVolume}L`] } : {}),
         },
         });
+        markDirty(boardKey(state.boardId), PROFILE_KEY);
       }
       navBack(router);
     } catch {

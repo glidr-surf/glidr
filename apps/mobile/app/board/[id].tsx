@@ -3,7 +3,7 @@ import { View, FlatList, Pressable, StyleSheet, Alert, Share } from 'react-nativ
 import { Image } from 'expo-image';
 import { StatusBar } from 'expo-status-bar';
 import * as Haptics from 'expo-haptics';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import { useAuth } from '../../src/context/AuthContext';
 import { CaretLeft, ShareNetwork } from 'phosphor-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -22,6 +22,7 @@ import { aggregateSpecs } from '../../src/utils/opinionSpecs';
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
 import { boardTypeColors } from '../../src/theme/boardTypes';
+import { consumeDirty, boardKey } from '../../src/lib/refreshBus';
 import { getBoard, getOpinions, voteOnOpinion } from '@glidr/data';
 import type { Board, Opinion } from '@glidr/data';
 import { supabase } from '../../src/lib/supabase';
@@ -73,6 +74,12 @@ export default function BoardProfileScreen() {
   }, [id]);
 
   useEffect(() => { loadBoard(); loadOps(); }, [loadBoard, loadOps]);
+  // on return, refetch only if an opinion was posted for this board (e.g. from the rate flow)
+  useFocusEffect(
+    useCallback(() => {
+      if (consumeDirty(boardKey(id ?? ''))) { loadBoard(); loadOps(); }
+    }, [id, loadBoard, loadOps]),
+  );
 
   const onShare = () => {
     tapHaptic();
