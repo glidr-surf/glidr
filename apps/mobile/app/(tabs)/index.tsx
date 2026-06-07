@@ -4,6 +4,8 @@ import { Image } from 'expo-image';
 import * as Haptics from 'expo-haptics';
 import { MagnifyingGlass } from 'phosphor-react-native';
 import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
 import { Screen } from '../../src/components/Screen';
 import { GText } from '../../src/components/GText';
 import { BoardTile } from '../../src/components/BoardTile';
@@ -24,6 +26,7 @@ const SKELETON_TILES = [{ id: 's1' }, { id: 's2' }, { id: 's3' }, { id: 's4' }];
 
 export default function HomeScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [boards, setBoards] = useState<Board[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -47,7 +50,7 @@ export default function HomeScreen() {
 
   const header = (
     <View>
-      <View style={styles.headerBar}>
+      <View style={[styles.headerBar, { paddingTop: insets.top + spacing.lg }]}>
         <View style={styles.logoRow}>
           <GlidrMark size={34} />
           <GText variant="displayL" color={colors.surface} style={styles.logo}>GLIDR</GText>
@@ -94,7 +97,8 @@ export default function HomeScreen() {
   );
 
   return (
-    <Screen edges={['top']}>
+    <Screen edges={[]}>
+      <StatusBar style="light" />
       <FlatList
         data={showSkeleton ? SKELETON_TILES : lineup}
         keyExtractor={(item) => item.id}

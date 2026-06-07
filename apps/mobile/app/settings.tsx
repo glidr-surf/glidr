@@ -117,7 +117,7 @@ export default function SettingsScreen() {
             <CardGroup>
               <View style={styles.cardField}>
                 <GText variant="caption" color={colors.textMid}>SIGNED IN VIA</GText>
-                <GText variant="bodyM">Google</GText>
+                <GText variant="bodyM">Email</GText>
               </View>
               <Pressable style={styles.cardAction} onPress={signOut}>
                 <GText variant="label">SIGN OUT</GText>

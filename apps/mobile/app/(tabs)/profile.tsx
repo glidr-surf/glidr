@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { View, FlatList, Pressable, StyleSheet, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
 import { GearSix } from 'phosphor-react-native';
 import { GText } from '../../src/components/GText';
 import { StatBlock } from '../../src/components/StatBlock';
@@ -20,6 +22,7 @@ import { useAuth } from '../../src/context/AuthContext';
 
 export default function ProfileScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { isAuthenticated, showAuthModal, user } = useAuth();
   const [activeTab, setActiveTab] = useState<'quiver' | 'opinions'>('quiver');
   const [userOpinions, setUserOpinions] = useState<Opinion[]>([]);
@@ -78,13 +81,10 @@ export default function ProfileScreen() {
 
   const renderHeader = () => (
     <View>
-      <View style={styles.settingsRow}>
-        <Pressable onPress={() => router.push('/settings')} hitSlop={8} accessibilityRole="button" accessibilityLabel="Settings">
-          <GearSix size={24} color={colors.text} weight="regular" />
+      <View style={[styles.userCard, { paddingTop: insets.top + spacing.md }]}>
+        <Pressable style={styles.gear} onPress={() => router.push('/settings')} hitSlop={10} accessibilityRole="button" accessibilityLabel="Settings">
+          <GearSix size={26} color={colors.white} weight="bold" />
         </Pressable>
-      </View>
-
-      <View style={styles.userCard}>
         <View style={styles.avatar}>
           <GText variant="displayXl" color={colors.white}>{user.username.charAt(0).toUpperCase()}</GText>
         </View>
@@ -144,7 +144,8 @@ export default function ProfileScreen() {
 
   if (activeTab === 'opinions') {
     return (
-      <Screen edges={['top']}>
+      <Screen edges={[]}>
+        <StatusBar style="light" />
         <FlatList
           data={loading ? [] : userOpinions}
           keyExtractor={(item) => item.id}
@@ -175,7 +176,8 @@ export default function ProfileScreen() {
   }
 
   return (
-    <Screen edges={['top']}>
+    <Screen edges={[]}>
+      <StatusBar style="light" />
       <FlatList
         data={loading ? [] : quiverBoards}
         keyExtractor={(item) => item.id}
@@ -194,9 +196,9 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   signedOut: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: spacing.lg, padding: spacing.xl },
   signInBtn: { backgroundColor: colors.red, paddingVertical: spacing.md, paddingHorizontal: spacing['2xl'], borderRadius: 2 },
-  settingsRow: { alignItems: 'flex-end', padding: spacing.xl, paddingBottom: 0 },
-  userCard: { backgroundColor: colors.cardDark, padding: spacing.xl, alignItems: 'center', gap: spacing.xs },
-  avatar: { width: 72, height: 72, borderRadius: 36, backgroundColor: colors.overlay, alignItems: 'center', justifyContent: 'center', marginBottom: spacing.sm },
+  gear: { alignSelf: 'flex-end' },
+  userCard: { backgroundColor: colors.red, paddingHorizontal: spacing.xl, paddingBottom: spacing.xl, alignItems: 'center', gap: spacing.xs },
+  avatar: { width: 72, height: 72, borderRadius: 36, backgroundColor: 'rgba(255,255,255,0.18)', alignItems: 'center', justifyContent: 'center', marginBottom: spacing.sm },
   followRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.xs },
   statsRow: { flexDirection: 'row' },
   funLine: { padding: spacing.xl },

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { getBoard, submitOpinion } from '@glidr/data';
 import type { Board } from '@glidr/data';
 import { supabase } from '../src/lib/supabase';
@@ -97,7 +97,8 @@ export default function RateFlowScreen() {
   if (!board) return null;
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <View style={styles.container}>
         {state.step === 'rating' && (
           <RatingStep
@@ -162,7 +163,8 @@ export default function RateFlowScreen() {
           />
         )}
       </View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 

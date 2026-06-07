@@ -44,19 +44,16 @@ export function BuyAgainStep({ state, onUpdate, onNext, board }: BuyAgainStepPro
         )}
       </View>
 
-      {/* Spacer */}
-      <View style={styles.spacer} />
-
-      {/* Buttons */}
-      <View style={styles.buttons}>
-        <Pressable style={styles.btnNo} onPress={() => handleChoice(false)}>
-          <View style={styles.btnLabel}><X size={20} color={colors.text} weight="bold" /><GText variant="displayS">NAH</GText></View>
-          <GText variant="caption" color={colors.textMid}>FLOGGED IT TO A KOOK</GText>
+      {/* Buttons — stacked, filling the space below the card */}
+      <View style={styles.fill}>
+        <Pressable style={styles.btnYes} onPress={() => handleChoice(true)}>
+          <View style={styles.btnLabel}><ArrowsClockwise size={22} color={colors.white} weight="bold" /><GText variant="displayS" color={colors.white}>YEAH</GText></View>
+          <GText variant="caption" color={colors.white} style={styles.btnYesSubtext}>SHUT UP AND TAKE MY MONEY</GText>
         </Pressable>
 
-        <Pressable style={styles.btnYes} onPress={() => handleChoice(true)}>
-          <View style={styles.btnLabel}><ArrowsClockwise size={20} color={colors.white} weight="bold" /><GText variant="displayS" color={colors.white}>YEAH</GText></View>
-          <GText variant="caption" color={colors.white} style={styles.btnYesSubtext}>SHUT UP AND TAKE MY MONEY</GText>
+        <Pressable style={styles.btnNo} onPress={() => handleChoice(false)}>
+          <View style={styles.btnLabel}><X size={22} color={colors.text} weight="bold" /><GText variant="displayS">NAH</GText></View>
+          <GText variant="caption" color={colors.textMid}>FLOGGED IT TO A KOOK</GText>
         </Pressable>
       </View>
     </View>
@@ -100,13 +97,12 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xs,
     alignSelf: 'flex-start',
   },
-  spacer: {
+  fill: {
     flex: 1,
-  },
-  buttons: {
-    flexDirection: 'row',
-    margin: spacing.xl,
+    justifyContent: 'center',
     gap: spacing.md,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.xl,
   },
   btnLabel: {
     flexDirection: 'row',
@@ -114,17 +110,15 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   btnNo: {
-    flex: 1,
     borderWidth: 2,
     borderColor: colors.border,
-    paddingVertical: spacing.lg,
+    paddingVertical: spacing.xl,
     alignItems: 'center',
     gap: spacing.xs,
   },
   btnYes: {
-    flex: 1,
     backgroundColor: colors.red,
-    paddingVertical: spacing.lg,
+    paddingVertical: spacing.xl,
     alignItems: 'center',
     gap: spacing.xs,
   },
