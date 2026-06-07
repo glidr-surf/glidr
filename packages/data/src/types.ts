@@ -55,10 +55,10 @@ export interface DbBoard {
   shaper_id: string;
   type: string;
   image_url: string | null;
-  length: string | null;
-  width: string | null;
-  thickness: string | null;
-  volume: string | null;
+  length: number | null;
+  width: number | null;
+  thickness: number | null;
+  volume: number | null;
   status: SubmissionStatus;
   submitted_by: string | null;
   verdict: string | null;
@@ -158,10 +158,10 @@ export interface Board {
   shaperId: string;
   type: BoardType;
   imageUrl?: string;
-  length?: string;
-  width?: string;
-  thickness?: string;
-  volume?: string;
+  length?: number;
+  width?: number;
+  thickness?: number;
+  volume?: number;
   rating: number;
   opinionCount: number;
   buyAgainPercent: number;
@@ -245,10 +245,10 @@ export interface SubmitBoardInput {
   name: string;
   shaperId: string;
   type: BoardType;
-  length?: string;
-  width?: string;
-  thickness?: string;
-  volume?: string;
+  length?: number;
+  width?: number;
+  thickness?: number;
+  volume?: number;
 }
 
 export interface SubmitShaperInput {

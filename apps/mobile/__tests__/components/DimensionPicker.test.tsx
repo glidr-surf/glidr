@@ -7,8 +7,8 @@ describe('DimensionPicker', () => {
     expect(screen.getByText('WIDTH')).toBeTruthy();
     expect(screen.getByText('Set ▾')).toBeTruthy();
   });
-  it('shows the stored string when set', () => {
-    render(<DimensionPicker kind="width" value={'20.25"'} onChange={() => {}} />);
-    expect(screen.getByText('20.25" ▾')).toBeTruthy();
+  it('shows the formatted fraction when set', () => {
+    render(<DimensionPicker kind="width" value={20.25} onChange={() => {}} />);
+    expect(screen.getByText('20¼" ▾')).toBeTruthy();
   });
 });

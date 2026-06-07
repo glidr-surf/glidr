@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { View, Text, Pressable, Modal, TextInput, StyleSheet } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import { lengthStr, inchesStr, volumeStr, partsToInches, parseDecimal } from '../utils/dims';
+import { formatLength, formatInches, formatVolume, lengthToInches, partsToInches, parseDecimal } from '../utils/dims';
 import { colors } from '../theme/colors';
 import { spacing } from '../theme/spacing';
 import { fonts } from '../theme/typography';
@@ -10,7 +10,14 @@ type Kind = 'length' | 'width' | 'thickness' | 'volume';
 const LABEL: Record<Kind, string> = { length: 'LENGTH', width: 'WIDTH', thickness: 'THICKNESS', volume: 'VOLUME' };
 const range = (a: number, b: number) => Array.from({ length: b - a + 1 }, (_, i) => a + i);
 
-export function DimensionPicker({ kind, value, onChange }: { kind: Kind; value: string | null; onChange: (v: string) => void }) {
+function display(kind: Kind, v: number): string {
+  if (kind === 'length') return formatLength(v);
+  if (kind === 'volume') return formatVolume(v);
+  return formatInches(v, kind === 'thickness' ? 16 : 8);
+}
+
+/** Captures a board dimension as a number (decimal inches for length/width/thickness, litres for volume). */
+export function DimensionPicker({ kind, value, onChange }: { kind: Kind; value: number | null; onChange: (v: number) => void }) {
   const [open, setOpen] = useState(false);
   const denom = kind === 'thickness' ? 16 : 8;
   const [mode, setMode] = useState<'fraction' | 'decimal'>('fraction');
@@ -23,14 +30,14 @@ export function DimensionPicker({ kind, value, onChange }: { kind: Kind; value: 
   const [vol, setVol] = useState(30);
 
   const commit = () => {
-    if (kind === 'length') onChange(lengthStr(ft, inch, half === 1));
-    else if (kind === 'volume') onChange(volumeStr(vol));
+    if (kind === 'length') onChange(lengthToInches(ft, inch, half === 1));
+    else if (kind === 'volume') onChange(vol);
     else if (mode === 'decimal') {
       const d = parseDecimal(dec);
       if (d == null) { setOpen(false); return; }
-      onChange(inchesStr(d));
+      onChange(d);
     } else {
-      onChange(inchesStr(partsToInches(whole, num, denom)));
+      onChange(partsToInches(whole, num, denom));
     }
     setOpen(false);
   };
@@ -41,7 +48,7 @@ export function DimensionPicker({ kind, value, onChange }: { kind: Kind; value: 
     <View>
       <Pressable style={[styles.row, value != null && styles.rowSet]} onPress={() => setOpen(true)}>
         <Text style={styles.label}>{LABEL[kind]}</Text>
-        <Text style={[styles.val, value == null && styles.placeholder]}>{value ?? 'Set'} ▾</Text>
+        <Text style={[styles.val, value == null && styles.placeholder]}>{value != null ? display(kind, value) : 'Set'} ▾</Text>
       </Pressable>
       <Modal visible={open} transparent animationType="slide" onRequestClose={() => setOpen(false)}>
         <Pressable style={styles.backdrop} onPress={() => setOpen(false)}>

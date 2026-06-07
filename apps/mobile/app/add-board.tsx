@@ -35,10 +35,10 @@ export default function AddBoardScreen() {
   const [shaperId, setShaperId] = useState<string | null>(null);
   const [model, setModel] = useState('');
   const [boardType, setBoardType] = useState<BoardType | null>(null);
-  const [length, setLength] = useState<string | null>(null);
-  const [width, setWidth] = useState<string | null>(null);
-  const [thickness, setThickness] = useState<string | null>(null);
-  const [volume, setVolume] = useState<string | null>(null);
+  const [length, setLength] = useState<number | null>(null);
+  const [width, setWidth] = useState<number | null>(null);
+  const [thickness, setThickness] = useState<number | null>(null);
+  const [volume, setVolume] = useState<number | null>(null);
   const [photo, setPhoto] = useState<PickedImage | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);

@@ -38,11 +38,3 @@ export const parseDecimal = (s: string): number | null => {
   const v = parseFloat(s.replace(/[^0-9.]/g, ''));
   return Number.isFinite(v) ? v : null;
 };
-
-// --- string outputs (canonical stored format, matching the seed) ---
-/** ft/in/half -> 5'10" / 5'10½" */
-export const lengthStr = (ft: number, inch: number, half: boolean): string => `${ft}'${inch}${half ? '½' : ''}"`;
-/** decimal inches -> "20.25\"" (trailing zeros trimmed) */
-export const inchesStr = (n: number): string => `${parseFloat(n.toFixed(4))}"`;
-/** litres -> "33L" / "33.8L" */
-export const volumeStr = (n: number): string => `${parseFloat(n.toFixed(1))}L`;
