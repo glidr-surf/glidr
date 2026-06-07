@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Froth, questions, half-baked ideas
+    url: https://github.com/glidr-surf/glidr/discussions
+    about: For open-ended chatter, use Discussions. Issues are for concrete bugs and requests.
