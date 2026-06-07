@@ -1,4 +1,5 @@
 import { View, Pressable, StyleSheet } from 'react-native';
+import { HandWaving } from 'phosphor-react-native';
 import { GText } from '../GText';
 import { StatBlock } from '../StatBlock';
 import { colors } from '../../theme/colors';
@@ -19,7 +20,7 @@ export function ConfirmationStep({ onDeepDive, onFinish }: ConfirmationStepProps
     <View style={styles.container}>
       {/* Center content */}
       <View style={styles.center}>
-        <GText variant="displayXl">🤙</GText>
+        <HandWaving size={56} color={colors.red} weight="fill" />
         <GText variant="displayL" style={styles.noted}>NOTED.</GText>
         <GText variant="bodyM" color={colors.textMid} style={styles.tagline}>
           One step closer to the magic board. Probably.

@@ -1,7 +1,8 @@
 import { View, Pressable, StyleSheet } from 'react-native';
+import { X, ArrowsClockwise } from 'phosphor-react-native';
 import { GText } from '../GText';
 import { BoardTypeTag } from '../BoardTypeTag';
-import { SurfboardRating } from '../SurfboardRating';
+import { Stars } from '../Stars';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
 import type { StepProps } from './types';
@@ -35,7 +36,7 @@ export function BuyAgainStep({ state, onUpdate, onNext, board }: BuyAgainStepPro
         <BoardTypeTag type={board.type} size="md" />
         <GText variant="displayM" style={styles.boardName}>{board.name}</GText>
         <GText variant="caption" style={styles.shaperName}>{board.shaper.toUpperCase()}</GText>
-        <SurfboardRating rating={state.rating} size={16} />
+        <Stars rating={state.rating} size={16} />
         {state.vibeTag && (
           <View style={styles.vibeTagBadge}>
             <GText variant="caption" color={colors.textLight}>{state.vibeTag}</GText>
@@ -49,12 +50,12 @@ export function BuyAgainStep({ state, onUpdate, onNext, board }: BuyAgainStepPro
       {/* Buttons */}
       <View style={styles.buttons}>
         <Pressable style={styles.btnNo} onPress={() => handleChoice(false)}>
-          <GText variant="displayS">✗ NAH</GText>
+          <View style={styles.btnLabel}><X size={20} color={colors.text} weight="bold" /><GText variant="displayS">NAH</GText></View>
           <GText variant="caption" color={colors.textMid}>FLOGGED IT TO A KOOK</GText>
         </Pressable>
 
         <Pressable style={styles.btnYes} onPress={() => handleChoice(true)}>
-          <GText variant="displayS" color={colors.white}>↺ YEAH</GText>
+          <View style={styles.btnLabel}><ArrowsClockwise size={20} color={colors.white} weight="bold" /><GText variant="displayS" color={colors.white}>YEAH</GText></View>
           <GText variant="caption" color={colors.white} style={styles.btnYesSubtext}>SHUT UP AND TAKE MY MONEY</GText>
         </Pressable>
       </View>
@@ -106,6 +107,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     margin: spacing.xl,
     gap: spacing.md,
+  },
+  btnLabel: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
   },
   btnNo: {
     flex: 1,
