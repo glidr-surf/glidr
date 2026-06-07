@@ -17,7 +17,7 @@ const MAP = {
   'DRIVER 3.0': 'lost-driver.jpg',
   'GHOST': 'pyzel-ghost.png',
   'MID LENGTH CRISIS': 'pyzel-mid-length-crisis.png',
-  'FLAT TRACKER': 'christenson-flat-tracker.webp',
+  'FLAT TRACKER': 'christenson-flat-tracker.jpg',
   'CHRISTENSON FISH': 'christenson-fish.png',
   'SPROUT': 'cjnelson-sprout.png',
   '#77': 'sharpeye-77.jpg',
