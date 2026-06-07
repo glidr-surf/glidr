@@ -17,7 +17,8 @@
     "db:setup": "./scripts/setup.sh",
     "db:push": "supabase db push --workdir .",
     "db:seed": "supabase db seed --workdir .",
-    "db:reset": "supabase db reset --workdir ."
+    "db:reset": "supabase db reset --workdir .",
+    "db:unseed": "psql postgresql://postgres:postgres@127.0.0.1:54322/postgres -f scripts/unseed.sql"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.0"
