@@ -25,7 +25,7 @@ export async function getProfile(
 
   if (statsError) throw statsError;
 
-  const avatarPath = (await fetchPrimaryImagePaths(client, 'profile', [userId])).get(userId);
+  const avatar = (await fetchPrimaryImagePaths(client, 'profile', [userId])).get(userId);
 
   return {
     id: data.id,
@@ -33,7 +33,7 @@ export async function getProfile(
     height: data.height ?? undefined,
     weight: data.weight ?? undefined,
     createdAt: data.created_at,
-    avatarUrl: avatarPath ? imagePublicUrl(client, avatarPath) : undefined,
+    avatarUrl: avatar ? imagePublicUrl(client, avatar.path, avatar.id) : undefined,
     opinionCount: stats?.opinion_count ?? 0,
     magicBoardCount: stats?.magic_board_count ?? 0,
     followersCount: stats?.followers_count ?? 0,

@@ -41,10 +41,7 @@ export function OpinionCard({
         >
           <BoardTypeTag type={board.type} />
           <View style={styles.boardText}>
-            <GText variant="displayS">
-              {board.name}
-              {opinion.tags['board_length']?.[0] ? ` ${opinion.tags['board_length'][0]}` : ''}
-            </GText>
+            <GText variant="displayS">{board.name}</GText>
             <Pressable onPress={() => router.push(`/shaper/${board.shaperId}`)}>
               <GText variant="label" color={colors.red}>
                 {board.shaper.toUpperCase()}
@@ -60,12 +57,19 @@ export function OpinionCard({
             {opinion.username}
           </GText>
         </Pressable>
+        {(opinion.userHeight || opinion.userWeight) && (
+          <GText variant="caption" color={colors.textMid}>
+            Surfer · {[opinion.userHeight, opinion.userWeight].filter(Boolean).join(' · ')}
+          </GText>
+        )}
         {(() => {
-          const boardLength = opinion.tags['board_length']?.[0];
-          return (opinion.userHeight || opinion.userWeight || boardLength) ? (
-            <GText variant="caption">
-              {[boardLength, opinion.userHeight, opinion.userWeight].filter(Boolean).join(' · ')}
-            </GText>
+          const dims = ['board_length', 'board_width', 'board_thickness']
+            .map((k) => opinion.tags[k]?.[0])
+            .filter(Boolean)
+            .join(' × ');
+          const rides = [dims, opinion.tags['board_volume']?.[0]].filter(Boolean).join(' · ');
+          return rides ? (
+            <GText variant="caption" color={colors.text} style={styles.rides}>Rides: {rides}</GText>
           ) : null;
         })()}
       </View>
@@ -91,15 +95,22 @@ export function OpinionCard({
         </GText>
       )}
 
-      {(opinion.tags['wave_size']?.length ?? 0) > 0 && (
-        <View style={styles.chips}>
-          {opinion.tags['wave_size'].map((size) => (
-            <View key={size} style={styles.conditionChip}>
-              <GText variant="caption">{size}</GText>
-            </View>
-          ))}
-        </View>
-      )}
+      {(() => {
+        const pills = [
+          ...(opinion.tags['fin_setup'] ?? []),
+          ...(opinion.tags['wave_size'] ?? []),
+          ...(opinion.tags['quiver_role'] ?? []),
+        ];
+        return pills.length > 0 && (
+          <View style={styles.chips}>
+            {pills.map((p) => (
+              <View key={p} style={styles.conditionChip}>
+                <GText variant="caption">{p}</GText>
+              </View>
+            ))}
+          </View>
+        );
+      })()}
 
       {isOwn && (onEdit || onDelete) && (
         <View style={styles.ownActions}>
@@ -168,6 +179,9 @@ const styles = StyleSheet.create({
   },
   header: {
     gap: 2,
+  },
+  rides: {
+    marginTop: 1,
   },
   ratingRow: {
     flexDirection: 'row',

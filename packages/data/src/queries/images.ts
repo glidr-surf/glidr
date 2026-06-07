@@ -1,26 +1,33 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-export function imagePublicUrl(client: SupabaseClient, path: string): string {
-  return client.storage.from('images').getPublicUrl(path).data.publicUrl;
+export function imagePublicUrl(client: SupabaseClient, path: string, version?: string): string {
+  const url = client.storage.from('images').getPublicUrl(path).data.publicUrl;
+  // version token (the images row id) busts the expo-image / browser cache when a photo is re-uploaded
+  return version ? `${url}?v=${version}` : url;
 }
 
-/** Map of owner_id -> primary (lowest position) image path, for one owner_type. */
+export interface PrimaryImage {
+  path: string;
+  id: string;
+}
+
+/** Map of owner_id -> primary (lowest position) image {path, id}, for one owner_type. */
 export async function fetchPrimaryImagePaths(
   client: SupabaseClient,
   ownerType: 'board' | 'opinion' | 'profile' | 'shaper',
   ownerIds: string[],
-): Promise<Map<string, string>> {
+): Promise<Map<string, PrimaryImage>> {
   if (ownerIds.length === 0) return new Map();
   const { data, error } = await client
     .from('images')
-    .select('owner_id, path, position')
+    .select('owner_id, path, position, id')
     .eq('owner_type', ownerType)
     .in('owner_id', ownerIds)
     .order('position', { ascending: true });
   if (error) throw error;
-  const map = new Map<string, string>();
+  const map = new Map<string, PrimaryImage>();
   for (const row of data ?? []) {
-    if (!map.has(row.owner_id as string)) map.set(row.owner_id as string, row.path as string);
+    if (!map.has(row.owner_id as string)) map.set(row.owner_id as string, { path: row.path as string, id: row.id as string });
   }
   return map;
 }
