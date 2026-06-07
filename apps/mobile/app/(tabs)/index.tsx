@@ -15,6 +15,7 @@ import { Stars } from '../../src/components/Stars';
 import { pluralize } from '../../src/utils/pluralize';
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
+import { TAB_BAR_CLEARANCE } from '../../src/theme/layout';
 import { getBoards } from '@glidr/data';
 import type { Board } from '@glidr/data';
 import { supabase } from '../../src/lib/supabase';
@@ -141,7 +142,7 @@ const styles = StyleSheet.create({
   heroSkeleton: { marginBottom: spacing.xl },
   lineupLabel: { marginBottom: spacing.md },
   tileSkeleton: { flex: 1 },
-  grid: { paddingBottom: spacing.xl },
+  grid: { paddingBottom: TAB_BAR_CLEARANCE },
   gridRow: { gap: spacing.lg, marginBottom: spacing.lg, paddingHorizontal: spacing.lg },
   state: { padding: spacing.xl, alignItems: 'center', gap: spacing.md },
   retry: { paddingVertical: spacing.sm },

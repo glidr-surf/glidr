@@ -3,6 +3,7 @@ import { SquaresFour, PencilSimpleLine, User } from 'phosphor-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../../src/theme/colors';
 import { fonts } from '../../src/theme/typography';
+import { spacing } from '../../src/theme/spacing';
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
@@ -12,15 +13,23 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
+          position: 'absolute',
+          left: spacing.lg,
+          right: spacing.lg,
+          bottom: insets.bottom + spacing.sm,
+          height: 64,
+          borderRadius: 32,
           backgroundColor: colors.text, // ink
           borderTopWidth: 0,
-          height: 56 + insets.bottom,
-          paddingBottom: insets.bottom + 8,
-          paddingTop: 8,
-          elevation: 0,
-          shadowOpacity: 0,
+          paddingTop: 10,
+          paddingBottom: 10,
+          shadowColor: '#000',
+          shadowOpacity: 0.3,
+          shadowRadius: 12,
+          shadowOffset: { width: 0, height: 6 },
+          elevation: 8,
         },
-        tabBarItemStyle: { minHeight: 48 },
+        tabBarItemStyle: { minHeight: 44 },
         tabBarLabelStyle: {
           fontFamily: fonts.bodySemiBold,
           fontSize: 10,

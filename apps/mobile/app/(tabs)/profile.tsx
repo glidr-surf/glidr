@@ -11,6 +11,8 @@ import { Skeleton } from '../../src/components/Skeleton';
 import { pluralize } from '../../src/utils/pluralize';
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
+import { TAB_BAR_CLEARANCE } from '../../src/theme/layout';
+import { boardOpinionPhrase } from '../../src/utils/boardOpinions';
 import { getOpinions, getBoards, computeBadges } from '@glidr/data';
 import type { Board, Opinion, Badge } from '@glidr/data';
 import { supabase } from '../../src/lib/supabase';
@@ -110,7 +112,7 @@ export default function ProfileScreen() {
 
       <View style={styles.funLine}>
         <GText variant="bodyM" color={colors.textMid}>
-          You've opinioned {pluralize(user.opinionCount, 'board')}. Found {pluralize(user.magicBoardCount, 'magic one', 'magic ones')}. Not bad.
+          You have {boardOpinionPhrase(user.opinionCount)}. Found {pluralize(user.magicBoardCount, 'magic one', 'magic ones')}. Not bad.
         </GText>
       </View>
 
@@ -201,8 +203,8 @@ const styles = StyleSheet.create({
   tabs: { flexDirection: 'row', borderBottomWidth: 2, borderBottomColor: colors.border },
   tab: { flex: 1, alignItems: 'center', paddingVertical: spacing.md },
   tabActive: { borderBottomWidth: 2, borderBottomColor: colors.red },
-  listContent: { paddingBottom: spacing.xl },
-  gridContent: { gap: 2, paddingBottom: spacing.xl },
+  listContent: { paddingBottom: TAB_BAR_CLEARANCE },
+  gridContent: { gap: 2, paddingBottom: TAB_BAR_CLEARANCE },
   gridRow: { gap: 2 },
   empty: { padding: spacing.xl, alignItems: 'center', gap: spacing.md },
   loadingState: { padding: spacing.xl, gap: spacing.md },
