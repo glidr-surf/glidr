@@ -34,12 +34,6 @@
     }
   },
   "submit": {
-    "production": {
-      "ios": {
-        "appleId": "REPLACE_AFTER_ENROLLMENT_apple_id_email",
-        "ascAppId": "REPLACE_AFTER_ENROLLMENT_app_store_connect_app_id",
-        "appleTeamId": "REPLACE_AFTER_ENROLLMENT_team_id"
-      }
-    }
+    "production": {}
   }
 }
